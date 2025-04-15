@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import CommoditiesPage from './pages/CommoditiesPage';
+import CommodityDetails from './pages/CommodityDetails';
+import MapPage from './pages/MapPage';
+import SupplyChainPage from './pages/SupplyChainPage';
+import MarketInsightsPage from './pages/MarketInsightsPage';
+import { RootLayout } from './layouts';
+import { Toaster } from 'sonner';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        {/* Main application routes with standard layout */}
+        <Route element={<RootLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/commodities" element={<CommoditiesPage />} />
+          <Route path="/commodity/:id" element={<CommodityDetails />} />
+          <Route path="/map" element={<MapPage />} />
+          <Route path="/supply-chain" element={<SupplyChainPage />} />
+          <Route path="/analytics" element={<MarketInsightsPage />} />
+          
+          {/* Add other routes here */}
+          
+          {/* Fallback route */}
+          <Route path="*" element={<HomePage />} />
+        </Route>
+        
+        {/* You can add routes with different layouts here 
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+        </Route>
+        */}
+      </Routes>
+      <Toaster position="top-right" richColors />
+    </Router>
+  );
 }
 
 export default App
