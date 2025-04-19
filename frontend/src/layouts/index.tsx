@@ -1,6 +1,6 @@
-import { FC, ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
-import MainLayout from './MainLayout';
+import { FC, ReactNode } from "react";
+import { Outlet } from "react-router-dom";
+import MainLayout from "./MainLayout";
 
 /**
  * Root layout component that wraps all pages with the main layout
@@ -31,4 +31,4 @@ export const NoLayout: FC<LayoutProps> = ({ children }) => {
  * - AdminLayout
  * - AuthLayout
  * etc.
- */ 
+ */

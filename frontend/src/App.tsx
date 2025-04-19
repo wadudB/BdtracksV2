@@ -1,12 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import CommoditiesPage from './pages/CommoditiesPage';
-import CommodityDetails from './pages/CommodityDetails';
-import MapPage from './pages/MapPage';
-import SupplyChainPage from './pages/SupplyChainPage';
-import MarketInsightsPage from './pages/MarketInsightsPage';
-import { RootLayout } from './layouts';
-import { Toaster } from 'sonner';
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import CommoditiesPage from "./pages/CommoditiesPage";
+import CommodityDetails from "./pages/CommodityDetails";
+import MapPage from "./pages/MapPage";
+import { RootLayout } from "./layouts";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -17,16 +15,14 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/commodities" element={<CommoditiesPage />} />
           <Route path="/commodity/:id" element={<CommodityDetails />} />
-          <Route path="/map" element={<MapPage />} />
-          <Route path="/supply-chain" element={<SupplyChainPage />} />
-          <Route path="/analytics" element={<MarketInsightsPage />} />
-          
+          <Route path="/commodities/map" element={<MapPage />} />
+
           {/* Add other routes here */}
-          
+
           {/* Fallback route */}
           <Route path="*" element={<HomePage />} />
         </Route>
-        
+
         {/* You can add routes with different layouts here 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
@@ -39,4 +35,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

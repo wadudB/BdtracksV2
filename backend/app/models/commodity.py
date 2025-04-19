@@ -22,8 +22,6 @@ class Commodity(Base):
     category: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     unit: Mapped[str] = mapped_column(String(20), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    min_price: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-    max_price: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     image_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[DateTime] = mapped_column(

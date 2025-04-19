@@ -1,14 +1,14 @@
-import MainLayout from '../layouts/MainLayout';
+import MainLayout from "../layouts/MainLayout";
 
 export default function Dashboard() {
   // Mock data - would come from API in real app
   const topCommodities = [
-    { id: '1', name: 'Rice (Fine)', price: 80, unit: 'kg', change: 2.5 },
-    { id: '2', name: 'Rice (Medium)', price: 60, unit: 'kg', change: 1.2 },
-    { id: '3', name: 'Wheat', price: 45, unit: 'kg', change: -0.5 },
-    { id: '4', name: 'Onion', price: 120, unit: 'kg', change: 15 },
-    { id: '5', name: 'Potato', price: 35, unit: 'kg', change: -2 },
-    { id: '6', name: 'Soybean Oil', price: 180, unit: 'liter', change: 0 }
+    { id: "1", name: "Rice (Fine)", price: 80, unit: "kg", change: 2.5 },
+    { id: "2", name: "Rice (Medium)", price: 60, unit: "kg", change: 1.2 },
+    { id: "3", name: "Wheat", price: 45, unit: "kg", change: -0.5 },
+    { id: "4", name: "Onion", price: 120, unit: "kg", change: 15 },
+    { id: "5", name: "Potato", price: 35, unit: "kg", change: -2 },
+    { id: "6", name: "Soybean Oil", price: 180, unit: "liter", change: 0 },
   ];
 
   return (
@@ -36,43 +36,51 @@ export default function Dashboard() {
               <h3 className="text-lg font-medium">Rice</h3>
               <span className="material-icons text-chart-1">agriculture</span>
             </div>
-            <p className="text-3xl font-bold">৳80 <span className="text-sm font-normal">per kg</span></p>
+            <p className="text-3xl font-bold">
+              ৳80 <span className="text-sm font-normal">per kg</span>
+            </p>
             <div className="flex items-center mt-2">
               <span className="material-icons text-red-500 text-sm">arrow_upward</span>
               <span className="text-red-500 text-sm">2.5% from last week</span>
             </div>
           </div>
-          
+
           <div className="bg-card text-card-foreground p-6 rounded-lg border border-border">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">Wheat</h3>
               <span className="material-icons text-chart-3">agriculture</span>
             </div>
-            <p className="text-3xl font-bold">৳45 <span className="text-sm font-normal">per kg</span></p>
+            <p className="text-3xl font-bold">
+              ৳45 <span className="text-sm font-normal">per kg</span>
+            </p>
             <div className="flex items-center mt-2">
               <span className="material-icons text-green-500 text-sm">arrow_downward</span>
               <span className="text-green-500 text-sm">0.5% from last week</span>
             </div>
           </div>
-          
+
           <div className="bg-card text-card-foreground p-6 rounded-lg border border-border">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">Onion</h3>
               <span className="material-icons text-chart-5">agriculture</span>
             </div>
-            <p className="text-3xl font-bold">৳120 <span className="text-sm font-normal">per kg</span></p>
+            <p className="text-3xl font-bold">
+              ৳120 <span className="text-sm font-normal">per kg</span>
+            </p>
             <div className="flex items-center mt-2">
               <span className="material-icons text-red-500 text-sm">arrow_upward</span>
               <span className="text-red-500 text-sm">15% from last week</span>
             </div>
           </div>
-          
+
           <div className="bg-card text-card-foreground p-6 rounded-lg border border-border">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">Soybean Oil</h3>
               <span className="material-icons text-chart-2">oil_barrel</span>
             </div>
-            <p className="text-3xl font-bold">৳180 <span className="text-sm font-normal">per liter</span></p>
+            <p className="text-3xl font-bold">
+              ৳180 <span className="text-sm font-normal">per liter</span>
+            </p>
             <div className="flex items-center mt-2">
               <span className="material-icons text-yellow-500 text-sm">remove</span>
               <span className="text-yellow-500 text-sm">No change from last week</span>
@@ -104,16 +112,21 @@ export default function Dashboard() {
                 {topCommodities.map((commodity) => (
                   <tr key={commodity.id} className="border-b border-border hover:bg-muted/30">
                     <td className="py-3 px-4">{commodity.name}</td>
-                    <td className="text-right py-3 px-4">৳{commodity.price}/{commodity.unit}</td>
                     <td className="text-right py-3 px-4">
-                      <span 
+                      ৳{commodity.price}/{commodity.unit}
+                    </td>
+                    <td className="text-right py-3 px-4">
+                      <span
                         className={
-                          commodity.change > 0 ? 'text-red-500' : 
-                          commodity.change < 0 ? 'text-green-500' : 
-                          'text-yellow-500'
+                          commodity.change > 0
+                            ? "text-red-500"
+                            : commodity.change < 0
+                              ? "text-green-500"
+                              : "text-yellow-500"
                         }
                       >
-                        {commodity.change > 0 && '+'}{commodity.change}%
+                        {commodity.change > 0 && "+"}
+                        {commodity.change}%
                       </span>
                     </td>
                   </tr>
@@ -133,4 +146,4 @@ export default function Dashboard() {
       </div>
     </MainLayout>
   );
-} 
+}

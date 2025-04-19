@@ -8,7 +8,10 @@
  * @param defaultValue What to display if price is null/undefined
  * @returns Formatted price or default value
  */
-export const formatPrice = (price: number | null | undefined, defaultValue: string = '-'): string => {
+export const formatPrice = (
+  price: number | null | undefined,
+  defaultValue: string = "-"
+): string => {
   if (price == null) return defaultValue;
   return price.toLocaleString();
 };
@@ -21,13 +24,13 @@ export const formatPrice = (price: number | null | undefined, defaultValue: stri
  * @returns Formatted price with currency
  */
 export const formatCurrencyPrice = (
-  price: number | null | undefined, 
-  currency: string = '৳', 
+  price: number | null | undefined,
+  currency: string = "৳",
   unit?: string,
-  defaultValue: string = '-'
+  defaultValue: string = "-"
 ): string => {
   if (price == null) return defaultValue;
-  return `${currency}${price.toLocaleString()}${unit ? `/${unit}` : ''}`;
+  return `${currency}${price.toLocaleString()}${unit ? `/${unit}` : ""}`;
 };
 
 /**
@@ -41,13 +44,13 @@ export const formatPriceChange = (
   change: number | null | undefined,
   includePercent: boolean = true,
   alwaysShowSign: boolean = true,
-  defaultValue: string = '-'
+  defaultValue: string = "-"
 ): string => {
   if (change == null) return defaultValue;
-  
-  const prefix = change > 0 && alwaysShowSign ? '+' : '';
+
+  const prefix = change > 0 && alwaysShowSign ? "+" : "";
   const value = Math.round(change).toLocaleString();
-  const suffix = includePercent ? '%' : '';
-  
+  const suffix = includePercent ? "%" : "";
+
   return `${prefix}${value}${suffix}`;
-}; 
+};

@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List, Union, Any
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List
 from datetime import datetime
+from pydantic.alias_generators import to_camel
 
 
 # Shared properties
@@ -11,15 +12,11 @@ class CommodityBase(BaseModel):
     unit: Optional[str] = None
     description: Optional[str] = None
     image_url: Optional[str] = None
-    min_price: Optional[int] = None
-    max_price: Optional[int] = None
 
 
 # Properties to receive on commodity creation
 class CommodityCreate(CommodityBase):
-    name: str
-    category: str
-    unit: str
+    pass
 
 
 # Properties to receive on commodity update
@@ -30,34 +27,44 @@ class CommodityUpdate(CommodityBase):
 # Properties shared by models stored in DB
 class CommodityInDBBase(CommodityBase):
     id: int
-    name: str
-    category: str
-    unit: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+        from_attributes=True, alias_generator=to_camel, populate_by_name=True
+    )
 
 
 # Properties to return to client
 class Commodity(CommodityInDBBase):
-    pass
+    min_price: Optional[int] = None
+    max_price: Optional[int] = None
+    current_price: Optional[int] = None
+    weekly_change: Optional[float] = None
+    monthly_change: Optional[float] = None
+    yearly_change: Optional[float] = None
 
 
 # Additional properties for detailed view
 class PricePoint(BaseModel):
     date: str
     price: int
+    
+    model_config = ConfigDict(
+        alias_generator=to_camel, populate_by_name=True
+    )
 
 
 class RegionalPrice(BaseModel):
     region: str
     price: int
     change: int
+    
+    model_config = ConfigDict(
+        alias_generator=to_camel, populate_by_name=True
+    )
 
 
 class CommodityDetail(Commodity):
-    current_price: Optional[int] = None
     price_history: Optional[List[PricePoint]] = []
     regional_prices: Optional[List[RegionalPrice]] = []
 
@@ -67,6 +74,7 @@ class CommodityInDropdown(BaseModel):
     id: int
     name: str
     bengali_name: Optional[str] = None
-    
-    class Config:
-        from_attributes = True 
+
+    model_config = ConfigDict(
+        from_attributes=True, alias_generator=to_camel, populate_by_name=True
+    )

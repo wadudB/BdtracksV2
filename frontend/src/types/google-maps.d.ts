@@ -52,4 +52,4 @@ declare namespace google {
       lng: number;
     }
   }
-} 
+}

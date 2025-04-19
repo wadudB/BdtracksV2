@@ -1,8 +1,4 @@
-export type CommodityCategory = 
-  | 'agriculture'
-  | 'industrial'
-  | 'consumer'
-  | 'energy';
+export type CommodityCategory = "agriculture" | "industrial" | "consumer" | "energy";
 
 export type Region = {
   id: string | number;
@@ -11,6 +7,8 @@ export type Region = {
   latitude?: number;
   longitude?: number;
   isDivision?: boolean;
+  lat?: number;
+  lng?: number;
 };
 
 export type PricePoint = {
@@ -18,24 +16,6 @@ export type PricePoint = {
   price: number;
 };
 
-export type SupplyChainNode = {
-  id: string;
-  name: string;
-  type: 'producer' | 'processor' | 'distributor' | 'retailer';
-  location?: string;
-  description?: string;
-};
-
-export type SupplyChainLink = {
-  source: string;
-  target: string;
-  value: number;
-};
-
-export type SupplyChainData = {
-  nodes: SupplyChainNode[];
-  links: SupplyChainLink[];
-};
 
 export type RegionalPrice = {
   region: string;
@@ -70,7 +50,6 @@ export type Commodity = {
   image?: string;
   priceHistory: PricePoint[];
   regionalPrices: RegionalPrice[];
-  supplyChainData?: SupplyChainData;
 };
 
 export type CommodityListResponse = {
@@ -81,4 +60,4 @@ export type CommodityListResponse = {
 export type RegionListResponse = {
   regions: Region[];
   total: number;
-}; 
+};

@@ -1,31 +1,30 @@
-import { FC } from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { commodities, getTopChangedCommodities } from '@/data/commodityData';
+import { FC } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { commodities, getTopChangedCommodities } from "@/data/commodityData";
 
 const HomePage: FC = () => {
   const navigate = useNavigate();
-  
+
   // Get top 4 commodities with significant price changes
   const featuredCommodities = getTopChangedCommodities(4);
 
   const handleViewCommodities = (): void => {
-    navigate('/commodities');
+    navigate("/commodities");
   };
 
   const handleViewMap = (): void => {
-    navigate('/map');
+    navigate("/map");
   };
 
   const handleSignUp = (): void => {
     // Would handle signup logic
-    navigate('/signup');
+    navigate("/signup");
   };
 
   const handleLearnMore = (): void => {
-    navigate('/about');
+    navigate("/about");
   };
 
   return (
@@ -34,21 +33,18 @@ const HomePage: FC = () => {
       <section className="bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 py-24 flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 mb-10 md:mb-0">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">Track Bangladeshi Commodity Prices in Real-Time</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+              Track Bangladeshi Commodity Prices in Real-Time
+            </h1>
             <p className="text-xl mb-8">
-              BDTRACKS provides up-to-date commodity prices, regional comparisons, and market insights across Bangladesh.
+              BDTRACKS provides up-to-date commodity prices, regional comparisons, and market
+              insights across Bangladesh.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button 
-                variant="default"
-                onClick={handleViewCommodities}
-              >
+              <Button variant="default" onClick={handleViewCommodities}>
                 View Commodities
               </Button>
-              <Button 
-                variant="outline"
-                onClick={handleViewMap}
-              >
+              <Button variant="outline" onClick={handleViewMap}>
                 Regional Map
               </Button>
             </div>
@@ -56,9 +52,9 @@ const HomePage: FC = () => {
           <div className="md:w-1/2 flex justify-center">
             <div className="relative w-full max-w-md">
               <div className="absolute inset-0 bg-secondary/20 rounded-lg transform rotate-3"></div>
-              <img 
-                src="https://via.placeholder.com/600x400" 
-                alt="Bangladesh Market" 
+              <img
+                src="https://via.placeholder.com/600x400"
+                alt="Bangladesh Market"
                 className="relative z-10 rounded-lg shadow-lg w-full"
               />
             </div>
@@ -72,9 +68,14 @@ const HomePage: FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-center mb-12">
             <div>
               <h2 className="text-3xl font-bold mb-2">Featured Commodities</h2>
-              <p className="text-muted-foreground">Monitor the most important commodity prices in Bangladesh</p>
+              <p className="text-muted-foreground">
+                Monitor the most important commodity prices in Bangladesh
+              </p>
             </div>
-            <Link to="/commodities" className="mt-4 md:mt-0 text-primary hover:underline flex items-center">
+            <Link
+              to="/commodities"
+              className="mt-4 md:mt-0 text-primary hover:underline flex items-center"
+            >
               View all commodities <span className="material-icons ml-1">arrow_forward</span>
             </Link>
           </div>
@@ -83,24 +84,34 @@ const HomePage: FC = () => {
             {featuredCommodities.map((commodity) => (
               <Card key={commodity.id} className="transition-transform hover:scale-105">
                 <div className="h-48 overflow-hidden">
-                  <img src={commodity.image || `https://via.placeholder.com/600x400?text=${encodeURIComponent(commodity.name)}`} 
-                       alt={commodity.name} 
-                       className="w-full h-full object-cover" />
+                  <img
+                    src={
+                      commodity.image ||
+                      `https://via.placeholder.com/600x400?text=${encodeURIComponent(commodity.name)}`
+                    }
+                    alt={commodity.name}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <CardHeader>
                   <CardTitle>{commodity.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold">৳{commodity.currentPrice}/{commodity.unit}</span>
-                    <span 
+                    <span className="text-2xl font-bold">
+                      ৳{commodity.currentPrice}/{commodity.unit}
+                    </span>
+                    <span
                       className={
-                        commodity.weeklyChange > 0 ? 'text-red-500' : 
-                        commodity.weeklyChange < 0 ? 'text-green-500' : 
-                        'text-yellow-500'
+                        commodity.weeklyChange > 0
+                          ? "text-red-500"
+                          : commodity.weeklyChange < 0
+                            ? "text-green-500"
+                            : "text-yellow-500"
                       }
                     >
-                      {commodity.weeklyChange > 0 && '+'}{Math.round(commodity.weeklyChange)}%
+                      {commodity.weeklyChange > 0 && "+"}
+                      {Math.round(commodity.weeklyChange)}%
                     </span>
                   </div>
                 </CardContent>
@@ -137,14 +148,23 @@ const HomePage: FC = () => {
                         {commodity.name}
                       </Link>
                     </td>
-                    <td className="text-right py-4 px-2">৳{commodity.currentPrice}/{commodity.unit}</td>
-                    <td className="text-right py-4 px-2">৳{commodity.previousPrice}/{commodity.unit}</td>
-                    <td className={`text-right py-4 px-2 ${
-                      commodity.weeklyChange > 0 ? 'text-red-500' : 
-                      commodity.weeklyChange < 0 ? 'text-green-500' : 
-                      'text-yellow-500'
-                    }`}>
-                      {commodity.weeklyChange > 0 && '+'}{Math.round(commodity.weeklyChange)}%
+                    <td className="text-right py-4 px-2">
+                      ৳{commodity.currentPrice}/{commodity.unit}
+                    </td>
+                    <td className="text-right py-4 px-2">
+                      ৳{commodity.previousPrice}/{commodity.unit}
+                    </td>
+                    <td
+                      className={`text-right py-4 px-2 ${
+                        commodity.weeklyChange > 0
+                          ? "text-red-500"
+                          : commodity.weeklyChange < 0
+                            ? "text-green-500"
+                            : "text-yellow-500"
+                      }`}
+                    >
+                      {commodity.weeklyChange > 0 && "+"}
+                      {Math.round(commodity.weeklyChange)}%
                     </td>
                   </tr>
                 ))}
@@ -166,7 +186,8 @@ const HomePage: FC = () => {
             <div className="md:w-1/2 mb-10 md:mb-0 md:pr-12">
               <h2 className="text-3xl font-bold mb-6">Regional Price Comparison</h2>
               <p className="mb-6 text-muted-foreground">
-                Prices of commodities vary across different regions of Bangladesh. Our interactive map allows you to visualize price differences by location.
+                Prices of commodities vary across different regions of Bangladesh. Our interactive
+                map allows you to visualize price differences by location.
               </p>
               <ul className="space-y-4">
                 <li className="flex items-start">
@@ -199,7 +220,8 @@ const HomePage: FC = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">Why Choose BDTRACKS?</h2>
             <p className="text-muted-foreground max-w-3xl mx-auto">
-              We provide comprehensive commodity tracking tools designed specifically for Bangladesh's markets.
+              We provide comprehensive commodity tracking tools designed specifically for
+              Bangladesh's markets.
             </p>
           </div>
 
@@ -211,11 +233,12 @@ const HomePage: FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Our prices are updated daily to ensure you always have access to the most current information.
+                  Our prices are updated daily to ensure you always have access to the most current
+                  information.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center">
               <CardHeader>
                 <span className="material-icons text-primary text-4xl mb-4">insights</span>
@@ -227,7 +250,7 @@ const HomePage: FC = () => {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center">
               <CardHeader>
                 <span className="material-icons text-primary text-4xl mb-4">notifications</span>
@@ -235,7 +258,8 @@ const HomePage: FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
-                  Set up custom alerts to be notified when prices of your watched commodities change significantly.
+                  Set up custom alerts to be notified when prices of your watched commodities change
+                  significantly.
                 </p>
               </CardContent>
             </Card>
@@ -251,16 +275,10 @@ const HomePage: FC = () => {
             Sign up for free to access all our features and stay updated with the latest prices.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button 
-              variant="secondary"
-              onClick={handleSignUp}
-            >
+            <Button variant="secondary" onClick={handleSignUp}>
               Sign Up Free
             </Button>
-            <Button 
-              variant="outline"
-              onClick={handleLearnMore}
-            >
+            <Button variant="outline" onClick={handleLearnMore}>
               Learn More
             </Button>
           </div>
@@ -270,4 +288,4 @@ const HomePage: FC = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;

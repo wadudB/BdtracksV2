@@ -1,15 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { commodityService, regionService, priceService } from '@/services/api';
-import { toast } from 'sonner';
-import { PriceRecord } from '@/types';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { commodityService, priceService, regionService } from "@/services/api";
+import { toast } from "sonner";
+import { PriceRecord } from "@/types";
 
 // Query keys
 export const QUERY_KEYS = {
-  COMMODITIES: 'commodities',
-  COMMODITY: 'commodity',
-  COMMODITY_DROPDOWN: 'commodity-dropdown',
-  REGIONS: 'regions',
-  PRICE_RECORDS: 'price-records',
+  COMMODITIES: "commodities",
+  COMMODITY: "commodity",
+  COMMODITY_DROPDOWN: "commodity-dropdown",
+  REGIONS: "regions",
+  PRICE_RECORDS: "price-records",
+  REGIONAL_PRICES: "regional-prices",
 };
 
 // ====== Commodity Queries ======
@@ -45,6 +46,17 @@ export const useGetCommodityDropdown = () => {
   });
 };
 
+/**
+ * Hook to fetch regional prices for a commodity
+ */
+export const useGetRegionalPrices = (commodityId?: string | number, timeWindow?: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.REGIONAL_PRICES, commodityId, timeWindow],
+    queryFn: () => priceService.getRegionalPrices(commodityId!, timeWindow),
+    enabled: !!commodityId, // Only run the query if commodityId is provided
+  });
+};
+
 // ====== Region Queries ======
 
 /**
@@ -66,20 +78,23 @@ export const useCreatePriceRecord = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Omit<PriceRecord, 'id' | 'created_at'>) => priceService.create(data),
+    mutationFn: (data: Omit<PriceRecord, "id" | "created_at">) => priceService.create(data),
     onSuccess: (_, variables) => {
       // Invalidate relevant queries to force refetch
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.COMMODITIES] });
-      queryClient.invalidateQueries({ 
-        queryKey: [QUERY_KEYS.COMMODITY, variables.commodity_id.toString()] 
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.COMMODITY, variables.commodity_id.toString()],
       });
-      
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.REGIONAL_PRICES, variables.commodity_id.toString()],
+      });
+
       // Show success toast
-      toast.success('Price record added successfully');
+      toast.success("Price record added successfully");
     },
     onError: (error) => {
-      console.error('Error creating price record:', error);
-      toast.error('Failed to add price record. Please try again.');
+      console.error("Error creating price record:", error);
+      toast.error("Failed to add price record. Please try again.");
     },
   });
-}; 
+};

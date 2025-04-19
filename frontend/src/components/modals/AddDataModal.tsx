@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
-import { 
+import React, { useState } from "react";
+import {
   Dialog,
-  DialogContent, 
-  DialogDescription, 
-  DialogFooter, 
-  DialogHeader, 
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Commodity } from '@/types';
-import { toast } from 'sonner';
-import { useGetCommodityDropdown, useGetRegions, useCreatePriceRecord } from '@/hooks/useQueries';
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Commodity } from "@/types";
+import { toast } from "sonner";
+import { useCreatePriceRecord, useGetCommodityDropdown, useGetRegions } from "@/hooks/useQueries";
 
 interface AddDataModalProps {
   trigger: React.ReactNode;
@@ -33,88 +39,82 @@ interface CommodityDropdownItem {
 const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSuccess }) => {
   // State for price record form
   const [priceForm, setPriceForm] = useState({
-    commodityId: commodity?.id ? commodity.id.toString() : '',
-    regionId: '',
-    price: '',
-    source: 'Market Survey',
-    notes: '',
-    recordedAt: new Date().toISOString().split('T')[0]
+    commodityId: commodity?.id ? commodity.id.toString() : "",
+    regionId: "",
+    price: "",
+    source: "Market Survey",
+    notes: "",
+    recordedAt: new Date().toISOString().split("T")[0],
   });
 
   const [open, setOpen] = useState<boolean>(false);
 
   // Use React Query hooks
-  const { 
-    data: commodities = [], 
-    isLoading: isLoadingCommodities 
-  } = useGetCommodityDropdown();
+  const { data: commodities = [], isLoading: isLoadingCommodities } = useGetCommodityDropdown();
 
-  const { 
-    data: regions = [], 
-    isLoading: isLoadingRegions 
-  } = useGetRegions();
+  const { data: regions = [], isLoading: isLoadingRegions } = useGetRegions();
 
-  const { 
-    mutate: createPriceRecord, 
-    isPending: isSubmitting 
-  } = useCreatePriceRecord();
+  const { mutate: createPriceRecord, isPending: isSubmitting } = useCreatePriceRecord();
 
   // Determine if data is still loading
   const isLoading = isLoadingCommodities || isLoadingRegions;
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!priceForm.commodityId || !priceForm.regionId || !priceForm.price) {
       console.error("All fields are required");
       return;
     }
-    
+
     // Create price record using the mutation
-    createPriceRecord({
-      commodity_id: parseInt(priceForm.commodityId),
-      region_id: parseInt(priceForm.regionId),
-      price: parseFloat(priceForm.price),
-      source: priceForm.source,
-      notes: priceForm.notes,
-      recorded_at: priceForm.recordedAt
-    }, {
-      onSuccess: () => {
-        // Get the selected commodity name for the success message
-        const selectedCommodity = commodities.find((c: CommodityDropdownItem) => c.id.toString() === priceForm.commodityId);
-        const commodityName = selectedCommodity ? selectedCommodity.name : priceForm.commodityId;
-        
-        toast.success(`Added price record: ৳${priceForm.price} for ${commodityName}`);
-        
-        // Close modal and reset form after successful submission
-        setOpen(false);
-        setPriceForm({
-          ...priceForm,
-          regionId: '',
-          price: '',
-          notes: ''
-        });
-        
-        // Call the onSuccess callback if provided
-        if (onSuccess) {
-          onSuccess();
-        }
+    createPriceRecord(
+      {
+        commodity_id: parseInt(priceForm.commodityId),
+        region_id: parseInt(priceForm.regionId),
+        price: parseFloat(priceForm.price),
+        source: priceForm.source,
+        notes: priceForm.notes,
+        recorded_at: priceForm.recordedAt,
+      },
+      {
+        onSuccess: () => {
+          // Get the selected commodity name for the success message
+          const selectedCommodity = commodities.find(
+            (c: CommodityDropdownItem) => c.id.toString() === priceForm.commodityId
+          );
+          const commodityName = selectedCommodity ? selectedCommodity.name : priceForm.commodityId;
+
+          toast.success(`Added price record: ৳${priceForm.price} for ${commodityName}`);
+
+          // Close modal and reset form after successful submission
+          setOpen(false);
+          setPriceForm({
+            ...priceForm,
+            regionId: "",
+            price: "",
+            notes: "",
+          });
+
+          // Call the onSuccess callback if provided
+          if (onSuccess) {
+            onSuccess();
+          }
+        },
       }
-    });
+    );
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Add Price Record</DialogTitle>
           <DialogDescription>
-            {commodity 
+            {commodity
               ? `Enter new price information for ${commodity.name}`
-              : 'Enter new price information for a commodity'}
+              : "Enter new price information for a commodity"}
           </DialogDescription>
         </DialogHeader>
 
@@ -128,16 +128,12 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
               <div className="space-y-2">
                 <Label htmlFor="commodity">Commodity</Label>
                 {commodity ? (
-                  <Input 
-                    id="commodity" 
-                    value={commodity.name} 
-                    disabled 
-                  />
+                  <Input id="commodity" value={commodity.name} disabled />
                 ) : (
                   <Select
                     required
                     value={priceForm.commodityId}
-                    onValueChange={(value) => setPriceForm({...priceForm, commodityId: value})}
+                    onValueChange={(value) => setPriceForm({ ...priceForm, commodityId: value })}
                   >
                     <SelectTrigger id="commodity">
                       <SelectValue placeholder="Select commodity" />
@@ -145,7 +141,8 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
                     <SelectContent>
                       {commodities.map((commodity: CommodityDropdownItem) => (
                         <SelectItem key={commodity.id} value={commodity.id.toString()}>
-                          {commodity.name} {commodity.bengaliName ? `(${commodity.bengaliName})` : ''}
+                          {commodity.name}{" "}
+                          {commodity.bengaliName ? `(${commodity.bengaliName})` : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -157,16 +154,16 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
                 <Select
                   required
                   value={priceForm.regionId}
-                  onValueChange={(value) => setPriceForm({...priceForm, regionId: value})}
+                  onValueChange={(value) => setPriceForm({ ...priceForm, regionId: value })}
                 >
                   <SelectTrigger id="region">
                     <SelectValue placeholder="Select region" />
                   </SelectTrigger>
                   <SelectContent>
                     {regions.map((region) => (
-                      <SelectItem 
-                        key={typeof region.id === 'number' ? region.id : region.id.toString()} 
-                        value={typeof region.id === 'number' ? region.id.toString() : region.id}
+                      <SelectItem
+                        key={typeof region.id === "number" ? region.id : region.id.toString()}
+                        value={typeof region.id === "number" ? region.id.toString() : region.id}
                       >
                         {region.name}
                       </SelectItem>
@@ -175,45 +172,45 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
                 </Select>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="price">Price (৳)</Label>
-                <Input 
+                <Input
                   id="price"
                   required
                   type="number"
                   value={priceForm.price}
-                  onChange={(e) => setPriceForm({...priceForm, price: e.target.value})}
+                  onChange={(e) => setPriceForm({ ...priceForm, price: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="recordedAt">Date Recorded</Label>
-                <Input 
+                <Input
                   id="recordedAt"
                   required
                   type="date"
                   value={priceForm.recordedAt}
-                  onChange={(e) => setPriceForm({...priceForm, recordedAt: e.target.value})}
+                  onChange={(e) => setPriceForm({ ...priceForm, recordedAt: e.target.value })}
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="source">Source</Label>
-              <Input 
+              <Input
                 id="source"
                 value={priceForm.source}
-                onChange={(e) => setPriceForm({...priceForm, source: e.target.value})}
+                onChange={(e) => setPriceForm({ ...priceForm, source: e.target.value })}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
-              <Textarea 
+              <Textarea
                 id="notes"
                 value={priceForm.notes}
-                onChange={(e) => setPriceForm({...priceForm, notes: e.target.value})}
+                onChange={(e) => setPriceForm({ ...priceForm, notes: e.target.value })}
               />
             </div>
 
@@ -222,7 +219,7 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Adding...' : 'Add Price Record'}
+                {isSubmitting ? "Adding..." : "Add Price Record"}
               </Button>
             </DialogFooter>
           </form>
@@ -232,4 +229,4 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
   );
 };
 
-export default AddDataModal; 
+export default AddDataModal;
