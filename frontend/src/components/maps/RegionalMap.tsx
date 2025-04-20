@@ -48,6 +48,13 @@ interface MarkerWithInfoWindow extends google.maps.Marker {
   infoWindow?: ExtendedInfoWindow;
 }
 
+// Declare global function for Google Maps callback
+declare global {
+  interface Window {
+    initGoogleMaps: () => void;
+  }
+}
+
 export default function RegionalMap({
   regions = DEFAULT_REGIONS,
   priceData = [],
@@ -75,6 +82,13 @@ export default function RegionalMap({
       try {
         if (!mapRef.current || !window.google || !window.google.maps) {
           console.warn("Google Maps not fully loaded or map container not available");
+          return;
+        }
+        
+        // Verify Map constructor exists
+        if (typeof window.google.maps.Map !== 'function') {
+          console.error("Google Maps Map constructor not available yet");
+          setTimeout(initializeMap, 200); // Try again after a delay
           return;
         }
         
@@ -127,16 +141,17 @@ export default function RegionalMap({
       
       // Create script element
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&loading=async&callback=initGoogleMaps&v=weekly`;
       script.async = true;
       script.defer = true;
       
-      // Set up event handlers
-      script.addEventListener("load", () => {
-        // Wait a moment for the API to be fully initialized
-        setTimeout(initializeMap, 100);
-      });
+      // Define callback function globally
+      window.initGoogleMaps = function() {
+        // Maps API is now fully loaded and ready to use
+        setTimeout(initializeMap, 100); // Small delay to ensure everything is ready
+      };
       
+      // Add error event handler for the script
       script.addEventListener("error", () => {
         setMapError("Failed to load Google Maps API");
         googleMapsScriptLoaded = false;
