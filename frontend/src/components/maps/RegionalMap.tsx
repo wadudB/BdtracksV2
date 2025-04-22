@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Region } from "@/types";
 
 interface RegionalMapProps {
-  regions: Region[];
+  regions?: Region[];
   priceData: {
     regionId: string | number;
+    regionName?: string;
     price: number;
     change?: number;
   }[];
@@ -21,20 +22,42 @@ const DEFAULT_REGIONS: Region[] = [
   { id: "khulna", name: "Khulna", lat: 22.8456, lng: 89.5403 },
   { id: "barisal", name: "Barisal", lat: 22.7, lng: 90.35 },
   { id: "rangpur", name: "Rangpur", lat: 25.7439, lng: 89.2752 },
-  { id: "mymensingh", name: "Mymensingh", lat: 24.7471, lng: 90.4203 }
+  { id: "mymensingh", name: "Mymensingh", lat: 24.7471, lng: 90.4203 },
 ];
 
 // Region ID mappings (for data normalization)
 const REGION_ID_MAP: Record<string, string[]> = {
-  "dhaka": ["dhaka", "3"],
-  "chittagong": ["chittagong", "2"],
-  "sylhet": ["sylhet", "7"],
-  "rajshahi": ["rajshahi", "5"],
-  "khulna": ["khulna", "4"],
-  "barisal": ["barisal", "1"],
-  "rangpur": ["rangpur", "6"],
-  "mymensingh": ["mymensingh", "8"]
+  dhaka: ["dhaka", "3", "3.0", "dha", "dhk"],
+  chittagong: ["chittagong", "2", "2.0", "ctg", "cht"],
+  sylhet: ["sylhet", "7", "7.0", "syl", "slt"],
+  rajshahi: ["rajshahi", "5", "5.0", "raj", "rjs"],
+  khulna: ["khulna", "4", "4.0", "khu", "kln"],
+  barisal: ["barisal", "1", "1.0", "bar", "bsl"],
+  rangpur: ["rangpur", "6", "6.0", "ran", "rgp"],
+  mymensingh: ["mymensingh", "8", "8.0", "mym", "mns"],
 };
+
+// Function to normalize region IDs for matching
+function normalizeRegionId(id: string | number): string {
+  const strId = String(id).toLowerCase().trim();
+
+  // Check if it's directly in our mapping
+  for (const [key, values] of Object.entries(REGION_ID_MAP)) {
+    if (values.includes(strId)) {
+      return key;
+    }
+  }
+
+  // Check if it starts with any of our keys
+  for (const key of Object.keys(REGION_ID_MAP)) {
+    if (strId.startsWith(key)) {
+      return key;
+    }
+  }
+
+  // Return as-is if no match found
+  return strId;
+}
 
 // Global script loaded flag
 let googleMapsScriptLoaded = false;
@@ -59,24 +82,24 @@ export default function RegionalMap({
   regions = DEFAULT_REGIONS,
   priceData = [],
   selectedCommodity,
-  isLoading = false
+  isLoading = false,
 }: RegionalMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<MarkerWithInfoWindow[]>([]);
   const [mapError, setMapError] = useState<string | null>(null);
-  
+
   // Load Google Maps API
   useEffect(() => {
     // Skip if already initialized or if the container isn't available
     if (googleMapRef.current || !mapRef.current) return;
-    
+
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       setMapError("Google Maps API key is missing");
       return;
     }
-    
+
     // Function to initialize the map
     function initializeMap() {
       try {
@@ -84,14 +107,14 @@ export default function RegionalMap({
           console.warn("Google Maps not fully loaded or map container not available");
           return;
         }
-        
+
         // Verify Map constructor exists
-        if (typeof window.google.maps.Map !== 'function') {
+        if (typeof window.google.maps.Map !== "function") {
           console.error("Google Maps Map constructor not available yet");
           setTimeout(initializeMap, 200); // Try again after a delay
           return;
         }
-        
+
         // Create the map
         const mapOptions = {
           center: { lat: 23.685, lng: 90.3563 }, // Center of Bangladesh
@@ -100,14 +123,14 @@ export default function RegionalMap({
           streetViewControl: false,
           fullscreenControl: false,
         };
-        
+
         googleMapRef.current = new window.google.maps.Map(mapRef.current, mapOptions);
       } catch (err) {
         console.error("Error initializing map:", err);
         setMapError("Failed to initialize map");
       }
     }
-    
+
     // Function to load the Google Maps API
     function loadGoogleMapsApi() {
       // If API is already loaded
@@ -115,7 +138,7 @@ export default function RegionalMap({
         initializeMap();
         return;
       }
-      
+
       // If script is already being loaded, wait for it
       if (googleMapsScriptLoaded) {
         const checkInterval = setInterval(() => {
@@ -124,7 +147,7 @@ export default function RegionalMap({
             initializeMap();
           }
         }, 100);
-        
+
         // Set a timeout to stop checking
         setTimeout(() => {
           clearInterval(checkInterval);
@@ -132,37 +155,37 @@ export default function RegionalMap({
             setMapError("Google Maps API took too long to load");
           }
         }, 10000);
-        
+
         return;
       }
-      
+
       // Mark as loading
       googleMapsScriptLoaded = true;
-      
+
       // Create script element
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&loading=async&callback=initGoogleMaps&v=weekly`;
       script.async = true;
       script.defer = true;
-      
+
       // Define callback function globally
-      window.initGoogleMaps = function() {
+      window.initGoogleMaps = function () {
         // Maps API is now fully loaded and ready to use
         setTimeout(initializeMap, 100); // Small delay to ensure everything is ready
       };
-      
+
       // Add error event handler for the script
       script.addEventListener("error", () => {
         setMapError("Failed to load Google Maps API");
         googleMapsScriptLoaded = false;
       });
-      
+
       // Add script to page
       document.head.appendChild(script);
     }
-    
+
     loadGoogleMapsApi();
-    
+
     // Cleanup
     return () => {
       if (googleMapRef.current) {
@@ -170,94 +193,120 @@ export default function RegionalMap({
       }
     };
   }, []);
-  
+
   // Create markers when data or map changes
   useEffect(() => {
     // Skip if map isn't initialized or if isLoading
     if (!googleMapRef.current || isLoading) return;
-    
+
     // Clear existing markers
-    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current.forEach((marker) => marker.setMap(null));
     markersRef.current = [];
-    
+
     // Skip if no price data
-    if (priceData.length === 0) return;
-    
+    if (priceData.length === 0) {
+      console.log("No price data available to display markers");
+      return;
+    }
+
+    console.log("Price data received:", priceData);
+
+    // Create a normalized map of price data for easier lookup
+    const normalizedPriceMap = new Map<string, number>();
+
+    priceData.forEach((item) => {
+      const normalizedId = normalizeRegionId(item.regionId);
+      normalizedPriceMap.set(normalizedId, item.price);
+      console.log(
+        `Normalized region ID: ${String(item.regionId)} -> ${normalizedId}, Price: ${item.price}`
+      );
+    });
+
     // Process regions and create markers
-    regions.forEach(region => {
+    regions.forEach((region) => {
       if (!region.id || !region.lat || !region.lng) return;
-      
+
       // Find matching price data for this region
       const regionId = String(region.id).toLowerCase();
-      let price: number | undefined;
-      
-      // Try to find a matching price data entry using possible ID formats
-      for (const priceEntry of priceData) {
-        const priceRegionId = String(priceEntry.regionId).toLowerCase();
-        
-        // Check if this region ID is in our mapping
-        if (REGION_ID_MAP[regionId] && 
-            REGION_ID_MAP[regionId].includes(priceRegionId)) {
-          price = priceEntry.price;
-          break;
-        }
-      }
-      
+      const normalizedRegionId = normalizeRegionId(regionId);
+
+      console.log(
+        `Checking region: ${region.name}, ID: ${regionId}, Normalized: ${normalizedRegionId}`
+      );
+
+      // Get price from our normalized map
+      const price = normalizedPriceMap.get(normalizedRegionId);
+
       // Skip if no price found
-      if (price === undefined) return;
-      
+      if (price === undefined) {
+        console.log(`No price found for region: ${region.name}`);
+        return;
+      }
+
+      // Get region name from price data or use the one from the region object
+      const regionNameForDisplay =
+        priceData.find((item) => normalizeRegionId(String(item.regionId)) === normalizedRegionId)
+          ?.regionName || region.name;
+
+      console.log(`Match found! Price: ${price} for region ${regionNameForDisplay}`);
+
       const map = googleMapRef.current;
       if (!map) return;
-      
+
       try {
         // Create the marker
         const marker = new window.google.maps.Marker({
           position: { lat: region.lat, lng: region.lng },
           map,
-          title: `${region.name}: ৳${price}`,
+          title: `${regionNameForDisplay}: ৳${price}`,
           label: {
             text: `৳${price}`,
             color: "white",
-            fontWeight: "bold"
-          }
+          },
         }) as MarkerWithInfoWindow;
-        
+
+        console.log(
+          `Created marker for ${regionNameForDisplay} at ${region.lat},${region.lng} with price ৳${price}`
+        );
+
         // Create info window
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
             <div style="padding: 8px; max-width: 200px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 16px;">${region.name}</h3>
+              <h3 style="margin: 0 0 8px 0; font-size: 16px;">${regionNameForDisplay}</h3>
               <p style="margin: 0; font-size: 14px;">
                 <strong>${selectedCommodity}:</strong> ৳${price}
               </p>
             </div>
-          `
+          `,
         }) as ExtendedInfoWindow;
-        
+
         // Add click listener
         marker.addListener("click", () => {
           // Close all other info windows first
-          markersRef.current.forEach(m => {
+          markersRef.current.forEach((m) => {
             if (m.infoWindow) {
               m.infoWindow.close();
             }
           });
-          
+
           // Open this info window
-          infoWindow.open(map);
+          infoWindow.open(map, marker);
         });
-        
+
         // Store reference to info window on the marker
         marker.infoWindow = infoWindow;
-        
+
         // Add to markers array
         markersRef.current.push(marker);
       } catch (error) {
         console.error("Error creating marker:", error);
       }
     });
+
+    console.log(`Total markers created: ${markersRef.current.length}`);
   }, [regions, priceData, selectedCommodity, isLoading]);
-  
+
   return (
     <div className="w-full h-full relative">
       {mapError && (
@@ -265,7 +314,7 @@ export default function RegionalMap({
           {mapError}
         </div>
       )}
-      
+
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
           <div className="flex flex-col items-center">
@@ -274,12 +323,12 @@ export default function RegionalMap({
           </div>
         </div>
       )}
-      
-      <div 
-        ref={mapRef} 
-        className="w-full h-full" 
-        style={{ display: mapError ? "none" : "block" }} 
+
+      <div
+        ref={mapRef}
+        className="w-full h-full"
+        style={{ display: mapError ? "none" : "block" }}
       />
     </div>
   );
-} 
+}

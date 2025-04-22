@@ -36,7 +36,6 @@ export default function Footer() {
               <FooterLink to="/contact" label="Contact" />
             </ul>
           </div>
-
         </div>
 
         {/* Copyright and social */}
@@ -92,4 +91,4 @@ function SocialLink({ href, icon }: { href: string; icon: string }) {
       <span className="material-icons">{icon}</span>
     </a>
   );
-} 
+}

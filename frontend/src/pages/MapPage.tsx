@@ -8,6 +8,7 @@ import { useGetCommodities, useGetRegionalPrices } from "@/hooks/useQueries";
 // Define types for regional price data
 interface RegionalPriceItem {
   regionId: string | number;
+  regionName?: string;
   price: number;
   trend?: number | null;
 }
@@ -29,22 +30,16 @@ export default function MapPage() {
   const [selectedTimeWindow, setSelectedTimeWindow] = useState("30");
   const [selectedCommodityId, setSelectedCommodityId] = useState("");
   const [selectedCommodityName, setSelectedCommodityName] = useState("");
-  
+
   // Fetch commodities data
-  const { 
-    data: commodities = [], 
-    isLoading: commoditiesLoading 
-  } = useGetCommodities();
-  
+  const { data: commodities = [], isLoading: commoditiesLoading } = useGetCommodities();
+
   // Fetch regional prices based on selected commodity and time window
-  const { 
-    data: regionalPricesData,
-    isLoading: pricesLoading 
-  } = useGetRegionalPrices(
-    selectedCommodityId, 
+  const { data: regionalPricesData, isLoading: pricesLoading } = useGetRegionalPrices(
+    selectedCommodityId,
     parseInt(selectedTimeWindow)
   );
-  
+
   // Set default selected commodity on initial load
   useEffect(() => {
     if (commodities.length > 0 && !selectedCommodityId) {
@@ -52,19 +47,25 @@ export default function MapPage() {
       setSelectedCommodityName(commodities[0].name);
     }
   }, [commodities, selectedCommodityId]);
-  
+
   // Filter commodities based on search query
-  const filteredCommodities = commodities.filter(commodity => 
+  const filteredCommodities = commodities.filter((commodity) =>
     commodity.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  
+
   // Format regional prices data for the map component
-  const mapPriceData = ((regionalPricesData as RegionalPricesResponse)?.prices || []).map((item: RegionalPriceItem) => ({
-    regionId: item.regionId,
-    price: item.price,
-    change: item.trend === null ? undefined : item.trend
-  }));
-  
+  const mapPriceData = ((regionalPricesData as RegionalPricesResponse)?.prices || []).map(
+    (item: RegionalPriceItem) => ({
+      regionId: item.regionId,
+      regionName: item.regionName,
+      price: item.price,
+      change: item.trend === null ? undefined : item.trend,
+    })
+  );
+
+  console.log("Regional prices data:", regionalPricesData);
+  console.log("Formatted map price data:", mapPriceData);
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
@@ -74,7 +75,7 @@ export default function MapPage() {
           View and compare commodity prices across different regions of Bangladesh.
         </p>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar filters */}
         <div className="lg:col-span-1 space-y-6">
@@ -94,7 +95,7 @@ export default function MapPage() {
                   className="w-full"
                 />
               </div>
-              
+
               {/* Commodity list */}
               <div className="space-y-1 max-h-80 overflow-y-auto">
                 {commoditiesLoading ? (
@@ -102,11 +103,9 @@ export default function MapPage() {
                     Loading commodities...
                   </div>
                 ) : filteredCommodities.length === 0 ? (
-                  <div className="py-2 text-center text-muted-foreground">
-                    No commodities found
-                  </div>
+                  <div className="py-2 text-center text-muted-foreground">No commodities found</div>
                 ) : (
-                  filteredCommodities.map(commodity => (
+                  filteredCommodities.map((commodity) => (
                     <button
                       key={commodity.id}
                       onClick={() => {
@@ -129,7 +128,7 @@ export default function MapPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           {/* Map options */}
           <Card>
             <CardHeader>
@@ -137,7 +136,7 @@ export default function MapPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 gap-2">
-                {TIME_OPTIONS.map(option => (
+                {TIME_OPTIONS.map((option) => (
                   <Button
                     key={option.value}
                     variant={selectedTimeWindow === option.value ? "default" : "outline"}
@@ -152,16 +151,14 @@ export default function MapPage() {
             </CardContent>
           </Card>
         </div>
-        
+
         {/* Map and data display */}
         <div className="lg:col-span-3 space-y-6">
           {/* Map */}
           <Card>
             <CardHeader className="pb-2">
               <div className="flex justify-between items-center">
-                <CardTitle>
-                  {selectedCommodityName || "Select a commodity"}
-                </CardTitle>
+                <CardTitle>{selectedCommodityName || "Select a commodity"}</CardTitle>
                 <div className="text-sm text-muted-foreground">
                   {selectedTimeWindow} Day Price Analysis
                 </div>
@@ -173,12 +170,11 @@ export default function MapPage() {
                   selectedCommodity={selectedCommodityName}
                   priceData={mapPriceData}
                   isLoading={pricesLoading || commoditiesLoading}
-                  regions={[]} // Use default regions from the component
                 />
               </div>
             </CardContent>
           </Card>
-          
+
           {/* Price comparison table */}
           <Card>
             <CardHeader>
@@ -186,9 +182,7 @@ export default function MapPage() {
             </CardHeader>
             <CardContent>
               {pricesLoading ? (
-                <div className="py-4 text-center text-muted-foreground">
-                  Loading price data...
-                </div>
+                <div className="py-4 text-center text-muted-foreground">Loading price data...</div>
               ) : !selectedCommodityId ? (
                 <div className="py-4 text-center text-muted-foreground">
                   Select a commodity to view price comparison
@@ -208,37 +202,49 @@ export default function MapPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {(regionalPricesData as RegionalPricesResponse).prices.map((item: RegionalPriceItem) => {
-                        // Calculate average price for comparison
-                        const avgPrice = (regionalPricesData as RegionalPricesResponse).prices.reduce(
-                          (sum: number, curr: RegionalPriceItem) => sum + curr.price, 0
-                        ) / (regionalPricesData as RegionalPricesResponse).prices.length;
-                        
-                        // Format region name
-                        const regionName = String(item.regionId).charAt(0).toUpperCase() + 
-                          String(item.regionId).slice(1);
-                        
-                        return (
-                          <tr key={item.regionId} className="border-b border-border">
-                            <td className="py-2 px-4">{regionName}</td>
-                            <td className="py-2 px-4 text-right">৳{item.price}</td>
-                            <td className="py-2 px-4 text-right">
-                              <span className={
-                                item.price > avgPrice
-                                  ? "text-red-500"
-                                  : item.price < avgPrice
-                                  ? "text-green-500"
-                                  : ""
-                              }>
-                                {item.price > avgPrice ? "+" : ""}
-                                {((item.price - avgPrice) / avgPrice * 100).toFixed(1)}%
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {(regionalPricesData as RegionalPricesResponse).prices.map(
+                        (item: RegionalPriceItem) => {
+                          // Calculate average price for comparison
+                          const avgPrice =
+                            (regionalPricesData as RegionalPricesResponse).prices.reduce(
+                              (sum: number, curr: RegionalPriceItem) => sum + curr.price,
+                              0
+                            ) / (regionalPricesData as RegionalPricesResponse).prices.length;
+
+                          // Get region name from API response or fallback to formatted ID
+                          const regionName =
+                            item.regionName ||
+                            String(item.regionId).charAt(0).toUpperCase() +
+                              String(item.regionId).slice(1);
+
+                          return (
+                            <tr key={item.regionId} className="border-b border-border">
+                              <td className="py-2 px-4 font-medium">{regionName}</td>
+                              <td className="py-2 px-4 text-right font-mono">৳{item.price}</td>
+                              <td className="py-2 px-4 text-right">
+                                <span
+                                  className={
+                                    item.price > avgPrice
+                                      ? "text-red-500 font-medium"
+                                      : item.price < avgPrice
+                                        ? "text-green-500 font-medium"
+                                        : ""
+                                  }
+                                >
+                                  {item.price > avgPrice ? "+" : ""}
+                                  {(((item.price - avgPrice) / avgPrice) * 100).toFixed(1)}%
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        }
+                      )}
                     </tbody>
                   </table>
+                  <div className="text-xs text-muted-foreground mt-4">
+                    <p>* Prices shown in Bangladeshi Taka (৳) per kg/unit</p>
+                    <p>* Percentages indicate price difference from the national average</p>
+                  </div>
                 </div>
               )}
             </CardContent>
@@ -247,4 +253,4 @@ export default function MapPage() {
       </div>
     </div>
   );
-} 
+}

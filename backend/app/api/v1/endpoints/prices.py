@@ -103,6 +103,7 @@ def get_regional_prices(
             
             regional_prices.append({
                 "regionId": region.id,
+                "regionName": region.name,
                 "price": latest_price.price,
                 "avgPrice": avg_price,
                 "trend": trend_percentage

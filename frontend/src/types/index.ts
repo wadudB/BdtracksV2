@@ -16,7 +16,6 @@ export type PricePoint = {
   price: number;
 };
 
-
 export type RegionalPrice = {
   region: string;
   price: number;

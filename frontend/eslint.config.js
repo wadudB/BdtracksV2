@@ -36,7 +36,6 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       // Best practices
-      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       'no-debugger': 'warn',
       'no-alert': 'warn',
       'prefer-const': 'warn',

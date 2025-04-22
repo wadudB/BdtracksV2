@@ -88,9 +88,9 @@ export default function Header() {
           </div>
 
           {/* Mobile menu toggle */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -103,9 +103,15 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden border-t border-border p-4">
           <nav className="flex flex-col space-y-2">
-            <Link to="/" className="px-2 py-1 hover:bg-muted rounded">Home</Link>
-            <Link to="/commodities" className="px-2 py-1 hover:bg-muted rounded">Commodities</Link>
-            <Link to="/about" className="px-2 py-1 hover:bg-muted rounded">About</Link>
+            <Link to="/" className="px-2 py-1 hover:bg-muted rounded">
+              Home
+            </Link>
+            <Link to="/commodities" className="px-2 py-1 hover:bg-muted rounded">
+              Commodities
+            </Link>
+            <Link to="/about" className="px-2 py-1 hover:bg-muted rounded">
+              About
+            </Link>
           </nav>
         </div>
       )}
@@ -114,4 +120,4 @@ export default function Header() {
       {shouldShowSubNavbar() && <SubNavigation isOpen={isSubMenuOpen} />}
     </header>
   );
-} 
+}

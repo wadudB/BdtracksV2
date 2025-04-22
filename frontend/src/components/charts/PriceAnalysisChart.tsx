@@ -2,23 +2,31 @@
 
 import React, { useMemo, useState } from "react";
 import {
+  format as _format,
+  subDays as _subDays,
+  subMonths as _subMonths,
+  subYears as _subYears,
+} from "date-fns";
+import {
   Area,
-  CartesianGrid,
-  ComposedChart,
-  Legend,
-  Line,
-  ResponsiveContainer,
   XAxis,
   YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine as _ReferenceLine,
+  Line,
+  ComposedChart,
+  Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { Button as _Button } from "@/components/ui/button";
+import { BarChart as _BarChart, ArrowUp as _ArrowUp, ArrowDown as _ArrowDown } from "lucide-react";
+
+// Import components from the chart abstraction
+import { ChartContainer, ChartConfig } from "@/components/ui/chart";
+import { ChartTooltipContent } from "@/components/ui/chart";
+import { ChartLegend as _ChartLegend } from "@/components/ui/chart";
 import { Commodity } from "@/types";
 
 interface PriceAnalysisChartProps {
@@ -260,76 +268,71 @@ export default function PriceAnalysisChart({
 
           <div className="h-[400px] w-full">
             <ChartContainer config={chartConfig} className="h-full w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart
-                  data={chartData}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
-                >
-                  <defs>
-                    <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.1} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                  <XAxis
-                    dataKey="formattedDate"
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 12 }}
-                    tickMargin={10}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tick={{ fontSize: 12 }}
-                    tickMargin={10}
-                    tickFormatter={(value: number) => `৳${value}`}
-                  />
-                  <ChartTooltip
-                    content={<ChartTooltipContent nameKey="name" labelKey="formattedDate" />}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="price"
-                    name="Price"
-                    stroke="var(--chart-1)"
-                    fillOpacity={1}
-                    fill="url(#colorPrice)"
-                  />
+              <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                <defs>
+                  <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis
+                  dataKey="formattedDate"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickMargin={10}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickMargin={10}
+                  tickFormatter={(value: number) => `৳${value}`}
+                />
+                <Tooltip
+                  content={<ChartTooltipContent nameKey="name" labelKey="formattedDate" />}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="price"
+                  name="Price"
+                  stroke="var(--chart-1)"
+                  fillOpacity={1}
+                  fill="url(#colorPrice)"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="movingAvg"
+                  name="7-Day Average"
+                  stroke="var(--chart-2)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                {commodity.minPrice && (
                   <Line
                     type="monotone"
-                    dataKey="movingAvg"
-                    name="7-Day Average"
-                    stroke="var(--chart-2)"
-                    strokeWidth={2}
+                    dataKey="minPrice"
+                    name="Minimum Price"
+                    stroke="var(--chart-3)"
+                    strokeDasharray="5 5"
+                    strokeWidth={1}
                     dot={false}
                   />
-                  {commodity.minPrice && (
-                    <Line
-                      type="monotone"
-                      dataKey="minPrice"
-                      name="Minimum Price"
-                      stroke="var(--chart-3)"
-                      strokeDasharray="5 5"
-                      strokeWidth={1}
-                      dot={false}
-                    />
-                  )}
-                  {commodity.maxPrice && (
-                    <Line
-                      type="monotone"
-                      dataKey="maxPrice"
-                      name="Maximum Price"
-                      stroke="var(--chart-4)"
-                      strokeDasharray="5 5"
-                      strokeWidth={1}
-                      dot={false}
-                    />
-                  )}
-                  <Legend />
-                </ComposedChart>
-              </ResponsiveContainer>
+                )}
+                {commodity.maxPrice && (
+                  <Line
+                    type="monotone"
+                    dataKey="maxPrice"
+                    name="Maximum Price"
+                    stroke="var(--chart-4)"
+                    strokeDasharray="5 5"
+                    strokeWidth={1}
+                    dot={false}
+                  />
+                )}
+                <Legend />
+              </ComposedChart>
             </ChartContainer>
           </div>
 

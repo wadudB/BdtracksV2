@@ -30,4 +30,4 @@ export default function SubNavigation({ isOpen }: SubNavigationProps) {
       </div>
     </div>
   );
-} 
+}

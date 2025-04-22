@@ -115,7 +115,7 @@ export const priceService = {
     const queryParams = new URLSearchParams();
     queryParams.append("commodity_id", commodityId.toString());
     if (timeWindow) queryParams.append("time_window", timeWindow.toString());
-    
+
     return await apiClient(`/prices/regions?${queryParams.toString()}`);
   },
 
