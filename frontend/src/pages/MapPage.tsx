@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import RegionalMap from "@/components/maps/RegionalMap";
 import { useGetCommodities, useGetRegionalPrices } from "@/hooks/useQueries";
+import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 
 // Define types for regional price data
 interface RegionalPriceItem {
@@ -67,9 +69,10 @@ export default function MapPage() {
   console.log("Formatted map price data:", mapPriceData);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Page Header */}
-      <div className="mb-8 text-center">
+    <Section>
+      <Container>
+        {/* Page Header */}
+        <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Regional Price Map</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           View and compare commodity prices across different regions of Bangladesh.
@@ -97,7 +100,7 @@ export default function MapPage() {
               </div>
 
               {/* Commodity list */}
-              <div className="space-y-1 max-h-80 overflow-y-auto">
+              <div className="space-y-1 max-h-95 overflow-y-auto">
                 {commoditiesLoading ? (
                   <div className="py-2 text-center text-muted-foreground">
                     Loading commodities...
@@ -120,7 +123,6 @@ export default function MapPage() {
                     >
                       <div className="flex items-center justify-between">
                         <span>{commodity.name}</span>
-                        <span className="text-xs uppercase opacity-70">{commodity.category}</span>
                       </div>
                     </button>
                   ))
@@ -155,8 +157,8 @@ export default function MapPage() {
         {/* Map and data display */}
         <div className="lg:col-span-3 space-y-6">
           {/* Map */}
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="gap-0">
+            <CardHeader className="pb-0">
               <div className="flex justify-between items-center">
                 <CardTitle>{selectedCommodityName || "Select a commodity"}</CardTitle>
                 <div className="text-sm text-muted-foreground">
@@ -165,7 +167,7 @@ export default function MapPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="h-[450px] w-full">
+              <div className="h-[600px] w-full">
                 <RegionalMap
                   selectedCommodity={selectedCommodityName}
                   priceData={mapPriceData}
@@ -251,6 +253,7 @@ export default function MapPage() {
           </Card>
         </div>
       </div>
-    </div>
+    </Container>
+    </Section>
   );
 }

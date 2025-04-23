@@ -1,289 +1,388 @@
-import { FC } from "react";
+import { FC, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { commodities, getTopChangedCommodities } from "@/data/commodityData";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Section } from "@/components/ui/section";
+import { Container } from "@/components/ui/container";
+import { Heading } from "@/components/ui/heading";
+import { Grid } from "@/components/ui/grid";
 
 const HomePage: FC = () => {
   const navigate = useNavigate();
+  const servicesRef = useRef<HTMLElement>(null);
+  const allTrackersRef = useRef<HTMLDivElement>(null);
 
-  // Get top 4 commodities with significant price changes
-  const featuredCommodities = getTopChangedCommodities(4);
-
-  const handleViewCommodities = (): void => {
-    navigate("/commodities");
-  };
-
-  const handleViewMap = (): void => {
-    navigate("/map");
-  };
-
-  const handleSignUp = (): void => {
-    // Would handle signup logic
-    navigate("/signup");
+  const handleExplore = (): void => {
+    if (servicesRef.current) {
+      servicesRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handleLearnMore = (): void => {
     navigate("/about");
   };
 
+  const handleViewTrackers = (): void => {
+    if (allTrackersRef.current) {
+      allTrackersRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 py-24 flex flex-col md:flex-row items-center justify-between">
-          <div className="md:w-1/2 mb-10 md:mb-0">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Track Bangladeshi Commodity Prices in Real-Time
-            </h1>
-            <p className="text-xl mb-8">
-              BDTRACKS provides up-to-date commodity prices, regional comparisons, and market
-              insights across Bangladesh.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button variant="default" onClick={handleViewCommodities}>
-                View Commodities
-              </Button>
-              <Button variant="outline" onClick={handleViewMap}>
-                Regional Map
-              </Button>
-            </div>
-          </div>
-          <div className="md:w-1/2 flex justify-center">
-            <div className="relative w-full max-w-md">
-              <div className="absolute inset-0 bg-secondary/20 rounded-lg transform rotate-3"></div>
-              <img
-                src="https://via.placeholder.com/600x400"
-                alt="Bangladesh Market"
-                className="relative z-10 rounded-lg shadow-lg w-full"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Commodities */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center mb-12">
-            <div>
-              <h2 className="text-3xl font-bold mb-2">Featured Commodities</h2>
-              <p className="text-muted-foreground">
-                Monitor the most important commodity prices in Bangladesh
+      <Section variant="default">
+        <Container>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+            <div className="md:w-1/2 lg:w-[45%] mb-6 md:mb-0">
+              <Heading as="h1" size="xl" className="mb-4">Welcome to BDTracks</Heading>
+              <p className="text-base md:text-lg mb-6 text-muted-foreground max-w-lg">
+                Your comprehensive platform for data tracking, tools, and services across Bangladesh.
+                Access insights and resources for informed decision-making.
               </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button variant="default" onClick={handleExplore}>
+                  Explore Platform
+                </Button>
+                <Button variant="outline" onClick={handleLearnMore}>
+                  Learn More
+                </Button>
+              </div>
             </div>
-            <Link
-              to="/commodities"
-              className="mt-4 md:mt-0 text-primary hover:underline flex items-center"
-            >
-              View all commodities <span className="material-icons ml-1">arrow_forward</span>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredCommodities.map((commodity) => (
-              <Card key={commodity.id} className="transition-transform hover:scale-105">
-                <div className="h-48 overflow-hidden">
-                  <img
-                    src={
-                      commodity.image ||
-                      `https://via.placeholder.com/600x400?text=${encodeURIComponent(commodity.name)}`
-                    }
-                    alt={commodity.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle>{commodity.name}</CardTitle>
+            <div className="w-full md:w-1/2 lg:w-[45%]">
+              <Card className="w-full shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base md:text-lg font-medium">
+                    Tracking Highlights
+                  </CardTitle>
+                  <span className="text-xs text-muted-foreground">Last updated: Today</span>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
-                    <span className="text-2xl font-bold">
-                      ৳{commodity.currentPrice}/{commodity.unit}
-                    </span>
-                    <span
-                      className={
-                        commodity.weeklyChange > 0
-                          ? "text-red-500"
-                          : commodity.weeklyChange < 0
-                            ? "text-green-500"
-                            : "text-yellow-500"
-                      }
-                    >
-                      {commodity.weeklyChange > 0 && "+"}
-                      {Math.round(commodity.weeklyChange)}%
-                    </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Commodity Prices */}
+                    <div className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-green-500 text-lg">🛒</span>
+                        <span className="font-medium text-sm">Commodity Prices</span>
+                      </div>
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-muted-foreground">Rice</span>
+                          <div className="flex items-center">
+                            <span className="font-medium text-sm mr-1">₹75</span>
+                            <span className="text-xs text-red-500">±2.4%</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Onions</span>
+                          <div className="flex items-center">
+                            <span className="font-medium text-sm mr-1">₹60</span>
+                            <span className="text-xs text-green-500">↑3.1%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Weather */}
+                    <div className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-blue-500 text-lg">🌤️</span>
+                        <span className="font-medium text-sm">Weather</span>
+                      </div>
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-muted-foreground">Dhaka</span>
+                          <span className="font-medium text-sm">32°C</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Rainfall</span>
+                          <span className="font-medium text-sm">3mm</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Accidents */}
+                    <div className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-red-500 text-lg">🚨</span>
+                        <span className="font-medium text-sm">Accidents</span>
+                      </div>
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-muted-foreground">Today</span>
+                          <span className="font-medium text-sm">12</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">This week</span>
+                          <span className="font-medium text-sm">87</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Health */}
+                    <div className="border rounded-md p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-purple-500 text-lg">🏥</span>
+                        <span className="font-medium text-sm">Health</span>
+                      </div>
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-muted-foreground">Hospitals</span>
+                          <span className="font-medium text-sm">130</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">Clinics</span>
+                          <span className="font-medium text-sm">450+</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <Button variant="outline" className="w-full text-sm" onClick={handleViewTrackers}>
+                      View All Trackers
+                    </Button>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Button asChild variant="secondary" className="w-full">
-                    <Link to={`/commodity/${commodity.id}`}>View Details</Link>
-                  </Button>
-                </CardFooter>
               </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Recent Price Changes Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-10 text-center">Recent Price Changes</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-4 px-2">Commodity</th>
-                  <th className="text-right py-4 px-2">Current Price</th>
-                  <th className="text-right py-4 px-2">Previous Price</th>
-                  <th className="text-right py-4 px-2">Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {commodities.slice(0, 10).map((commodity) => (
-                  <tr key={commodity.id} className="border-b hover:bg-muted/50">
-                    <td className="py-4 px-2">
-                      <Link to={`/commodity/${commodity.id}`} className="hover:text-primary">
-                        {commodity.name}
-                      </Link>
-                    </td>
-                    <td className="text-right py-4 px-2">
-                      ৳{commodity.currentPrice}/{commodity.unit}
-                    </td>
-                    <td className="text-right py-4 px-2">
-                      ৳{commodity.previousPrice}/{commodity.unit}
-                    </td>
-                    <td
-                      className={`text-right py-4 px-2 ${
-                        commodity.weeklyChange > 0
-                          ? "text-red-500"
-                          : commodity.weeklyChange < 0
-                            ? "text-green-500"
-                            : "text-yellow-500"
-                      }`}
-                    >
-                      {commodity.weeklyChange > 0 && "+"}
-                      {Math.round(commodity.weeklyChange)}%
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="text-center mt-8">
-            <Button asChild variant="outline">
-              <Link to="/commodities">View All Prices</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Regional Map Section */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 mb-10 md:mb-0 md:pr-12">
-              <h2 className="text-3xl font-bold mb-6">Regional Price Comparison</h2>
-              <p className="mb-6 text-muted-foreground">
-                Prices of commodities vary across different regions of Bangladesh. Our interactive
-                map allows you to visualize price differences by location.
-              </p>
-              <ul className="space-y-4">
-                <li className="flex items-start">
-                  <span className="material-icons text-primary mr-3 mt-1">check_circle</span>
-                  <span>Compare prices across all 8 divisions of Bangladesh</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="material-icons text-primary mr-3 mt-1">check_circle</span>
-                  <span>Identify regions with the lowest and highest prices</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="material-icons text-primary mr-3 mt-1">check_circle</span>
-                  <span>Make informed purchasing decisions based on location</span>
-                </li>
-              </ul>
-              <Button asChild variant="default" className="mt-8">
-                <Link to="/map">View Regional Map</Link>
-              </Button>
-            </div>
-            <div className="md:w-1/2 h-96 bg-muted rounded-lg flex items-center justify-center">
-              <p className="text-muted-foreground">Interactive Map (Google Maps integration)</p>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Why Choose BDTRACKS?</h2>
-            <p className="text-muted-foreground max-w-3xl mx-auto">
-              We provide comprehensive commodity tracking tools designed specifically for
-              Bangladesh's markets.
+      {/* Stats Section */}
+      <Section variant="muted">
+        <Container>
+          <Grid cols={4} className="text-center">
+            <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
+              <span className="material-icons text-primary text-3xl mb-1">category</span>
+              <h3 className="text-2xl md:text-3xl font-bold mb-1">1000+</h3>
+              <p className="text-sm text-muted-foreground">Tracking Categories</p>
+            </div>
+            <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
+              <span className="material-icons text-primary text-3xl mb-1">public</span>
+              <h3 className="text-2xl md:text-3xl font-bold mb-1">24/7</h3>
+              <p className="text-sm text-muted-foreground">Real-time Updates</p>
+            </div>
+            <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
+              <span className="material-icons text-primary text-3xl mb-1">verified</span>
+              <h3 className="text-2xl md:text-3xl font-bold mb-1">64</h3>
+              <p className="text-sm text-muted-foreground">Districts Covered</p>
+            </div>
+            <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
+              <span className="material-icons text-primary text-3xl mb-1">groups</span>
+              <h3 className="text-2xl md:text-3xl font-bold mb-1">100K+</h3>
+              <p className="text-sm text-muted-foreground">Trusted Users</p>
+            </div>
+          </Grid>
+        </Container>
+      </Section>
+
+      {/* Comprehensive Services Platform */}
+      <Section 
+        variant="default" 
+        ref={servicesRef} 
+        className="scroll-mt-15"
+      >
+        <Container>
+          <div className="text-center mb-10">
+            <Heading size="lg" className="mb-3">Comprehensive Services Platform</Heading>
+            <p className="text-muted-foreground text-sm md:text-base max-w-3xl mx-auto">
+              Our platform brings together data trackers, calculators, and services from across
+              Bangladesh, providing insights and tools for a variety of sectors in one unified
+              interface.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center">
-              <CardHeader>
-                <span className="material-icons text-primary text-4xl mb-4">update</span>
-                <CardTitle>Real-Time Updates</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Our prices are updated daily to ensure you always have access to the most current
-                  information.
-                </p>
-              </CardContent>
-            </Card>
+          {/* Data Trackers */}
+          <div 
+            className="mb-12 scroll-mt-24"
+            ref={allTrackersRef}
+          >
+            <Heading size="md" className="mb-5 flex items-center">
+              <span className="material-icons mr-2">insights</span> Data Trackers
+            </Heading>
 
-            <Card className="text-center">
-              <CardHeader>
-                <span className="material-icons text-primary text-4xl mb-4">insights</span>
-                <CardTitle>Market Analysis</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Get expert insights on price trends, seasonal patterns, and market forecasts.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center">
-              <CardHeader>
-                <span className="material-icons text-primary text-4xl mb-4">notifications</span>
-                <CardTitle>Price Alerts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Set up custom alerts to be notified when prices of your watched commodities change
-                  significantly.
-                </p>
-              </CardContent>
-            </Card>
+            <Grid cols={2}>
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">traffic</span>
+                    Road Accident Tracker
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Our dashboard collects up-to-date overview of road accidents, including total
+                    impact and geographical distribution.
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                    <Link to="/data-trackers/road-accidents">View</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">trending_up</span>
+                    Commodity Price Tracker
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Stay informed about the latest market trends with our commodity price tracker.
+                    Users can verify if the information is current and accurate.
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                    <Link to="/commodities">View</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">power</span>
+                    National Outage Detector
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Our interactive tool provides real-time updates on power outages across the
+                    country, helping you stay prepared and informed.
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                    <Link to="/data-trackers/outages">View</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">cloud</span>
+                    Weather Forecast and Modeling
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Stay ahead of the weather with our advanced weather forecast and numerical
+                    modeling service. We use Google TensorFlow to provide accurate predictions.
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                    <Link to="/data-trackers/weather">View</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Ready to track commodity prices?</h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Sign up for free to access all our features and stay updated with the latest prices.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button variant="secondary" onClick={handleSignUp}>
-              Sign Up Free
-            </Button>
-            <Button variant="outline" onClick={handleLearnMore}>
-              Learn More
-            </Button>
+          
+          {/* Calculators & Tools */}
+          <div className="mb-12">
+            <Heading size="md" className="mb-5 flex items-center">
+              <span className="material-icons mr-2">calculate</span> Calculators & Tools
+            </Heading>
+            
+            <Grid cols={2}>
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">bolt</span>
+                    Energy Cost Calculator
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Calculate your energy consumption with our energy cost calculator, designed to
+                    give you an estimate of your monthly energy bills.
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                    <Link to="/calculators/energy">View</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+              
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">wb_sunny</span>
+                    Photovoltaic System Design Calculator
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Design your solar panel system with our Photovoltaic System Design Calculator.
+                    This tool is designed to help you estimate size, capacity, and cost of your
+                    system.
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                    <Link to="/calculators/solar">View</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
           </div>
-        </div>
-      </section>
+          
+          {/* Public Services */}
+          <div>
+            <Heading size="md" className="mb-5 flex items-center">
+              <span className="material-icons mr-2">public</span> Public Services
+            </Heading>
+            
+            <Grid cols={1}>
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">how_to_vote</span>
+                    Election Vote Survey
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Participate in our democratic process with our voting survey platform. Share
+                    your opinions and see what others think about current political issues.
+                  </p>
+                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                    <Link to="/services/election-survey">View</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          </div>
+        </Container>
+      </Section>
+      
+      {/* Contribute Section */}
+      <Section variant="muted">
+        <Container>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="md:w-1/2 mb-6 md:mb-0">
+              <Heading size="lg" className="mb-3">Contribute to Our Data</Heading>
+              <p className="text-sm md:text-base text-muted-foreground mb-4">
+                Help improve our database by submitting updates from your region or district! Share
+                data for any of our tracking categories.
+              </p>
+              <Button variant="default">Contribute Data</Button>
+            </div>
+            <div className="w-full md:w-1/3">
+              <Card className="shadow-sm">
+                <CardContent className="p-4 md:p-5">
+                  <span className="material-icons text-primary text-3xl mb-3">
+                    assignment_turned_in
+                  </span>
+                  <h3 className="text-lg font-bold mb-2">Why Contribute?</h3>
+                  <ul className="space-y-1 text-sm text-muted-foreground">
+                    <li>• Help improve data accuracy</li>
+                    <li>• Support your local community</li>
+                    <li>• Make Bangladesh's data more transparent</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </Container>
+      </Section>
     </>
   );
 };

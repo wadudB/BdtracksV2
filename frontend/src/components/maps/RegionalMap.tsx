@@ -326,7 +326,7 @@ export default function RegionalMap({
 
       <div
         ref={mapRef}
-        className="w-full h-full"
+        className="w-full h-full rounded-lg"
         style={{ display: mapError ? "none" : "block" }}
       />
     </div>
