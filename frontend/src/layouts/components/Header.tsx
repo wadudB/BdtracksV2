@@ -53,7 +53,7 @@ export default function Header() {
                     Commodities
                   </Link>
                 </NavigationMenuItem>
-                <NavigationMenuItem>
+                {/* <NavigationMenuItem>
                   <Link
                     to="/about"
                     className={`${navigationMenuTriggerStyle()} ${
@@ -62,16 +62,13 @@ export default function Header() {
                   >
                     About
                   </Link>
-                </NavigationMenuItem>
+                </NavigationMenuItem> */}
               </NavigationMenuList>
             </NavigationMenu>
 
             {/* Right side controls */}
             <div className="flex items-center space-x-4">
               <ThemeToggle />
-              <Button variant="ghost" size="icon">
-                <span className="material-icons">search</span>
-              </Button>
               {shouldShowSubNavbar() && (
                 <Button
                   variant="ghost"

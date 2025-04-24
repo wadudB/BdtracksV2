@@ -117,57 +117,57 @@ REGIONS = [
     {
         "name": "Dhaka",
         "bengali_name": "ঢাকা",
-        "latitude": 23.8103,
-        "longitude": 90.4125,
+        "latitude": 23.9535742,
+        "longitude": 90.14949879999999,
         "is_division": True
     },
     {
         "name": "Chittagong",
         "bengali_name": "চট্টগ্রাম",
-        "latitude": 22.3569,
-        "longitude": 91.7832,
+        "latitude": 23.1793157,
+        "longitude": 91.9881527,
         "is_division": True
     },
     {
         "name": "Rajshahi",
         "bengali_name": "রাজশাহী",
-        "latitude": 24.3745,
-        "longitude": 88.6042,
+        "latitude": 24.7105776,
+        "longitude": 88.94138650000001,
         "is_division": True
     },
     {
         "name": "Khulna",
         "bengali_name": "খুলনা",
-        "latitude": 22.8456,
-        "longitude": 89.5403,
+        "latitude": 22.8087816,
+        "longitude": 89.24671909999999,
         "is_division": True
     },
     {
         "name": "Barisal",
         "bengali_name": "বরিশাল",
-        "latitude": 22.7010,
-        "longitude": 90.3535,
+        "latitude": 22.3811131,
+        "longitude": 90.3371889,
         "is_division": True
     },
     {
         "name": "Sylhet",
         "bengali_name": "সিলেট",
-        "latitude": 24.8949,
-        "longitude": 91.8687,
+        "latitude": 24.7049811,
+        "longitude": 91.67606909999999,
         "is_division": True
     },
     {
         "name": "Rangpur",
         "bengali_name": "রংপুর",
-        "latitude": 25.7439,
-        "longitude": 89.2752,
+        "latitude": 25.8483388,
+        "longitude": 88.94138650000001,
         "is_division": True
     },
     {
         "name": "Mymensingh",
         "bengali_name": "ময়মনসিংহ",
-        "latitude": 24.7471,
-        "longitude": 90.4203,
+        "latitude": 24.71362,
+        "longitude": 90.4502368,
         "is_division": True
     }
 ]

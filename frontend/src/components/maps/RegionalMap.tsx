@@ -15,49 +15,15 @@ interface RegionalMapProps {
 
 // Map of Bangladesh regions with coordinates
 const DEFAULT_REGIONS: Region[] = [
-  { id: "dhaka", name: "Dhaka", lat: 23.8103, lng: 90.4125 },
-  { id: "chittagong", name: "Chittagong", lat: 22.3569, lng: 91.7832 },
-  { id: "sylhet", name: "Sylhet", lat: 24.8949, lng: 91.8687 },
-  { id: "rajshahi", name: "Rajshahi", lat: 24.3745, lng: 88.6042 },
-  { id: "khulna", name: "Khulna", lat: 22.8456, lng: 89.5403 },
-  { id: "barisal", name: "Barisal", lat: 22.7, lng: 90.35 },
-  { id: "rangpur", name: "Rangpur", lat: 25.7439, lng: 89.2752 },
-  { id: "mymensingh", name: "Mymensingh", lat: 24.7471, lng: 90.4203 },
+  { id: "dhaka", name: "Dhaka", lat: 23.9535742, lng: 90.14949879999999 },
+  { id: "chittagong", name: "Chittagong", lat: 23.1793157, lng: 91.9881527 },
+  { id: "rajshahi", name: "Rajshahi", lat: 24.7105776, lng: 88.94138650000001 },
+  { id: "khulna", name: "Khulna", lat: 22.8087816, lng: 89.24671909999999 },
+  { id: "barisal", name: "Barisal", lat: 22.3811131, lng: 90.3371889 },
+  { id: "sylhet", name: "Sylhet", lat: 24.7049811, lng: 91.67606909999999 },
+  { id: "rangpur", name: "Rangpur", lat: 25.8483388, lng: 88.94138650000001 },
+  { id: "mymensingh", name: "Mymensingh", lat: 24.71362, lng: 90.4502368 },
 ];
-
-// Region ID mappings (for data normalization)
-const REGION_ID_MAP: Record<string, string[]> = {
-  dhaka: ["dhaka", "3", "3.0", "dha", "dhk"],
-  chittagong: ["chittagong", "2", "2.0", "ctg", "cht"],
-  sylhet: ["sylhet", "7", "7.0", "syl", "slt"],
-  rajshahi: ["rajshahi", "5", "5.0", "raj", "rjs"],
-  khulna: ["khulna", "4", "4.0", "khu", "kln"],
-  barisal: ["barisal", "1", "1.0", "bar", "bsl"],
-  rangpur: ["rangpur", "6", "6.0", "ran", "rgp"],
-  mymensingh: ["mymensingh", "8", "8.0", "mym", "mns"],
-};
-
-// Function to normalize region IDs for matching
-function normalizeRegionId(id: string | number): string {
-  const strId = String(id).toLowerCase().trim();
-
-  // Check if it's directly in our mapping
-  for (const [key, values] of Object.entries(REGION_ID_MAP)) {
-    if (values.includes(strId)) {
-      return key;
-    }
-  }
-
-  // Check if it starts with any of our keys
-  for (const key of Object.keys(REGION_ID_MAP)) {
-    if (strId.startsWith(key)) {
-      return key;
-    }
-  }
-
-  // Return as-is if no match found
-  return strId;
-}
 
 // Global script loaded flag
 let googleMapsScriptLoaded = false;
@@ -88,7 +54,8 @@ export default function RegionalMap({
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<MarkerWithInfoWindow[]>([]);
   const [mapError, setMapError] = useState<string | null>(null);
-
+  const [mapReady, setMapReady] = useState<boolean>(false);
+  
   // Load Google Maps API
   useEffect(() => {
     // Skip if already initialized or if the container isn't available
@@ -211,44 +178,22 @@ export default function RegionalMap({
 
     console.log("Price data received:", priceData);
 
-    // Create a normalized map of price data for easier lookup
-    const normalizedPriceMap = new Map<string, number>();
-
-    priceData.forEach((item) => {
-      const normalizedId = normalizeRegionId(item.regionId);
-      normalizedPriceMap.set(normalizedId, item.price);
-      console.log(
-        `Normalized region ID: ${String(item.regionId)} -> ${normalizedId}, Price: ${item.price}`
-      );
-    });
-
     // Process regions and create markers
     regions.forEach((region) => {
       if (!region.id || !region.lat || !region.lng) return;
 
-      // Find matching price data for this region
-      const regionId = String(region.id).toLowerCase();
-      const normalizedRegionId = normalizeRegionId(regionId);
-
-      console.log(
-        `Checking region: ${region.name}, ID: ${regionId}, Normalized: ${normalizedRegionId}`
+      // Find the right price data by matching regionName instead of ID
+      const priceEntry = priceData.find(p =>
+        p.regionName && p.regionName.toLowerCase() === region.name.toLowerCase()
       );
 
-      // Get price from our normalized map
-      const price = normalizedPriceMap.get(normalizedRegionId);
-
-      // Skip if no price found
-      if (price === undefined) {
-        console.log(`No price found for region: ${region.name}`);
+      if (!priceEntry) {
+        console.log(`No price data found for region: ${region.name}`);
         return;
       }
 
-      // Get region name from price data or use the one from the region object
-      const regionNameForDisplay =
-        priceData.find((item) => normalizeRegionId(String(item.regionId)) === normalizedRegionId)
-          ?.regionName || region.name;
-
-      console.log(`Match found! Price: ${price} for region ${regionNameForDisplay}`);
+      const price = priceEntry.price;
+      console.log(`Match found! Price: ${price} for region ${priceEntry.regionName}`);
 
       const map = googleMapRef.current;
       if (!map) return;
@@ -258,7 +203,7 @@ export default function RegionalMap({
         const marker = new window.google.maps.Marker({
           position: { lat: region.lat, lng: region.lng },
           map,
-          title: `${regionNameForDisplay}: ৳${price}`,
+          title: `${priceEntry.regionName}: ৳${price}`,
           label: {
             text: `৳${price}`,
             color: "white",
@@ -266,14 +211,14 @@ export default function RegionalMap({
         }) as MarkerWithInfoWindow;
 
         console.log(
-          `Created marker for ${regionNameForDisplay} at ${region.lat},${region.lng} with price ৳${price}`
+          `Created marker for ${priceEntry.regionName} at ${region.lat},${region.lng} with price ৳${price}`
         );
 
         // Create info window
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
             <div style="padding: 8px; max-width: 200px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 16px;">${regionNameForDisplay}</h3>
+              <h3 style="margin: 0 0 8px 0; font-size: 16px;">${priceEntry.regionName}</h3>
               <p style="margin: 0; font-size: 14px;">
                 <strong>${selectedCommodity}:</strong> ৳${price}
               </p>

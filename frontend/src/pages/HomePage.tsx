@@ -153,12 +153,12 @@ const HomePage: FC = () => {
       {/* Stats Section */}
       <Section variant="muted">
         <Container>
-          <Grid cols={4} className="text-center">
-            <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
+          <Grid cols={2} className="text-center items-center">
+            {/* <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
               <span className="material-icons text-primary text-3xl mb-1">category</span>
               <h3 className="text-2xl md:text-3xl font-bold mb-1">1000+</h3>
               <p className="text-sm text-muted-foreground">Tracking Categories</p>
-            </div>
+            </div> */}
             <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
               <span className="material-icons text-primary text-3xl mb-1">public</span>
               <h3 className="text-2xl md:text-3xl font-bold mb-1">24/7</h3>
@@ -169,11 +169,11 @@ const HomePage: FC = () => {
               <h3 className="text-2xl md:text-3xl font-bold mb-1">64</h3>
               <p className="text-sm text-muted-foreground">Districts Covered</p>
             </div>
-            <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
+            {/* <div className="bg-muted/20 p-4 md:p-5 rounded-lg">
               <span className="material-icons text-primary text-3xl mb-1">groups</span>
               <h3 className="text-2xl md:text-3xl font-bold mb-1">100K+</h3>
               <p className="text-sm text-muted-foreground">Trusted Users</p>
-            </div>
+            </div> */}
           </Grid>
         </Container>
       </Section>
