@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, ForeignKey, Date, Text, DateTime
+from sqlalchemy import String, Integer, ForeignKey, Date, Text, DateTime, Float
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 from datetime import date
@@ -24,6 +24,10 @@ class PriceRecord(Base):
     recorded_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id"), nullable=True)
     source: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    address: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    latitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    longitude: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
     recorded_at: Mapped[date] = mapped_column(Date, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime, 

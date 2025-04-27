@@ -35,10 +35,12 @@ const HomePage: FC = () => {
         <Container>
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
             <div className="md:w-1/2 lg:w-[45%] mb-6 md:mb-0">
-              <Heading as="h1" size="xl" className="mb-4">Welcome to BDTracks</Heading>
+              <Heading as="h1" size="xl" className="mb-4">
+                Welcome to BDTracks
+              </Heading>
               <p className="text-base md:text-lg mb-6 text-muted-foreground max-w-lg">
-                Your comprehensive platform for data tracking, tools, and services across Bangladesh.
-                Access insights and resources for informed decision-making.
+                Your comprehensive platform for data tracking, tools, and services across
+                Bangladesh. Access insights and resources for informed decision-making.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Button variant="default" onClick={handleExplore}>
@@ -139,7 +141,11 @@ const HomePage: FC = () => {
                   </div>
 
                   <div className="mt-3">
-                    <Button variant="outline" className="w-full text-sm" onClick={handleViewTrackers}>
+                    <Button
+                      variant="outline"
+                      className="w-full text-sm"
+                      onClick={handleViewTrackers}
+                    >
                       View All Trackers
                     </Button>
                   </div>
@@ -179,14 +185,12 @@ const HomePage: FC = () => {
       </Section>
 
       {/* Comprehensive Services Platform */}
-      <Section 
-        variant="default" 
-        ref={servicesRef} 
-        className="scroll-mt-15"
-      >
+      <Section variant="default" ref={servicesRef} className="scroll-mt-15">
         <Container>
           <div className="text-center mb-10">
-            <Heading size="lg" className="mb-3">Comprehensive Services Platform</Heading>
+            <Heading size="lg" className="mb-3">
+              Comprehensive Services Platform
+            </Heading>
             <p className="text-muted-foreground text-sm md:text-base max-w-3xl mx-auto">
               Our platform brings together data trackers, calculators, and services from across
               Bangladesh, providing insights and tools for a variety of sectors in one unified
@@ -195,10 +199,7 @@ const HomePage: FC = () => {
           </div>
 
           {/* Data Trackers */}
-          <div 
-            className="mb-12 scroll-mt-24"
-            ref={allTrackersRef}
-          >
+          <div className="mb-12 scroll-mt-24" ref={allTrackersRef}>
             <Heading size="md" className="mb-5 flex items-center">
               <span className="material-icons mr-2">insights</span> Data Trackers
             </Heading>
@@ -211,17 +212,17 @@ const HomePage: FC = () => {
                     Road Accident Tracker
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
                     Our dashboard collects up-to-date overview of road accidents, including total
                     impact and geographical distribution.
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs" asChild>
-                    <Link to="/data-trackers/road-accidents">View</Link>
+                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                    Coming Soon
                   </Button>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
@@ -229,17 +230,17 @@ const HomePage: FC = () => {
                     Commodity Price Tracker
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
                     Stay informed about the latest market trends with our commodity price tracker.
                     Users can verify if the information is current and accurate.
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs" asChild>
+                  <Button variant="outline" size="sm" className="w-full text-xs mt-auto" asChild>
                     <Link to="/commodities">View</Link>
                   </Button>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
@@ -247,17 +248,17 @@ const HomePage: FC = () => {
                     National Outage Detector
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
                     Our interactive tool provides real-time updates on power outages across the
                     country, helping you stay prepared and informed.
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs" asChild>
-                    <Link to="/data-trackers/outages">View</Link>
+                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                    Coming Soon
                   </Button>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
@@ -265,25 +266,25 @@ const HomePage: FC = () => {
                     Weather Forecast and Modeling
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
                     Stay ahead of the weather with our advanced weather forecast and numerical
                     modeling service. We use Google TensorFlow to provide accurate predictions.
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs" asChild>
-                    <Link to="/data-trackers/weather">View</Link>
+                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                    Coming Soon
                   </Button>
                 </CardContent>
               </Card>
             </Grid>
           </div>
-          
+
           {/* Calculators & Tools */}
           <div className="mb-12">
             <Heading size="md" className="mb-5 flex items-center">
               <span className="material-icons mr-2">calculate</span> Calculators & Tools
             </Heading>
-            
+
             <Grid cols={2}>
               <Card className="shadow-sm">
                 <CardHeader className="pb-2">
@@ -292,17 +293,17 @@ const HomePage: FC = () => {
                     Energy Cost Calculator
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
                     Calculate your energy consumption with our energy cost calculator, designed to
                     give you an estimate of your monthly energy bills.
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs" asChild>
-                    <Link to="/calculators/energy">View</Link>
+                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                    Coming Soon
                   </Button>
                 </CardContent>
               </Card>
-              
+
               <Card className="shadow-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
@@ -310,27 +311,27 @@ const HomePage: FC = () => {
                     Photovoltaic System Design Calculator
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
                     Design your solar panel system with our Photovoltaic System Design Calculator.
                     This tool is designed to help you estimate size, capacity, and cost of your
                     system.
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs" asChild>
-                    <Link to="/calculators/solar">View</Link>
+                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                    Coming Soon
                   </Button>
                 </CardContent>
               </Card>
             </Grid>
           </div>
-          
+
           {/* Public Services */}
           <div>
             <Heading size="md" className="mb-5 flex items-center">
               <span className="material-icons mr-2">public</span> Public Services
             </Heading>
-            
-            <Grid cols={1}>
+
+            <Grid cols={2}>
               <Card className="shadow-sm">
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg flex items-center">
@@ -338,13 +339,32 @@ const HomePage: FC = () => {
                     Election Vote Survey
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-2">
-                  <p className="text-sm text-muted-foreground mb-3">
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
                     Participate in our democratic process with our voting survey platform. Share
                     your opinions and see what others think about current political issues.
                   </p>
-                  <Button variant="outline" size="sm" className="text-xs" asChild>
-                    <Link to="/services/election-survey">View</Link>
+                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                    Coming Soon
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center">
+                    <span className="material-icons text-primary mr-2">campaign</span>
+                    July Movement
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-2 flex flex-col h-full">
+                  <p className="text-sm text-muted-foreground mb-3 flex-grow">
+                    From July 1st to August 5th, 2024, Bangladesh witnessed a historic
+                    transformation. Known as the "36th July," this period marked a peaceful
+                    revolution that changed the nation's course forever.
+                  </p>
+                  <Button variant="outline" size="sm" className="w-full text-xs mt-auto" asChild>
+                    <Link to="https://bdmovements.bdtracks.com/" target="_blank" rel="noopener noreferrer">View</Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -352,18 +372,20 @@ const HomePage: FC = () => {
           </div>
         </Container>
       </Section>
-      
+
       {/* Contribute Section */}
       <Section variant="muted">
         <Container>
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="md:w-1/2 mb-6 md:mb-0">
-              <Heading size="lg" className="mb-3">Contribute to Our Data</Heading>
+              <Heading size="lg" className="mb-3">
+                Contribute to Our Data
+              </Heading>
               <p className="text-sm md:text-base text-muted-foreground mb-4">
                 Help improve our database by submitting updates from your region or district! Share
                 data for any of our tracking categories.
               </p>
-              <Button variant="default">Contribute Data</Button>
+              <Button variant="default" className="w-full md:w-auto">Contribute Data</Button>
             </div>
             <div className="w-full md:w-1/3">
               <Card className="shadow-sm">

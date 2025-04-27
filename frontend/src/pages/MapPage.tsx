@@ -13,6 +13,8 @@ interface RegionalPriceItem {
   regionName?: string;
   price: number;
   trend?: number | null;
+  lat?: number;
+  lng?: number;
 }
 
 interface RegionalPricesResponse {
@@ -42,6 +44,8 @@ export default function MapPage() {
     parseInt(selectedTimeWindow)
   );
 
+  console.log("Regional prices data:", regionalPricesData);
+
   // Set default selected commodity on initial load
   useEffect(() => {
     if (commodities.length > 0 && !selectedCommodityId) {
@@ -62,6 +66,8 @@ export default function MapPage() {
       regionName: item.regionName,
       price: item.price,
       change: item.trend === null ? undefined : item.trend,
+      latitude: item.lat,
+      longitude: item.lng
     })
   );
 

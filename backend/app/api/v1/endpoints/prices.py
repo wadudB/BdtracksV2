@@ -106,7 +106,9 @@ def get_regional_prices(
                 "regionName": region.name,
                 "price": latest_price.price,
                 "avgPrice": avg_price,
-                "trend": trend_percentage
+                "trend": trend_percentage,
+                "lat": region.latitude,
+                "lng": region.longitude
             })
     
     return {"prices": regional_prices}

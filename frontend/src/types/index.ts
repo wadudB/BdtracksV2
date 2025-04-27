@@ -7,8 +7,6 @@ export type Region = {
   latitude?: number;
   longitude?: number;
   isDivision?: boolean;
-  lat?: number;
-  lng?: number;
 };
 
 export type PricePoint = {
@@ -30,6 +28,10 @@ export type PriceRecord = {
   created_at: string;
   source?: string;
   notes?: string;
+  address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  name?: string;
 };
 
 export type Commodity = {

@@ -176,4 +176,14 @@ export const analyticsService = {
 
     return await apiClient(endpoint);
   },
+
+  // Get price analysis data for a specific commodity
+  getPriceAnalysis: async (commodityId: number | string, timeframe: string = "month") => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("timeframe", timeframe);
+    
+    const endpoint = `/analytics/price-analysis/${commodityId}?${queryParams.toString()}`;
+    
+    return await apiClient(endpoint);
+  },
 };

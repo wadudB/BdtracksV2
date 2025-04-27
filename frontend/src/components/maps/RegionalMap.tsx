@@ -1,29 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Region } from "@/types";
 
 interface RegionalMapProps {
-  regions?: Region[];
   priceData: {
     regionId: string | number;
     regionName?: string;
     price: number;
     change?: number;
+    latitude?: number;
+    longitude?: number;
   }[];
   selectedCommodity: string;
   isLoading?: boolean;
 }
-
-// Map of Bangladesh regions with coordinates
-const DEFAULT_REGIONS: Region[] = [
-  { id: "dhaka", name: "Dhaka", lat: 23.9535742, lng: 90.14949879999999 },
-  { id: "chittagong", name: "Chittagong", lat: 23.1793157, lng: 91.9881527 },
-  { id: "rajshahi", name: "Rajshahi", lat: 24.7105776, lng: 88.94138650000001 },
-  { id: "khulna", name: "Khulna", lat: 22.8087816, lng: 89.24671909999999 },
-  { id: "barisal", name: "Barisal", lat: 22.3811131, lng: 90.3371889 },
-  { id: "sylhet", name: "Sylhet", lat: 24.7049811, lng: 91.67606909999999 },
-  { id: "rangpur", name: "Rangpur", lat: 25.8483388, lng: 88.94138650000001 },
-  { id: "mymensingh", name: "Mymensingh", lat: 24.71362, lng: 90.4502368 },
-];
 
 // Global script loaded flag
 let googleMapsScriptLoaded = false;
@@ -45,7 +33,6 @@ declare global {
 }
 
 export default function RegionalMap({
-  regions = DEFAULT_REGIONS,
   priceData = [],
   selectedCommodity,
   isLoading = false,
@@ -54,8 +41,8 @@ export default function RegionalMap({
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<MarkerWithInfoWindow[]>([]);
   const [mapError, setMapError] = useState<string | null>(null);
-  const [mapReady, setMapReady] = useState<boolean>(false);
-  
+  // const [mapReady, setMapReady] = useState<boolean>(false);
+
   // Load Google Maps API
   useEffect(() => {
     // Skip if already initialized or if the container isn't available
@@ -84,6 +71,7 @@ export default function RegionalMap({
 
         // Create the map
         const mapOptions = {
+          // Google Maps API expects center with lat/lng properties
           center: { lat: 23.685, lng: 90.3563 }, // Center of Bangladesh
           zoom: 7,
           mapTypeControl: false,
@@ -179,21 +167,14 @@ export default function RegionalMap({
     console.log("Price data received:", priceData);
 
     // Process regions and create markers
-    regions.forEach((region) => {
-      if (!region.id || !region.lat || !region.lng) return;
-
-      // Find the right price data by matching regionName instead of ID
-      const priceEntry = priceData.find(p =>
-        p.regionName && p.regionName.toLowerCase() === region.name.toLowerCase()
-      );
-
-      if (!priceEntry) {
-        console.log(`No price data found for region: ${region.name}`);
+    priceData.forEach((region) => {
+      if (!region.latitude || !region.longitude) {
+        console.log(`Missing coordinates for region: ${region.regionName || region.regionId}`);
         return;
       }
 
-      const price = priceEntry.price;
-      console.log(`Match found! Price: ${price} for region ${priceEntry.regionName}`);
+      const regionName = region.regionName || `Region ${region.regionId}`;
+      console.log(`Creating marker for ${regionName} with price ${region.price}`);
 
       const map = googleMapRef.current;
       if (!map) return;
@@ -201,26 +182,27 @@ export default function RegionalMap({
       try {
         // Create the marker
         const marker = new window.google.maps.Marker({
-          position: { lat: region.lat, lng: region.lng },
+          // Google Maps API expects position with lat/lng properties
+          position: { lat: region.latitude, lng: region.longitude },
           map,
-          title: `${priceEntry.regionName}: ৳${price}`,
+          title: `${regionName}: ৳${region.price}`,
           label: {
-            text: `৳${price}`,
+            text: `৳${region.price}`,
             color: "white",
           },
         }) as MarkerWithInfoWindow;
 
         console.log(
-          `Created marker for ${priceEntry.regionName} at ${region.lat},${region.lng} with price ৳${price}`
+          `Created marker for ${regionName} at ${region.latitude},${region.longitude} with price ৳${region.price}`
         );
 
         // Create info window
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
             <div style="padding: 8px; max-width: 200px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 16px;">${priceEntry.regionName}</h3>
+              <h3 style="margin: 0 0 8px 0; font-size: 16px;">${regionName}</h3>
               <p style="margin: 0; font-size: 14px;">
-                <strong>${selectedCommodity}:</strong> ৳${price}
+                <strong>${selectedCommodity}:</strong> ৳${region.price}
               </p>
             </div>
           `,
@@ -250,7 +232,7 @@ export default function RegionalMap({
     });
 
     console.log(`Total markers created: ${markersRef.current.length}`);
-  }, [regions, priceData, selectedCommodity, isLoading]);
+  }, [priceData, selectedCommodity, isLoading]);
 
   return (
     <div className="w-full h-full relative">

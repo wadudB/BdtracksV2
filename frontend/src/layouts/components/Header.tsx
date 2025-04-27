@@ -53,6 +53,18 @@ export default function Header() {
                     Commodities
                   </Link>
                 </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link
+                    to="https://bdmovements.bdtracks.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    // className={`${navigationMenuTriggerStyle()} ${
+                    //   isActive("/services") ? "bg-muted text-primary" : ""
+                    // }`}
+                  >
+                    July Movement
+                  </Link>
+                </NavigationMenuItem>
                 {/* <NavigationMenuItem>
                   <Link
                     to="/about"

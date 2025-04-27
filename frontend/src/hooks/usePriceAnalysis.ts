@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import api from "@/lib/api";
+import { analyticsService } from "@/services/api";
 
 export interface PriceAnalysisData {
   commodity_id: number;
@@ -29,10 +29,7 @@ export function usePriceAnalysis({ commodityId, timeframe = "month" }: PriceAnal
   return useQuery<PriceAnalysisData>({
     queryKey: ["price-analysis", commodityId, timeframe],
     queryFn: async () => {
-      const { data } = await api.get(`/api/v1/price-analysis/${commodityId}`, {
-        params: { timeframe },
-      });
-      return data;
+      return analyticsService.getPriceAnalysis(commodityId, timeframe);
     },
     enabled: !!commodityId,
   });

@@ -16,20 +16,30 @@ Backend API for the Bangladesh Commodity Price Tracking System.
 - SQLAlchemy - SQL toolkit and ORM
 - Alembic - Database migration tool
 - MySQL - Relational database
+- Poetry - Python dependency management
 
 ## Installation
 
 1. Clone the repository
-2. Set up a virtual environment and install dependencies:
+
+2. Install Poetry (if not already installed):
+
+```bash
+# On Linux, macOS, Windows (WSL)
+curl -sSL https://install.python-poetry.org | python3 -
+
+# On Windows (PowerShell)
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+```
+
+3. Set up the project and install dependencies:
 
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+poetry install
 ```
 
-3. Configure your environment variables by creating a `.env` file:
+4. Configure your environment variables by creating a `.env` file:
 
 ```bash
 # Create .env file from the example template
@@ -47,7 +57,7 @@ MYSQL_PASSWORD=your_mysql_password
 MYSQL_DB=bdtracks
 ```
 
-4. Create MySQL database:
+5. Create MySQL database:
 
 ```bash
 mysql -u root -p
@@ -57,17 +67,22 @@ mysql -u root -p
 CREATE DATABASE bdtracks CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-5. Run database migrations:
+6. Activate the Poetry virtual environment and run database migrations:
 
 ```bash
+poetry shell
 alembic revision --autogenerate -m "Initial migration"
 alembic upgrade head
 ```
 
-6. Start the API server:
+7. Start the API server:
 
 ```bash
+# Inside Poetry environment
 uvicorn app.main:app --reload
+
+# Or without activating the environment
+poetry run uvicorn app.main:app --reload
 ```
 
 ## API Documentation
@@ -91,4 +106,20 @@ backend/
 │   ├── models/           # SQLAlchemy models
 │   └── schemas/          # Pydantic schemas
 └── tests/                # Unit and integration tests
+```
+
+## Poetry Commands
+
+```bash
+# Add a new dependency
+poetry add package-name
+
+# Add a development dependency
+poetry add --group dev package-name
+
+# Update dependencies
+poetry update
+
+# Export requirements.txt (if needed)
+poetry export -f requirements.txt --output requirements.txt --without-hashes
 ``` 
