@@ -48,9 +48,13 @@ jobs:
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project true
           
+      - name: Update Poetry lock file
+        working-directory: ./backend
+        run: poetry lock --no-update
+          
       - name: Install backend dependencies
         working-directory: ./backend
-        run: poetry install --no-dev
+        run: poetry install --only main
       
       - name: Generate backend requirements.txt
         working-directory: ./backend
