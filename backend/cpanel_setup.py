@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-cPanel Setup Script for BdTracks Backend with Python 3.12
+cPanel Setup Script for BdTracks Backend
 
 This script helps with setting up the Python application on cPanel. It:
 1. Verifies the environment
@@ -80,7 +80,7 @@ except Exception as e:
 
 def main():
     """Main setup function"""
-    logger.info("Starting cPanel setup for BdTracks Backend with Python 3.12")
+    logger.info("Starting cPanel setup for BdTracks Backend")
     
     # Make sure we're in the right directory
     if not os.path.exists("app") or not os.path.exists("alembic"):

@@ -42,19 +42,12 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.13'
           cache: 'pip'
       
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-      
-      - name: Install Backend Dependencies with Poetry
+      - name: Install Backend Dependencies
         working-directory: ./backend
-        run: |
-          poetry config virtualenvs.create false
-          poetry install --no-interaction --no-ansi
+        run: pip install -r requirements.txt
       
       # Create backend environment file
       - name: Create Backend Environment Files
@@ -70,11 +63,6 @@ jobs:
           BACKEND_CORS_ORIGINS=["https://${{ secrets.DOMAIN_NAME }}"]
           DOMAIN_NAME=${{ secrets.DOMAIN_NAME }}
           EOF
-      
-      # Export dependencies to requirements.txt for cPanel
-      - name: Export Poetry dependencies to requirements.txt
-        working-directory: ./backend
-        run: poetry export -f requirements.txt --output requirements.txt --without-hashes
       
       # Collect all files into a deployment package
       - name: Package application
@@ -134,21 +122,21 @@ jobs:
           password: ${{ secrets.CPANEL_PASSWORD }}
           script: |
             # Set up Python environment if it doesn't exist
-            if [ ! -d ~/virtualenv/python3.12 ]; then
+            if [ ! -d ~/virtualenv/python3.13 ]; then
               mkdir -p ~/python
-              /opt/cpanel/ea-python312/bin/python -m venv ~/virtualenv/python3.12
+              /opt/cpanel/ea-python313/bin/python -m venv ~/virtualenv/python3.13
             fi
             
             # Set up backend
             cd ~/public_html/${{ secrets.DEPLOY_PATH || 'staging.bdtracks.com' }}/backend
-            ~/virtualenv/python3.12/bin/python -m pip install --upgrade pip
-            ~/virtualenv/python3.12/bin/python -m pip install -r requirements.txt
+            ~/virtualenv/python3.13/bin/python -m pip install --upgrade pip
+            ~/virtualenv/python3.13/bin/python -m pip install -r requirements.txt
             
             # Run the cPanel setup script to create necessary files
-            ~/virtualenv/python3.12/bin/python cpanel_setup.py
+            ~/virtualenv/python3.13/bin/python cpanel_setup.py
             
             # Run database migrations
-            ~/virtualenv/python3.12/bin/python -m alembic upgrade head
+            ~/virtualenv/python3.13/bin/python -m alembic upgrade head
             
             # Set proper permissions
             chmod 755 ~/public_html/${{ secrets.DEPLOY_PATH || 'staging.bdtracks.com' }}
