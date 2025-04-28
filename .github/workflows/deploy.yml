@@ -114,7 +114,7 @@ jobs:
           username: ${{ secrets.CPANEL_USERNAME }}
           password: ${{ secrets.CPANEL_PASSWORD }}
           local-dir: ./deployment/
-          server-dir: ${{ secrets.CPANEL_PATH }}
+          server-dir: ${{ secrets.CPANEL_PATH }}/
           
       # Alternative deployment using cPanel Git Version Deployment
       - name: Deploy using cPanel Git Version Deployment (Alternative)
