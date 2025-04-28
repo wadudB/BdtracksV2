@@ -31,8 +31,8 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
-      # Package application
-      - name: Create deployment package
+      # Prepare files for deployment
+      - name: Prepare deployment files
         run: |
           mkdir -p deployment
           
@@ -42,10 +42,6 @@ jobs:
           
           # Copy frontend build
           cp -r frontend/dist deployment/frontend
-          
-          # Create requirements.txt for cPanel Python setup
-          python -m pip install poetry
-          cd backend && poetry export -f requirements.txt --output ../deployment/backend/requirements.txt --without-hashes
           
       # Deploy to cPanel - Using FTP
       - name: Deploy to cPanel
