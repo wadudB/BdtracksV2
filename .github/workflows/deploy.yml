@@ -106,15 +106,16 @@ jobs:
         run: |
           tar -czvf deployment.tar.gz -C deployment .
           
-      # Deploy to cPanel
+      # Deploy to cPanel - Using FTP
       - name: Deploy to cPanel
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.CPANEL_SERVER }}
+          server: ${{ secrets.CPANEL_FTP_HOST }} # e.g., ftp.yourdomain.com or your cPanel server IP
           username: ${{ secrets.CPANEL_USERNAME }}
           password: ${{ secrets.CPANEL_PASSWORD }}
           local-dir: ./deployment/
           server-dir: ${{ secrets.CPANEL_PATH }}/
+          protocol: ftp # or ftps if your server requires secure connection
           
       # Alternative deployment using cPanel Git Version Deployment
       - name: Deploy using cPanel Git Version Deployment (Alternative)
