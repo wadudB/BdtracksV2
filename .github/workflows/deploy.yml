@@ -54,7 +54,7 @@ jobs:
           
       - name: Install backend dependencies
         working-directory: ./backend
-        run: poetry install --only main
+        run: poetry install
       
       - name: Generate backend requirements.txt
         working-directory: ./backend
