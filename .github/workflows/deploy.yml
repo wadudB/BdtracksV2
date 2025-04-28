@@ -31,109 +31,29 @@ jobs:
         working-directory: ./frontend
         run: npm run build
 
-      # Backend setup
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.2
-
-      - name: Configure Poetry
-        working-directory: ./backend
-        run: |
-          poetry config virtualenvs.create true
-          poetry config virtualenvs.in-project true
-          
-      - name: Update Poetry lock file
-        working-directory: ./backend
-        run: poetry lock --no-update
-          
-      - name: Install backend dependencies
-        working-directory: ./backend
-        run: poetry install
-      
-      - name: Generate backend requirements.txt
-        working-directory: ./backend
-        run: poetry export -f requirements.txt --output requirements.txt --without-hashes
-      
       # Package application
       - name: Create deployment package
         run: |
           mkdir -p deployment
+          
+          # Copy backend files (without __pycache__ folders)
           cp -r backend deployment/
-          rm -rf deployment/backend/alembic/versions/__pycache__
-          rm -rf deployment/backend/app/__pycache__
-          rm -rf deployment/backend/app/*/__pycache__
-          rm -rf deployment/backend/app/*/*/__pycache__
+          find deployment/backend -name "__pycache__" -type d -exec rm -rf {} +
+          
+          # Copy frontend build
           cp -r frontend/dist deployment/frontend
           
-          # Create deployment scripts
-          cat > deployment/setup.sh << 'EOF'
-          #!/bin/bash
-          # Post-deployment setup script
-          
-          # Change to the directory where this script is located
-          cd "$(dirname "$0")"
-          
-          # Create Python virtual environment if it doesn't exist
-          if [ ! -d "venv" ]; then
-            python3 -m venv venv
-          fi
-          
-          # Activate virtual environment
-          source venv/bin/activate
-          
-          # Install backend dependencies
-          cd backend
-          pip install -r requirements.txt
-          
-          # Run database migrations
-          # Uncomment the line below after the first deployment when your database is set up
-          # alembic upgrade head
-          
-          # Return to the original directory
-          cd ..
-          EOF
-          
-          # Make setup script executable
-          chmod +x deployment/setup.sh
-          
-      - name: Create deployment archive
-        run: |
-          tar -czvf deployment.tar.gz -C deployment .
+          # Create requirements.txt for cPanel Python setup
+          python -m pip install poetry
+          cd backend && poetry export -f requirements.txt --output ../deployment/backend/requirements.txt --without-hashes
           
       # Deploy to cPanel - Using FTP
       - name: Deploy to cPanel
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ secrets.CPANEL_FTP_HOST }} # e.g., ftp.yourdomain.com or your cPanel server IP
+          server: ${{ secrets.CPANEL_FTP_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
           password: ${{ secrets.CPANEL_PASSWORD }}
           local-dir: ./deployment/
           server-dir: ${{ secrets.CPANEL_PATH }}/
-          protocol: ftp # or ftps if your server requires secure connection
-          
-      # Alternative deployment using cPanel Git Version Deployment
-      - name: Deploy using cPanel Git Version Deployment (Alternative)
-        if: false # Set to true if using cPanel Git Version Deployment instead of FTP
-        uses: joelwmale/webhook-action@master
-        with:
-          url: ${{ secrets.CPANEL_WEBHOOK_URL }}
-          body: '{"repository_url": "https://github.com/${{ github.repository }}"}'
-      
-      # Execute post-deployment script on cPanel (if SSH access is available)
-      - name: Execute post-deployment script (Optional)
-        if: false # Set to true if SSH access to cPanel is available and you have the right SSH key setup in GitHub secrets
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.CPANEL_SSH_HOST }}
-          username: ${{ secrets.CPANEL_SSH_USERNAME }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          port: ${{ secrets.CPANEL_SSH_PORT }}
-          script: |
-            cd ${{ secrets.CPANEL_SERVER_DIR }}
-            ./setup.sh
+          protocol: ftp
