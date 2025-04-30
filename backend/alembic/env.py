@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 # Import all models
 from app.db.base import Base  # This imports all models via app/db/base.py
+from app.core.config import settings  # Import settings to use the DB connection
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,6 +27,9 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 target_metadata = Base.metadata
+
+# Override the SQLAlchemy URL with the one from settings
+config.set_main_option("sqlalchemy.url", settings.SQLALCHEMY_DATABASE_URI)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -67,6 +71,10 @@ def run_migrations_online() -> None:
     configuration = config.get_section(config.config_ini_section)
     if configuration is None:
         configuration = {}
+    
+    # Use the URL from settings instead of from the INI file
+    configuration["sqlalchemy.url"] = settings.SQLALCHEMY_DATABASE_URI
+    
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
