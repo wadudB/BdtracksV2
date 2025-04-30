@@ -1,10 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import logging
+from starlette.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from app.api.v1.api import api_router
 from app.core.config import settings
-import logging
 
 # Set up logging
 logging_level = logging.DEBUG if settings.ENVIRONMENT == "development" else logging.INFO
@@ -27,6 +28,11 @@ app = FastAPI(
     lifespan=lifespan,
     debug=settings.ENVIRONMENT == "development"
 )
+
+# Enable reading of X-Forwarded-Host and X-Forwarded-Proto
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+# Disable automatic trailing slash redirects to avoid external 307s
+app.router.redirect_slashes = False
 
 # Configure CORS
 origins = settings.BACKEND_CORS_ORIGINS if settings.ENVIRONMENT == "production" else ["*"]
