@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Container } from "@/components/ui/container";
@@ -16,12 +16,19 @@ export default function Header() {
   const { isActive, shouldShowSubNavbar } = useNavigation();
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  
+  // Close mobile menu when location changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
       <Container>
         <div className="py-4">
           <div className="flex items-center justify-between">
+            <div className="flex w-full justify-between space-x-2">
             {/* Logo */}
             <div className="flex items-center space-x-2">
               <span className="material-icons text-primary">agriculture</span>
@@ -58,9 +65,7 @@ export default function Header() {
                     to="https://bdmovements.bdtracks.com/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    // className={`${navigationMenuTriggerStyle()} ${
-                    //   isActive("/services") ? "bg-muted text-primary" : ""
-                    // }`}
+                    className={`${navigationMenuTriggerStyle()}`}
                   >
                     July Movement
                   </Link>
@@ -97,7 +102,7 @@ export default function Header() {
                 Login
               </Button>
             </div>
-
+            </div>
             {/* Mobile menu toggle */}
             <Button
               variant="ghost"
