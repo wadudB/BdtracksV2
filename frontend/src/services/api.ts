@@ -43,19 +43,19 @@ export const commodityService = {
     if (params?.category) queryParams.append("category", params.category);
 
     const queryString = queryParams.toString();
-    const endpoint = `/commodities${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `/commodities/${queryString ? `?${queryString}` : ""}`;
 
     return (await apiClient(endpoint)) as Commodity[];
   },
 
   // Get commodity by ID
   getById: async (id: string) => {
-    return (await apiClient(`/commodities/${id}`)) as Commodity;
+    return (await apiClient(`/commodities/${id}/`)) as Commodity;
   },
 
   // Get dropdown data for commodities (simplified data for select inputs)
   getDropdown: async () => {
-    return await apiClient("/commodities/dropdown");
+    return await apiClient("/commodities/dropdown/");
   },
 };
 
@@ -72,14 +72,14 @@ export const regionService = {
       queryParams.append("is_division", params.is_division.toString());
 
     const queryString = queryParams.toString();
-    const endpoint = `/regions${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `/regions/${queryString ? `?${queryString}` : ""}`;
 
     return (await apiClient(endpoint)) as Region[];
   },
 
   // Get region by ID
   getById: async (id: string) => {
-    return (await apiClient(`/regions/${id}`)) as Region;
+    return (await apiClient(`/regions/${id}/`)) as Region;
   },
 };
 
@@ -105,7 +105,7 @@ export const priceService = {
     if (params?.end_date) queryParams.append("end_date", params.end_date);
 
     const queryString = queryParams.toString();
-    const endpoint = `/prices${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `/prices/${queryString ? `?${queryString}` : ""}`;
 
     return (await apiClient(endpoint)) as PriceRecord[];
   },
@@ -116,12 +116,12 @@ export const priceService = {
     queryParams.append("commodity_id", commodityId.toString());
     if (timeWindow) queryParams.append("time_window", timeWindow.toString());
 
-    return await apiClient(`/prices/regions?${queryParams.toString()}`);
+    return await apiClient(`/prices/regions/?${queryParams.toString()}`);
   },
 
   // Get price record by ID
   getById: async (id: string) => {
-    return (await apiClient(`/prices/${id}`)) as PriceRecord;
+    return (await apiClient(`/prices/${id}/`)) as PriceRecord;
   },
 
   // Create a new price record
@@ -133,7 +133,7 @@ export const priceService = {
     notes?: string;
     recorded_at: string;
   }) => {
-    return (await apiClient("/prices", {
+    return (await apiClient("/prices/", {
       method: "POST",
       body: JSON.stringify(data),
     })) as PriceRecord;
@@ -160,7 +160,7 @@ export const analyticsService = {
     if (params?.period) queryParams.append("period", params.period);
 
     const queryString = queryParams.toString();
-    const endpoint = `/analytics/trends${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `/analytics/trends/${queryString ? `?${queryString}` : ""}`;
 
     return await apiClient(endpoint);
   },
@@ -172,7 +172,7 @@ export const analyticsService = {
     if (comparison_date) queryParams.append("comparison_date", comparison_date);
 
     const queryString = queryParams.toString();
-    const endpoint = `/analytics/comparison?${queryString}`;
+    const endpoint = `/analytics/comparison/?${queryString}`;
 
     return await apiClient(endpoint);
   },
@@ -182,7 +182,7 @@ export const analyticsService = {
     const queryParams = new URLSearchParams();
     queryParams.append("timeframe", timeframe);
     
-    const endpoint = `/analytics/price-analysis/${commodityId}?${queryParams.toString()}`;
+    const endpoint = `/analytics/price-analysis/${commodityId}/?${queryParams.toString()}`;
     
     return await apiClient(endpoint);
   },

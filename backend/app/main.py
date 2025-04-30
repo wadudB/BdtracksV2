@@ -28,11 +28,6 @@ app = FastAPI(
     debug=settings.ENVIRONMENT == "development"
 )
 
-# Enable reading of X-Forwarded-Host and X-Forwarded-Proto
-# app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
-# Disable automatic trailing slash redirects to avoid external 307s
-app.router.redirect_slashes = False
-
 # Configure CORS
 origins = settings.BACKEND_CORS_ORIGINS if settings.ENVIRONMENT == "production" else ["*"]
 app.add_middleware(
