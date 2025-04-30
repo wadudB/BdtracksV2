@@ -7,14 +7,14 @@ from app.core.config import settings
 import logging
 
 # Set up logging
-logging_level = logging.DEBUG if settings.ENV == "development" else logging.INFO
+logging_level = logging.DEBUG if settings.ENVIRONMENT == "development" else logging.INFO
 logging.basicConfig(level=logging_level)
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup code
-    logger.info(f"Application starting up in {settings.ENV} mode...")
+    logger.info(f"Application starting up in {settings.ENVIRONMENT} mode...")
     from app.db.setup_relationships import setup_relationships
     setup_relationships()
     yield
@@ -25,7 +25,7 @@ app = FastAPI(
     description="Bangladesh Commodity Price Tracking API",
     openapi_url="/api/v1/openapi.json",
     lifespan=lifespan,
-    debug=settings.ENV == "development"
+    debug=settings.ENVIRONMENT == "development"
 )
 
 # Configure CORS
