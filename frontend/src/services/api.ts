@@ -50,12 +50,12 @@ export const commodityService = {
 
   // Get commodity by ID
   getById: async (id: string) => {
-    return (await apiClient(`/commodities/${id}/`)) as Commodity;
+    return (await apiClient(`/commodities/${id}`)) as Commodity;
   },
 
   // Get dropdown data for commodities (simplified data for select inputs)
   getDropdown: async () => {
-    return await apiClient("/commodities/dropdown/");
+    return await apiClient("/commodities/dropdown");
   },
 };
 
@@ -79,7 +79,7 @@ export const regionService = {
 
   // Get region by ID
   getById: async (id: string) => {
-    return (await apiClient(`/regions/${id}/`)) as Region;
+    return (await apiClient(`/regions/${id}`)) as Region;
   },
 };
 
