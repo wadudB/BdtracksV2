@@ -29,7 +29,7 @@ app = FastAPI(
 )
 
 # Configure CORS
-origins = settings.BACKEND_CORS_ORIGINS if settings.ENV == "production" else ["*"]
+origins = settings.BACKEND_CORS_ORIGINS if settings.ENVIRONMENT == "production" else ["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -43,8 +43,8 @@ app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 def read_root():
-    return {"message": f"Welcome to BDTracks API ({settings.ENV} environment)"}
+    return {"message": f"Welcome to BDTracks API ({settings.ENVIRONMENT} environment)"}
 
 @app.get("/healthcheck")
 def health_check():
-    return {"status": "ok", "environment": settings.ENV}
+    return {"status": "ok", "environment": settings.ENVIRONMENT}
