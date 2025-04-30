@@ -3,16 +3,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.api.v1.api import api_router
+from app.core.config import settings
 import logging
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+logging_level = logging.DEBUG if settings.ENV == "development" else logging.INFO
+logging.basicConfig(level=logging_level)
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup code
-    logger.info("Application starting up...")
+    logger.info(f"Application starting up in {settings.ENV} mode...")
     from app.db.setup_relationships import setup_relationships
     setup_relationships()
     yield
@@ -22,13 +24,15 @@ app = FastAPI(
     title="BDTracks API",
     description="Bangladesh Commodity Price Tracking API",
     openapi_url="/api/v1/openapi.json",
-    lifespan=lifespan
+    lifespan=lifespan,
+    debug=settings.ENV == "development"
 )
 
 # Configure CORS
+origins = settings.BACKEND_CORS_ORIGINS if settings.ENV == "production" else ["*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For development; specify exact origins in production
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,8 +43,8 @@ app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to BDTracks API"}
+    return {"message": f"Welcome to BDTracks API ({settings.ENV} environment)"}
 
 @app.get("/healthcheck")
 def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "environment": settings.ENV}

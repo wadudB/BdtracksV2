@@ -2,9 +2,13 @@ from pydantic_settings import BaseSettings
 from typing import Optional, Dict, Any, List
 import secrets
 from pydantic import validator, AnyHttpUrl
+import os
 
 
 class Settings(BaseSettings):
+    # Determine environment from ENV variable, default to "development"
+    ENV: str = os.getenv("ENV", "development")
+    
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = secrets.token_urlsafe(32)
     # 60 minutes * 24 hours = 1 day
@@ -38,9 +42,35 @@ class Settings(BaseSettings):
         return f"mysql+pymysql://{values.get('MYSQL_USER')}:{values.get('MYSQL_PASSWORD')}@{values.get('MYSQL_SERVER')}:{values.get('MYSQL_PORT')}/{values.get('MYSQL_DB')}"
 
     class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
         case_sensitive = True
+        env_file = ".env"
+        
+        # Load different env files based on environment
+        @classmethod
+        def customise_sources(
+            cls,
+            init_settings,
+            env_settings,
+            file_secret_settings,
+        ):
+            # Get the environment value
+            env = os.getenv("ENV", "development")
+            
+            # Determine which .env file to load based on environment
+            if env == "production":
+                env_file = ".env.production"
+            else:
+                env_file = ".env.development"
+            
+            # Fall back to .env if specific environment file doesn't exist
+            if not os.path.isfile(env_file):
+                env_file = ".env"
+                
+            return (
+                init_settings,
+                env_settings,
+                cls.build_file_env_settings(env_file, ".env")
+            )
 
 
 # Initialize settings once
