@@ -6,12 +6,7 @@ interface GridProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
-export function Grid({ 
-  children, 
-  className, 
-  cols = 3,
-  ...props 
-}: GridProps) {
+export function Grid({ children, className, cols = 3, ...props }: GridProps) {
   return (
     <div
       data-slot="grid"
@@ -30,4 +25,4 @@ export function Grid({
       {children}
     </div>
   );
-} 
+}

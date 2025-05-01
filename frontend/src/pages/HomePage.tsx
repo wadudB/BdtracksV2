@@ -217,7 +217,12 @@ const HomePage: FC = () => {
                     Our dashboard collects up-to-date overview of road accidents, including total
                     impact and geographical distribution.
                   </p>
-                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs pointer-events-none mt-auto"
+                    disabled
+                  >
                     Coming Soon
                   </Button>
                 </CardContent>
@@ -253,7 +258,12 @@ const HomePage: FC = () => {
                     Our interactive tool provides real-time updates on power outages across the
                     country, helping you stay prepared and informed.
                   </p>
-                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs pointer-events-none mt-auto"
+                    disabled
+                  >
                     Coming Soon
                   </Button>
                 </CardContent>
@@ -271,7 +281,12 @@ const HomePage: FC = () => {
                     Stay ahead of the weather with our advanced weather forecast and numerical
                     modeling service. We use Google TensorFlow to provide accurate predictions.
                   </p>
-                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs pointer-events-none mt-auto"
+                    disabled
+                  >
                     Coming Soon
                   </Button>
                 </CardContent>
@@ -298,7 +313,12 @@ const HomePage: FC = () => {
                     Calculate your energy consumption with our energy cost calculator, designed to
                     give you an estimate of your monthly energy bills.
                   </p>
-                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs pointer-events-none mt-auto"
+                    disabled
+                  >
                     Coming Soon
                   </Button>
                 </CardContent>
@@ -317,7 +337,12 @@ const HomePage: FC = () => {
                     This tool is designed to help you estimate size, capacity, and cost of your
                     system.
                   </p>
-                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs pointer-events-none mt-auto"
+                    disabled
+                  >
                     Coming Soon
                   </Button>
                 </CardContent>
@@ -344,7 +369,12 @@ const HomePage: FC = () => {
                     Participate in our democratic process with our voting survey platform. Share
                     your opinions and see what others think about current political issues.
                   </p>
-                  <Button variant="outline" size="sm" className="w-full text-xs pointer-events-none mt-auto" disabled>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs pointer-events-none mt-auto"
+                    disabled
+                  >
                     Coming Soon
                   </Button>
                 </CardContent>
@@ -364,7 +394,13 @@ const HomePage: FC = () => {
                     revolution that changed the nation's course forever.
                   </p>
                   <Button variant="outline" size="sm" className="w-full text-xs mt-auto" asChild>
-                    <Link to="https://bdmovements.bdtracks.com/" target="_blank" rel="noopener noreferrer">View</Link>
+                    <Link
+                      to="https://bdmovements.bdtracks.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -385,7 +421,9 @@ const HomePage: FC = () => {
                 Help improve our database by submitting updates from your region or district! Share
                 data for any of our tracking categories.
               </p>
-              <Button variant="default" className="w-full md:w-auto">Contribute Data</Button>
+              <Button variant="default" className="w-full md:w-auto">
+                Contribute Data
+              </Button>
             </div>
             <div className="w-full md:w-1/3">
               <Card className="shadow-sm">

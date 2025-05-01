@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 /**
  * Custom hook that returns a boolean indicating if the media query matches
@@ -11,7 +11,7 @@ export function useMediaQuery(query: string): boolean {
   useEffect(() => {
     // Create a media query list
     const mediaQuery = window.matchMedia(query);
-    
+
     // Set the initial value
     setMatches(mediaQuery.matches);
 
@@ -21,13 +21,13 @@ export function useMediaQuery(query: string): boolean {
     };
 
     // Add the callback as a listener
-    mediaQuery.addEventListener('change', handleChange);
+    mediaQuery.addEventListener("change", handleChange);
 
     // Clean up
     return () => {
-      mediaQuery.removeEventListener('change', handleChange);
+      mediaQuery.removeEventListener("change", handleChange);
     };
   }, [query]);
 
   return matches;
-} 
+}

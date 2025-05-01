@@ -88,10 +88,12 @@ const CommoditiesPage = () => {
       <Container>
         {/* Page Header */}
         <div className="mb-8 text-center">
-          <Heading size="lg" className="mb-2">Commodity Prices</Heading>
+          <Heading size="lg" className="mb-2">
+            Commodity Prices
+          </Heading>
           <p className="text-muted-foreground max-w-full mx-auto">
-            Browse current prices for various commodities across different categories. All prices are
-            updated daily based on TCB data.
+            Browse current prices for various commodities across different categories. All prices
+            are updated daily based on TCB data.
           </p>
         </div>
 
@@ -163,7 +165,8 @@ const CommoditiesPage = () => {
         ) : !isLoading && !queryError ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">
-              No commodities found matching your criteria. Please try a different search or category.
+              No commodities found matching your criteria. Please try a different search or
+              category.
             </p>
           </div>
         ) : null}

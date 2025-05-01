@@ -6,12 +6,7 @@ interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 
-export function Container({ 
-  children, 
-  className, 
-  size = "default", 
-  ...props 
-}: ContainerProps) {
+export function Container({ children, className, size = "default", ...props }: ContainerProps) {
   return (
     <div
       data-slot="container"
@@ -20,7 +15,7 @@ export function Container({
         {
           "max-w-screen-2xl": size === "large",
           "max-w-screen-xl": size === "default",
-          "max-w-screen-lg": size === "small"
+          "max-w-screen-lg": size === "small",
         },
         className
       )}
@@ -29,4 +24,4 @@ export function Container({
       {children}
     </div>
   );
-} 
+}

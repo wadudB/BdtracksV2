@@ -1,6 +1,6 @@
 import { Commodity, PriceRecord, Region } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
 /**
  * Base API client configuration
@@ -181,9 +181,9 @@ export const analyticsService = {
   getPriceAnalysis: async (commodityId: number | string, timeframe: string = "month") => {
     const queryParams = new URLSearchParams();
     queryParams.append("timeframe", timeframe);
-    
+
     const endpoint = `/analytics/price-analysis/${commodityId}/?${queryParams.toString()}`;
-    
+
     return await apiClient(endpoint);
   },
 };

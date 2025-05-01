@@ -8,12 +8,12 @@ interface HeadingProps {
   className?: string;
 }
 
-export function Heading({ 
-  children, 
-  className, 
+export function Heading({
+  children,
+  className,
   as: Component = "h2",
-  size = "lg", 
-  ...props 
+  size = "lg",
+  ...props
 }: HeadingProps) {
   return (
     <Component
@@ -32,4 +32,4 @@ export function Heading({
       {children}
     </Component>
   );
-} 
+}

@@ -80,7 +80,7 @@ export default function LocationPicker({
           });
 
           // Add drag end listener to update coordinates
-          markerRef.current.addListener("dragend", function() {
+          markerRef.current.addListener("dragend", function () {
             const position = markerRef.current?.getPosition();
             if (position) {
               onLocationChange(position.lat(), position.lng());
@@ -89,10 +89,10 @@ export default function LocationPicker({
         }
 
         // Add click listener to the map
-        map.addListener("click", function(event: google.maps.MapMouseEvent) {
+        map.addListener("click", function (event: google.maps.MapMouseEvent) {
           const latLng = event.latLng;
           if (!latLng) return;
-          
+
           // Update or create the marker
           if (markerRef.current) {
             markerRef.current.setPosition(latLng);
@@ -105,7 +105,7 @@ export default function LocationPicker({
             });
 
             // Add drag end listener to update coordinates
-            markerRef.current.addListener("dragend", function() {
+            markerRef.current.addListener("dragend", function () {
               const position = markerRef.current?.getPosition();
               if (position) {
                 onLocationChange(position.lat(), position.lng());
@@ -195,7 +195,7 @@ export default function LocationPicker({
     if (!googleMapRef.current || !latitude || !longitude) return;
 
     const position = { lat: latitude, lng: longitude };
-    
+
     // Update or create marker
     if (markerRef.current) {
       markerRef.current.setPosition(position);
@@ -208,7 +208,7 @@ export default function LocationPicker({
       });
 
       // Add drag end listener
-      markerRef.current.addListener("dragend", function() {
+      markerRef.current.addListener("dragend", function () {
         const newPosition = markerRef.current?.getPosition();
         if (newPosition) {
           onLocationChange(newPosition.lat(), newPosition.lng());
@@ -242,10 +242,10 @@ export default function LocationPicker({
         className="w-full h-full"
         style={{ display: mapError ? "none" : "block" }}
       />
-      
+
       <div className="text-xs text-muted-foreground mt-2">
         Click on the map to set a location or drag the marker to move it
       </div>
     </div>
   );
-} 
+}

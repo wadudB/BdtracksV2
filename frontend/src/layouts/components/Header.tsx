@@ -17,7 +17,7 @@ export default function Header() {
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-  
+
   // Close mobile menu when location changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -29,48 +29,48 @@ export default function Header() {
         <div className="py-4">
           <div className="flex items-center justify-between">
             <div className="flex w-full justify-between space-x-2">
-            {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <span className="material-icons text-primary">agriculture</span>
-              <Link to="/" className="text-xl font-bold">
-                BDTRACKS
-              </Link>
-            </div>
+              {/* Logo */}
+              <div className="flex items-center space-x-2">
+                <span className="material-icons text-primary">agriculture</span>
+                <Link to="/" className="text-xl font-bold">
+                  BDTRACKS
+                </Link>
+              </div>
 
-            {/* Desktop Navigation */}
-            <NavigationMenu className="hidden md:flex">
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link
-                    to="/"
-                    className={`${navigationMenuTriggerStyle()} ${
-                      isActive("/") ? "bg-muted text-primary" : ""
-                    }`}
-                  >
-                    Home
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link
-                    to="/commodities"
-                    className={`${navigationMenuTriggerStyle()} ${
-                      isActive("/commodities") ? "bg-muted text-primary" : ""
-                    }`}
-                  >
-                    Commodities
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link
-                    to="https://bdmovements.bdtracks.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${navigationMenuTriggerStyle()}`}
-                  >
-                    July Movement
-                  </Link>
-                </NavigationMenuItem>
-                {/* <NavigationMenuItem>
+              {/* Desktop Navigation */}
+              <NavigationMenu className="hidden md:flex">
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <Link
+                      to="/"
+                      className={`${navigationMenuTriggerStyle()} ${
+                        isActive("/") ? "bg-muted text-primary" : ""
+                      }`}
+                    >
+                      Home
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link
+                      to="/commodities"
+                      className={`${navigationMenuTriggerStyle()} ${
+                        isActive("/commodities") ? "bg-muted text-primary" : ""
+                      }`}
+                    >
+                      Commodities
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link
+                      to="https://bdmovements.bdtracks.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${navigationMenuTriggerStyle()}`}
+                    >
+                      July Movement
+                    </Link>
+                  </NavigationMenuItem>
+                  {/* <NavigationMenuItem>
                   <Link
                     to="/about"
                     className={`${navigationMenuTriggerStyle()} ${
@@ -80,28 +80,28 @@ export default function Header() {
                     About
                   </Link>
                 </NavigationMenuItem> */}
-              </NavigationMenuList>
-            </NavigationMenu>
+                </NavigationMenuList>
+              </NavigationMenu>
 
-            {/* Right side controls */}
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              {shouldShowSubNavbar() && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsSubMenuOpen(!isSubMenuOpen)}
-                  className="md:hidden"
-                >
-                  <span className="material-icons">
-                    {isSubMenuOpen ? "expand_less" : "expand_more"}
-                  </span>
+              {/* Right side controls */}
+              <div className="flex items-center space-x-4">
+                <ThemeToggle />
+                {shouldShowSubNavbar() && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSubMenuOpen(!isSubMenuOpen)}
+                    className="md:hidden"
+                  >
+                    <span className="material-icons">
+                      {isSubMenuOpen ? "expand_less" : "expand_more"}
+                    </span>
+                  </Button>
+                )}
+                <Button variant="default" size="sm">
+                  Login
                 </Button>
-              )}
-              <Button variant="default" size="sm">
-                Login
-              </Button>
-            </div>
+              </div>
             </div>
             {/* Mobile menu toggle */}
             <Button

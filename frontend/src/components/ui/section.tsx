@@ -27,4 +27,4 @@ export const Section = forwardRef<HTMLElement, SectionProps>(
       </section>
     );
   }
-); 
+);

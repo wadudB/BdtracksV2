@@ -161,66 +161,76 @@ function InteractiveMap({
     // Use Places service to get location information
     if (map) {
       const service = new google.maps.places.PlacesService(map);
-      
+
       // Use nearby search to find places near the dragged location
-      service.nearbySearch({
-        location: position,
-        radius: 50, // Small radius to get only places very close to the dragged point
-      }, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
-          // Get details of the first place found
-          service.getDetails({
-            placeId: results[0].place_id as string, // Explicitly cast to string
-            fields: ['name', 'formatted_address']
-          }, (place, detailsStatus) => {
-            if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && place) {
-              // We found a place, update the name and address
-              if (place.name) {
-                onNameChange(place.name);
-              }
-              if (place.formatted_address) {
-                onAddressChange(place.formatted_address);
-              }
-            } else {
-              // If no place found or details failed, fall back to geocoding
-              const geocoder = new google.maps.Geocoder();
-              geocoder.geocode({ location: position }, (results, status) => {
-                if (status === "OK" && results?.[0]) {
-                  const address = results[0].formatted_address;
-                  onAddressChange(address);
-                  
-                  // Try to extract a place name from the address
-                  const addressParts = address.split(',');
-                  if (addressParts.length > 0 && addressParts[0].trim()) {
-                    onNameChange(addressParts[0].trim());
+      service.nearbySearch(
+        {
+          location: position,
+          radius: 50, // Small radius to get only places very close to the dragged point
+        },
+        (results, status) => {
+          if (
+            status === google.maps.places.PlacesServiceStatus.OK &&
+            results &&
+            results.length > 0
+          ) {
+            // Get details of the first place found
+            service.getDetails(
+              {
+                placeId: results[0].place_id as string, // Explicitly cast to string
+                fields: ["name", "formatted_address"],
+              },
+              (place, detailsStatus) => {
+                if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && place) {
+                  // We found a place, update the name and address
+                  if (place.name) {
+                    onNameChange(place.name);
+                  }
+                  if (place.formatted_address) {
+                    onAddressChange(place.formatted_address);
                   }
                 } else {
-                  console.error("Geocoder failed after drag:", status);
-                  toast.error("Failed to get address for this location");
+                  // If no place found or details failed, fall back to geocoding
+                  const geocoder = new google.maps.Geocoder();
+                  geocoder.geocode({ location: position }, (results, status) => {
+                    if (status === "OK" && results?.[0]) {
+                      const address = results[0].formatted_address;
+                      onAddressChange(address);
+
+                      // Try to extract a place name from the address
+                      const addressParts = address.split(",");
+                      if (addressParts.length > 0 && addressParts[0].trim()) {
+                        onNameChange(addressParts[0].trim());
+                      }
+                    } else {
+                      console.error("Geocoder failed after drag:", status);
+                      toast.error("Failed to get address for this location");
+                    }
+                  });
                 }
-              });
-            }
-          });
-        } else {
-          // If no place found, fall back to geocoding
-          const geocoder = new google.maps.Geocoder();
-          geocoder.geocode({ location: position }, (results, status) => {
-            if (status === "OK" && results?.[0]) {
-              const address = results[0].formatted_address;
-              onAddressChange(address);
-              
-              // Try to extract a place name from the address
-              const addressParts = address.split(',');
-              if (addressParts.length > 0 && addressParts[0].trim()) {
-                onNameChange(addressParts[0].trim());
               }
-            } else {
-              console.error("Geocoder failed after drag:", status);
-              toast.error("Failed to get address for this location");
-            }
-          });
+            );
+          } else {
+            // If no place found, fall back to geocoding
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: position }, (results, status) => {
+              if (status === "OK" && results?.[0]) {
+                const address = results[0].formatted_address;
+                onAddressChange(address);
+
+                // Try to extract a place name from the address
+                const addressParts = address.split(",");
+                if (addressParts.length > 0 && addressParts[0].trim()) {
+                  onNameChange(addressParts[0].trim());
+                }
+              } else {
+                console.error("Geocoder failed after drag:", status);
+                toast.error("Failed to get address for this location");
+              }
+            });
+          }
         }
-      });
+      );
     }
 
     // Find nearest region
@@ -277,7 +287,7 @@ function InteractiveMap({
         return marker;
       }
 
-      // Get address for these coordinates - this is now handled directly in the map click event 
+      // Get address for these coordinates - this is now handled directly in the map click event
       // or the handleMarkerDragEnd function to ensure we properly extract place names
       // We only use this for initial marker placement and search results
 
@@ -370,46 +380,53 @@ function InteractiveMap({
           console.log("POI clicked:", iconEvent.placeId);
           // Use PlacesService to get details for the POI
           const service = new google.maps.places.PlacesService(newMap);
-          service.getDetails({
-            placeId: iconEvent.placeId,
-            fields: ['name', 'formatted_address', 'geometry']
-          }, (place, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && place && place.geometry?.location) {
-              // Update form with POI details
-              const lat = place.geometry.location.lat();
-              const lng = place.geometry.location.lng();
-              onLocationChange(lat, lng);
-              findNearestRegion(lat, lng);
-              if (place.name) {
-                onNameChange(place.name);
-              }
-              if (place.formatted_address) {
-                onAddressChange(place.formatted_address);
-              }
-              
-              // Create marker at the POI location
-              if (markerRef.current) {
-                markerRef.current.setMap(null);
-              }
-              const marker = new google.maps.Marker({
-                position: place.geometry.location,
-                map: newMap,
-                title: place.name,
-                draggable: true,
-                animation: google.maps.Animation.DROP,
-              });
-              markerRef.current = marker;
-              marker.addListener("dragend", handleMarkerDragEnd);
-              newMap.setCenter(place.geometry.location);
-              newMap.setZoom(15);
-            } else {
-              console.error("Place details request failed:", status);
-              // Optionally fall back to geocoding if getDetails fails
-              if (e.latLng) {
-                fallbackToGeocoding(e.latLng);
+          service.getDetails(
+            {
+              placeId: iconEvent.placeId,
+              fields: ["name", "formatted_address", "geometry"],
+            },
+            (place, status) => {
+              if (
+                status === google.maps.places.PlacesServiceStatus.OK &&
+                place &&
+                place.geometry?.location
+              ) {
+                // Update form with POI details
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+                onLocationChange(lat, lng);
+                findNearestRegion(lat, lng);
+                if (place.name) {
+                  onNameChange(place.name);
+                }
+                if (place.formatted_address) {
+                  onAddressChange(place.formatted_address);
+                }
+
+                // Create marker at the POI location
+                if (markerRef.current) {
+                  markerRef.current.setMap(null);
+                }
+                const marker = new google.maps.Marker({
+                  position: place.geometry.location,
+                  map: newMap,
+                  title: place.name,
+                  draggable: true,
+                  animation: google.maps.Animation.DROP,
+                });
+                markerRef.current = marker;
+                marker.addListener("dragend", handleMarkerDragEnd);
+                newMap.setCenter(place.geometry.location);
+                newMap.setZoom(15);
+              } else {
+                console.error("Place details request failed:", status);
+                // Optionally fall back to geocoding if getDetails fails
+                if (e.latLng) {
+                  fallbackToGeocoding(e.latLng);
+                }
               }
             }
-          });
+          );
         } else if (e.latLng) {
           // Handle clicks on empty map space (no placeId)
           console.log("Empty map space clicked at:", e.latLng.lat(), e.latLng.lng());
@@ -446,10 +463,10 @@ function InteractiveMap({
           if (status === "OK" && results?.[0]) {
             const address = results[0].formatted_address;
             onAddressChange(address);
-            
+
             // Try to extract a place name from the address
             // First try to get the first part of the address
-            const addressParts = address.split(',');
+            const addressParts = address.split(",");
             if (addressParts.length > 0 && addressParts[0].trim()) {
               onNameChange(addressParts[0].trim());
             }
@@ -520,7 +537,7 @@ function InteractiveMap({
           if (markerRef.current) {
             markerRef.current.setMap(null);
           }
-          
+
           const marker = new google.maps.Marker({
             position,
             map: newMap,
@@ -528,9 +545,9 @@ function InteractiveMap({
             draggable: true,
             animation: google.maps.Animation.DROP,
           });
-          
+
           markerRef.current = marker;
-          
+
           // Add listener for drag end to update coordinates
           marker.addListener("dragend", handleMarkerDragEnd);
 
