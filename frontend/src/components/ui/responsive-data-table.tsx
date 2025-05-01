@@ -40,7 +40,7 @@ export function ResponsiveDataTable<T>({
   onRowClick,
 }: ResponsiveDataTableProps<T>) {
   // Convert the unified columns to each specific format
-  const tableColumns: Column<T>[] = columns.map(column => ({
+  const tableColumns: Column<T>[] = columns.map((column) => ({
     header: column.header,
     accessorKey: column.accessorKey,
     cell: column.cell,
@@ -49,7 +49,7 @@ export function ResponsiveDataTable<T>({
     showOn: column.showOn,
   }));
 
-  const cardColumns: CardColumn<T>[] = columns.map(column => ({
+  const cardColumns: CardColumn<T>[] = columns.map((column) => ({
     header: column.header,
     accessorKey: column.accessorKey,
     cell: column.cell,
@@ -89,4 +89,4 @@ export function ResponsiveDataTable<T>({
       </div>
     </>
   );
-} 
+}

@@ -44,13 +44,19 @@ export function DataTable<T>({
   // Map columns to their visibility class
   const getVisibilityClass = (showOn?: Column<T>["showOn"]) => {
     switch (showOn) {
-      case "sm": return "hidden sm:table-cell";
-      case "md": return "hidden md:table-cell";
-      case "lg": return "hidden lg:table-cell";
-      case "xl": return "hidden xl:table-cell";
-      case "2xl": return "hidden 2xl:table-cell";
-      case "always": 
-      default: return "";
+      case "sm":
+        return "hidden sm:table-cell";
+      case "md":
+        return "hidden md:table-cell";
+      case "lg":
+        return "hidden lg:table-cell";
+      case "xl":
+        return "hidden xl:table-cell";
+      case "2xl":
+        return "hidden 2xl:table-cell";
+      case "always":
+      default:
+        return "";
     }
   };
 
@@ -61,12 +67,9 @@ export function DataTable<T>({
           <TableHeader>
             <TableRow>
               {columns.map((column, index) => (
-                <TableHead 
-                  key={index} 
-                  className={cn(
-                    column.headerClassName,
-                    getVisibilityClass(column.showOn)
-                  )}
+                <TableHead
+                  key={index}
+                  className={cn(column.headerClassName, getVisibilityClass(column.showOn))}
                 >
                   {column.header}
                 </TableHead>
@@ -88,23 +91,20 @@ export function DataTable<T>({
               </TableRow>
             ) : (
               data.map((item) => (
-                <TableRow 
+                <TableRow
                   key={String(item[keyField])}
                   onClick={onRowClick ? () => onRowClick(item) : undefined}
                   className={onRowClick ? "cursor-pointer" : undefined}
                 >
                   {columns.map((column, index) => (
-                    <TableCell 
-                      key={index} 
-                      className={cn(
-                        column.className,
-                        getVisibilityClass(column.showOn)
-                      )}
+                    <TableCell
+                      key={index}
+                      className={cn(column.className, getVisibilityClass(column.showOn))}
                     >
-                      {column.cell 
-                        ? column.cell(item) 
-                        : column.accessorKey 
-                          ? String(item[column.accessorKey] ?? '') 
+                      {column.cell
+                        ? column.cell(item)
+                        : column.accessorKey
+                          ? String(item[column.accessorKey] ?? "")
                           : null}
                     </TableCell>
                   ))}
@@ -116,4 +116,4 @@ export function DataTable<T>({
       </div>
     </div>
   );
-} 
+}

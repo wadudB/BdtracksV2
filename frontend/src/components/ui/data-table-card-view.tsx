@@ -38,19 +38,11 @@ export function DataTableCardView<T>({
   const regularColumns = columns.filter((col) => !col.isPrimary && !col.isAction && !col.isHidden);
 
   if (isLoading) {
-    return (
-      <div className={cn("p-4 text-center", className)}>
-        Loading...
-      </div>
-    );
+    return <div className={cn("p-4 text-center", className)}>Loading...</div>;
   }
 
   if (data.length === 0) {
-    return (
-      <div className={cn("p-4 text-center", className)}>
-        {emptyMessage}
-      </div>
-    );
+    return <div className={cn("p-4 text-center", className)}>{emptyMessage}</div>;
   }
 
   return (
@@ -71,8 +63,8 @@ export function DataTableCardView<T>({
               {primaryColumn.cell
                 ? primaryColumn.cell(item)
                 : primaryColumn.accessorKey
-                ? String(item[primaryColumn.accessorKey] ?? "")
-                : null}
+                  ? String(item[primaryColumn.accessorKey] ?? "")
+                  : null}
             </div>
           )}
 
@@ -85,8 +77,8 @@ export function DataTableCardView<T>({
                   {column.cell
                     ? column.cell(item)
                     : column.accessorKey
-                    ? String(item[column.accessorKey] ?? "")
-                    : null}
+                      ? String(item[column.accessorKey] ?? "")
+                      : null}
                 </span>
               </div>
             ))}
@@ -98,12 +90,12 @@ export function DataTableCardView<T>({
               {actionColumn.cell
                 ? actionColumn.cell(item)
                 : actionColumn.accessorKey
-                ? String(item[actionColumn.accessorKey] ?? "")
-                : null}
+                  ? String(item[actionColumn.accessorKey] ?? "")
+                  : null}
             </div>
           )}
         </div>
       ))}
     </div>
   );
-} 
+}
