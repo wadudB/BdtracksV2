@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { APIProvider, Map, AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 
 interface RegionalMapProps {
@@ -19,7 +19,6 @@ function RegionMarker({
   position, 
   price, 
   regionName,
-  regionId, 
   selectedCommodity,
   isActive,
   onClick,
