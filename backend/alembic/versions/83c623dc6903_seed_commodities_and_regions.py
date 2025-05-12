@@ -55,108 +55,612 @@ def upgrade() -> None:
         column('is_division', Boolean),
     )
     
-    price_record = table(
-        'pricerecord',
-        column('commodity_id', Integer),
-        column('region_id', Integer),
-        column('price', Integer),
-        column('source', String),
-        column('notes', Text),
-        column('recorded_at', Date),
-    )
-    
     # Insert commodities
     op.bulk_insert(
         commodity,
         [
             {
-                "name": "Rice (Fine)",
-                "bengali_name": "চাল (উন্নত মানের)",
+                "name": "Fine Rice (Nazir/Miniket)",
+                "bengali_name": "চাল সরু (নাজির/মিনিকেট)",
                 "category": "agriculture",
                 "unit": "kg",
-                "description": "High-quality fine-grain rice varieties such as Chinigura and Kataribhog",
+                "description": "Fine quality rice varieties such as Nazir or Miniket",
                 "image_url": "/images/commodities/rice-fine.jpg",
                 "is_active": True
             },
             {
-                "name": "Rice (Medium)",
-                "bengali_name": "চাল পাইজাম/লটা",
+                "name": "Medium Rice (Paijam/Atash)",
+                "bengali_name": "চাল (মাঝারী)পাইজাম/আটাশ",
                 "category": "agriculture",
                 "unit": "kg",
-                "description": "Medium quality rice varieties including Paijam",
+                "description": "Medium quality rice varieties including Paijam/Atash",
                 "image_url": "/images/commodities/rice-medium.jpg",
                 "is_active": True
             },
             {
-                "name": "Rice (Coarse)",
-                "bengali_name": "চাল মোটা",
+                "name": "Medium Rice (Paijam/Lota)",
+                "bengali_name": "চাল (মাঝারী)পাইজাম/লতা",
                 "category": "agriculture",
                 "unit": "kg",
-                "description": "Coarse rice varieties commonly used in everyday meals",
+                "description": "Medium quality rice varieties including Paijam/Lota",
+                "image_url": "/images/commodities/rice-medium.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Coarse Rice (Swarna/China Iri)",
+                "bengali_name": "চাল (মোটা)/স্বর্ণা/চায়না ইরি",
+                "category": "agriculture",
+                "unit": "kg",
+                "description": "Coarse rice varieties such as Swarna or China Iri",
                 "image_url": "/images/commodities/rice-coarse.jpg",
                 "is_active": True
             },
             {
-                "name": "Wheat Flour (Fine)",
-                "bengali_name": "আটা ময়দা",
+                "name": "White Flour (Loose)",
+                "bengali_name": "আটা সাদা (খোলা)",
                 "category": "agriculture",
                 "unit": "kg",
-                "description": "Fine wheat flour used for making breads and pastries",
-                "image_url": "/images/commodities/wheat-flour.jpg",
+                "description": "White flour sold loose",
+                "image_url": "/images/commodities/white-flour.jpg",
                 "is_active": True
             },
             {
-                "name": "Wheat Flour (Medium)",
-                "bengali_name": "আটা সুজি",
+                "name": "Flour (Packet)",
+                "bengali_name": "আটা (প্যাকেট)",
                 "category": "agriculture",
                 "unit": "kg",
-                "description": "Medium wheat flour used for various food preparations",
-                "image_url": "/images/commodities/wheat-medium.jpg",
+                "description": "Packaged flour",
+                "image_url": "/images/commodities/packaged-flour.jpg",
                 "is_active": True
             },
             {
-                "name": "Lentils (Masoor)",
-                "bengali_name": "মসুর ডাল",
+                "name": "Maida (Loose)",
+                "bengali_name": "ময়দা (খোলা)",
                 "category": "agriculture",
                 "unit": "kg",
-                "description": "Red lentils commonly used in Bengali cuisine",
-                "image_url": "/images/commodities/lentils-masoor.jpg",
+                "description": "Fine wheat flour sold loose",
+                "image_url": "/images/commodities/maida.jpg",
                 "is_active": True
             },
             {
-                "name": "Lentils (Mung)",
-                "bengali_name": "মুগ ডাল",
+                "name": "Maida (Packet)",
+                "bengali_name": "ময়দা (প্যাকেট)",
                 "category": "agriculture",
                 "unit": "kg",
-                "description": "Green lentils used in various Bengali dishes",
-                "image_url": "/images/commodities/lentils-mung.jpg",
+                "description": "Packaged fine wheat flour",
+                "image_url": "/images/commodities/maida-packet.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Soybean Oil (Loose)",
+                "bengali_name": "সয়াবিন তেল (লুজ)",
+                "category": "oil",
+                "unit": "liter",
+                "description": "Soybean oil sold loose",
+                "image_url": "/images/commodities/soybean-oil.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Soybean Oil (Bottled)",
+                "bengali_name": "সয়াবিন তেল (বোতল)",
+                "category": "oil",
+                "unit": "liter",
+                "description": "Bottled soybean oil",
+                "image_url": "/images/commodities/soybean-oil-bottled.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Palm Oil (Loose)",
+                "bengali_name": "পাম অয়েল (লুজ)",
+                "category": "oil",
+                "unit": "liter",
+                "description": "Palm oil sold loose",
+                "image_url": "/images/commodities/palm-oil.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Super Palm Oil (Loose)",
+                "bengali_name": "সুপার পাম অয়েল (লুজ)",
+                "category": "oil",
+                "unit": "liter",
+                "description": "Premium quality palm oil sold loose",
+                "image_url": "/images/commodities/super-palm-oil.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Rice Bran Oil (Bottled)",
+                "bengali_name": "রাইস ব্রান তেল (বোতল)",
+                "category": "oil",
+                "unit": "liter",
+                "description": "Bottled rice bran oil",
+                "image_url": "/images/commodities/rice-bran-oil.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Palm Olein (Bottled)",
+                "bengali_name": "পাম অলিন (বোতল)",
+                "category": "oil",
+                "unit": "liter",
+                "description": "Bottled palm olein oil",
+                "image_url": "/images/commodities/palm-olein.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Masoor Dal (Large Grain)",
+                "bengali_name": "মশুর ডাল (বড় দানা)",
+                "category": "pulses",
+                "unit": "kg",
+                "description": "Large grain red lentils",
+                "image_url": "/images/commodities/masoor-large.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Masoor Dal (Medium Grain)",
+                "bengali_name": "মশূর ডাল (মাঝারী দানা)",
+                "category": "pulses",
+                "unit": "kg",
+                "description": "Medium grain red lentils",
+                "image_url": "/images/commodities/masoor-medium.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Masoor Dal (Small Grain)",
+                "bengali_name": "মশুর ডাল (ছোট দানা)",
+                "category": "pulses",
+                "unit": "kg",
+                "description": "Small grain red lentils",
+                "image_url": "/images/commodities/masoor-small.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Moong Dal (Varies by Quality)",
+                "bengali_name": "মুগ ডাল (মানভেদে)",
+                "category": "pulses",
+                "unit": "kg",
+                "description": "Green lentils with varying quality",
+                "image_url": "/images/commodities/moong-dal.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Anchor Dal",
+                "bengali_name": "এ্যাংকর ডাল",
+                "category": "pulses",
+                "unit": "kg",
+                "description": "Anchor dal variety",
+                "image_url": "/images/commodities/anchor-dal.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Chickpea (Varies by Quality)",
+                "bengali_name": "ছোলা (মানভেদে)",
+                "category": "pulses",
+                "unit": "kg",
+                "description": "Chickpeas of varying qualities",
+                "image_url": "/images/commodities/chickpea.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Potato (Varies by Quality)",
+                "bengali_name": "আলু (মানভেদে)",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "Potatoes of varying qualities",
+                "image_url": "/images/commodities/potato.jpg",
                 "is_active": True
             },
             {
                 "name": "Onion (Local)",
-                "bengali_name": "পেঁয়াজ দেশি",
-                "category": "agriculture",
+                "bengali_name": "পিঁয়াজ (দেশী)",
+                "category": "vegetables",
                 "unit": "kg",
-                "description": "Locally grown onions from Bangladesh",
+                "description": "Locally grown onions",
                 "image_url": "/images/commodities/onion-local.jpg",
                 "is_active": True
             },
             {
                 "name": "Onion (Imported)",
-                "bengali_name": "পেঁয়াজ আমদানি",
-                "category": "agriculture",
+                "bengali_name": "পিঁয়াজ (আমদানি)",
+                "category": "vegetables",
                 "unit": "kg",
-                "description": "Imported onions primarily from India",
+                "description": "Imported onions",
                 "image_url": "/images/commodities/onion-imported.jpg",
                 "is_active": True
             },
             {
-                "name": "Potato",
-                "bengali_name": "আলু",
-                "category": "agriculture",
+                "name": "Garlic (Local)",
+                "bengali_name": "রসুন (দেশী)",
+                "category": "vegetables",
                 "unit": "kg",
-                "description": "Locally grown potatoes",
-                "image_url": "/images/commodities/potato.jpg",
+                "description": "Locally grown garlic",
+                "image_url": "/images/commodities/garlic-local.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Garlic (Imported)",
+                "bengali_name": "রসুন (আমদানি)",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "Imported garlic",
+                "image_url": "/images/commodities/garlic-imported.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Dry Chili (Local)",
+                "bengali_name": "শুকনা মরিচ (দেশী)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Locally grown dried chilies",
+                "image_url": "/images/commodities/chili-dry-local.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Dry Chili (Imported)",
+                "bengali_name": "শুকনা মরিচ (আমদানি)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Imported dried chilies",
+                "image_url": "/images/commodities/chili-dry-imported.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Turmeric (Local)",
+                "bengali_name": "হলুদ (দেশী)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Locally grown turmeric",
+                "image_url": "/images/commodities/turmeric-local.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Turmeric (Imported)",
+                "bengali_name": "হলুদ (আমদানি)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Imported turmeric",
+                "image_url": "/images/commodities/turmeric-imported.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Ginger (Local)",
+                "bengali_name": "আদা (দেশী)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Locally grown ginger",
+                "image_url": "/images/commodities/ginger-local.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Ginger (Imported)",
+                "bengali_name": "আদা (আমদানি)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Imported ginger",
+                "image_url": "/images/commodities/ginger-imported.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Cumin",
+                "bengali_name": "জিরা",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Cumin seeds",
+                "image_url": "/images/commodities/cumin.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Cinnamon",
+                "bengali_name": "দারুচিনি",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Cinnamon sticks",
+                "image_url": "/images/commodities/cinnamon.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Clove",
+                "bengali_name": "লবঙ্গ",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Cloves spice",
+                "image_url": "/images/commodities/clove.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Cardamom (Small)",
+                "bengali_name": "এলাচ(ছোট)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Small cardamom pods",
+                "image_url": "/images/commodities/cardamom-small.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Coriander",
+                "bengali_name": "ধনে",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Coriander seeds",
+                "image_url": "/images/commodities/coriander.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Bay Leaf",
+                "bengali_name": "তেজপাতা",
+                "category": "spices",
+                "unit": "kg",
+                "description": "Dried bay leaves",
+                "image_url": "/images/commodities/bay-leaf.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Rui Fish",
+                "bengali_name": "রুই",
+                "category": "fish",
+                "unit": "kg",
+                "description": "Freshwater rui fish",
+                "image_url": "/images/commodities/rui-fish.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Hilsa Fish",
+                "bengali_name": "ইলিশ",
+                "category": "fish",
+                "unit": "kg",
+                "description": "Hilsa fish, national fish of Bangladesh",
+                "image_url": "/images/commodities/hilsa-fish.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Beef",
+                "bengali_name": "গরু",
+                "category": "meat",
+                "unit": "kg",
+                "description": "Beef meat",
+                "image_url": "/images/commodities/beef.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Mutton",
+                "bengali_name": "খাসী",
+                "category": "meat",
+                "unit": "kg",
+                "description": "Mutton meat",
+                "image_url": "/images/commodities/mutton.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Broiler Chicken",
+                "bengali_name": "মুরগী(ব্রয়লার)",
+                "category": "meat",
+                "unit": "kg",
+                "description": "Farm-raised broiler chicken",
+                "image_url": "/images/commodities/broiler-chicken.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Local Chicken",
+                "bengali_name": "মুরগী (দেশী)",
+                "category": "meat",
+                "unit": "kg",
+                "description": "Local free-range chicken",
+                "image_url": "/images/commodities/local-chicken.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Powdered Milk (Packet)",
+                "bengali_name": "গুড়া দুধ(প্যাকেটজাত)",
+                "category": "dairy",
+                "unit": "kg",
+                "description": "Packaged powdered milk",
+                "image_url": "/images/commodities/powdered-milk.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Dano Milk Powder",
+                "bengali_name": "ডানো",
+                "category": "dairy",
+                "unit": "kg",
+                "description": "Dano brand milk powder",
+                "image_url": "/images/commodities/dano-milk.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Diploma Milk Powder (NZ)",
+                "bengali_name": "ডিপ্লোমা (নিউজিল্যান্ড)",
+                "category": "dairy",
+                "unit": "kg",
+                "description": "Diploma brand milk powder from New Zealand",
+                "image_url": "/images/commodities/diploma-milk.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Fresh Milk Powder",
+                "bengali_name": "ফ্রেশ",
+                "category": "dairy",
+                "unit": "kg",
+                "description": "Fresh brand milk powder",
+                "image_url": "/images/commodities/fresh-milk.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Marks Milk Powder",
+                "bengali_name": "মার্কস",
+                "category": "dairy",
+                "unit": "kg",
+                "description": "Marks brand milk powder",
+                "image_url": "/images/commodities/marks-milk.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Sugar",
+                "bengali_name": "চিনি",
+                "category": "grocery",
+                "unit": "kg",
+                "description": "White sugar",
+                "image_url": "/images/commodities/sugar.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Dates (Ordinary Quality)",
+                "bengali_name": "খেজুর(সাধারণ মানের)",
+                "category": "fruits",
+                "unit": "kg",
+                "description": "Ordinary quality dates",
+                "image_url": "/images/commodities/dates.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Iodized Salt (Packet)",
+                "bengali_name": "লবণ(প্যাঃ)আয়োডিনযুক্ত",
+                "category": "grocery",
+                "unit": "kg",
+                "description": "Packaged iodized salt",
+                "image_url": "/images/commodities/iodized-salt.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Egg (Farm)",
+                "bengali_name": "ডিম (ফার্ম)",
+                "category": "poultry",
+                "unit": "dozen",
+                "description": "Farm-produced eggs",
+                "image_url": "/images/commodities/farm-eggs.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Writing Paper (White)",
+                "bengali_name": "লেখার কাগজ(সাদা)",
+                "category": "stationery",
+                "unit": "ream",
+                "description": "White writing paper",
+                "image_url": "/images/commodities/writing-paper.jpg",
+                "is_active": True
+            },
+            {
+                "name": "MS Rod (60 Grade)",
+                "bengali_name": "এম,এস রড (৬০ গ্রেড)",
+                "category": "construction",
+                "unit": "kg",
+                "description": "60 grade mild steel rod for construction",
+                "image_url": "/images/commodities/ms-rod-60.jpg",
+                "is_active": True
+            },
+            {
+                "name": "MS Rod (40 Grade)",
+                "bengali_name": "এম,এস রড( ৪০ গ্রেড)",
+                "category": "construction",
+                "unit": "kg",
+                "description": "40 grade mild steel rod for construction",
+                "image_url": "/images/commodities/ms-rod-40.jpg",
+                "is_active": True
+            },
+            # Additional entries
+            {
+                "name": "Super Palm Oil (Loose)",
+                "bengali_name": "পাম অয়েল (সুপার)",
+                "category": "oil",
+                "unit": "liter",
+                "description": "Premium quality super palm oil sold loose",
+                "image_url": "/images/commodities/super-palm-oil-alt.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Potato (Varies by Quality)",
+                "bengali_name": "আলু (নতুন, মানভেদে)",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "New potatoes of varying qualities",
+                "image_url": "/images/commodities/potato-new.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Potato (Varies by Quality)",
+                "bengali_name": "আলু (নতুন/পুরাতন)(মানভেদে)",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "New/old potatoes of varying qualities",
+                "image_url": "/images/commodities/potato-mixed.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Onion (Local)",
+                "bengali_name": "পিঁয়াজ (নতুন) (দেশী)",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "New locally grown onions",
+                "image_url": "/images/commodities/onion-local-new.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Onion (Local)",
+                "bengali_name": "পিঁয়াজ (নতুন/পুরাতন) (দেশী)",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "New/old locally grown onions",
+                "image_url": "/images/commodities/onion-local-mixed.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Onion (Local)",
+                "bengali_name": "পিঁয়াজ (দেশী)নতুন/পুরতান",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "New/old locally grown onions",
+                "image_url": "/images/commodities/onion-local-mixed.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Garlic (Local)",
+                "bengali_name": "রসুন (দেশী) ",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "Locally grown garlic (with extra space)",
+                "image_url": "/images/commodities/garlic-local.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Garlic (Local)",
+                "bengali_name": "রসুন (দেশী) নতুন/পুরাতন",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "New/old locally grown garlic",
+                "image_url": "/images/commodities/garlic-local-mixed.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Garlic (Local)",
+                "bengali_name": "Garlic (Local)/পুরাতন",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "Old locally grown garlic",
+                "image_url": "/images/commodities/garlic-local-old.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Garlic (Local)",
+                "bengali_name": "রসুন(দেশী) নতুন",
+                "category": "vegetables",
+                "unit": "kg",
+                "description": "New locally grown garlic",
+                "image_url": "/images/commodities/garlic-local-new.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Ginger (Local)",
+                "bengali_name": "আদা (দেশী)(নতুন)",
+                "category": "spices",
+                "unit": "kg",
+                "description": "New locally grown ginger",
+                "image_url": "/images/commodities/ginger-local-new.jpg",
+                "is_active": True
+            },
+            {
+                "name": "Iodized Salt (Packet)",
+                "bengali_name": "লবণ(প্যাঃ)আয়োডিনযুক্ত(মানভেদে)",
+                "category": "grocery",
+                "unit": "kg",
+                "description": "Packaged iodized salt of varying quality",
+                "image_url": "/images/commodities/iodized-salt-varies.jpg",
                 "is_active": True
             }
         ]
@@ -232,165 +736,6 @@ def upgrade() -> None:
             }
         ]
     )
-    
-    # Create price records for each commodity in each region
-    # Define base price ranges for each commodity
-    price_ranges = {
-        1: (72, 82),    # Rice (Fine)
-        2: (60, 68),    # Rice (Medium)
-        3: (55, 62),    # Rice (Coarse) 
-        4: (48, 54),    # Wheat Flour (Fine)
-        5: (53, 60),    # Wheat Flour (Medium)
-        6: (105, 115),  # Lentils (Masoor)
-        7: (140, 150),  # Lentils (Mung)
-        8: (75, 95),    # Onion (Local)
-        9: (70, 80),    # Onion (Imported)
-        10: (30, 40)    # Potato
-    }
-    
-    # Define price trends for different commodities over time
-    # Some will have increasing trends, some decreasing, some stable with fluctuations
-    trend_factors = {
-        1: 1.10,  # Rice (Fine) - moderate increase over time (10%)
-        2: 1.08,  # Rice (Medium) - slight increase (8%)
-        3: 1.05,  # Rice (Coarse) - minimal increase (5%)
-        4: 1.15,  # Wheat Flour (Fine) - significant increase (15%)
-        5: 1.12,  # Wheat Flour (Medium) - moderate increase (12%)
-        6: 0.95,  # Lentils (Masoor) - slight decrease (5% down)
-        7: 1.02,  # Lentils (Mung) - stable with slight increase (2%)
-        8: 1.25,  # Onion (Local) - volatile with large increase (25%)
-        9: 1.20,  # Onion (Imported) - significant increase (20%)
-        10: 0.90  # Potato - decrease over time (10% down)
-    }
-    
-    # Regional factors for price variations
-    region_factors = {
-        1: 1.10,  # Dhaka - 10% more expensive (capital city)
-        2: 1.05,  # Chittagong - 5% more expensive (major port city)
-        3: 0.90,  # Rajshahi - 10% cheaper (agricultural region)
-        4: 0.95,  # Khulna - 5% cheaper
-        5: 0.97,  # Barisal - 3% cheaper
-        6: 1.03,  # Sylhet - 3% more expensive
-        7: 0.92,  # Rangpur - 8% cheaper (agricultural region)
-        8: 1.00   # Mymensingh - neutral
-    }
-    
-    # Seasonal variations (approximate)
-    month_factors = {
-        1: 1.02,   # January
-        2: 1.01,   # February
-        3: 1.00,   # March
-        4: 0.99,   # April
-        5: 0.98,   # May
-        6: 0.99,   # June
-        7: 1.01,   # July
-        8: 1.03,   # August
-        9: 1.05,   # September
-        10: 1.04,  # October
-        11: 1.02,  # November
-        12: 1.01   # December
-    }
-    
-    today = datetime.now().date()
-    price_records = []
-    
-    # Generate 3 years of data
-    start_date = today - timedelta(days=3*365)
-    
-    # For each commodity and region
-    for commodity_id, (base_min, base_max) in price_ranges.items():
-        for region_id in range(1, 9):  # 8 regions
-            # Frequency of records
-            # Weekly for the last 30 days (for weekly changes)
-            # Twice a month for the last year (for monthly changes)
-            # Monthly for the last 3 years (for yearly changes)
-            
-            # Start with monthly data (last 3 years)
-            current_date = start_date
-            while current_date <= today:
-                # Determine how frequently to record data based on how recent it is
-                if current_date >= (today - timedelta(days=30)):
-                    # Weekly data for the last 30 days
-                    interval_days = 7
-                elif current_date >= (today - timedelta(days=365)):
-                    # Bi-weekly data for the last year
-                    interval_days = 15
-                else:
-                    # Monthly data for older records
-                    interval_days = 30
-                
-                # Calculate price based on various factors
-                # 1. Base price range
-                # 2. Time trend (prices generally increase over time)
-                # 3. Regional variation
-                # 4. Seasonal factors
-                # 5. Random fluctuations
-                
-                # Calculate time factor (increasing trend over time)
-                days_from_start = (current_date - start_date).days
-                total_days = (today - start_date).days
-                time_progress = days_from_start / total_days if total_days > 0 else 0
-                
-                # Apply the trend for this commodity (interpolate between 1.0 and the trend factor)
-                trend = 1.0 + (time_progress * (trend_factors[commodity_id] - 1.0))
-                
-                # Apply region factor
-                region_factor = region_factors[region_id]
-                
-                # Apply seasonal factor
-                month_factor = month_factors[current_date.month]
-                
-                # Random fluctuation factor (±3%)
-                random_factor = 1.0 + (random.uniform(-0.03, 0.03))
-                
-                # Calculate the base price for this record
-                base_price = (base_min + base_max) / 2
-                
-                # Apply all factors to get the final price
-                price = int(base_price * trend * region_factor * month_factor * random_factor)
-                
-                # Add some weekly fluctuations for the last 30 days
-                if current_date >= (today - timedelta(days=30)):
-                    # Add a small weekly trend (±2%)
-                    weekly_factor = 1.0 + (random.uniform(-0.02, 0.02))
-                    price = int(price * weekly_factor)
-                
-                # Create the price record
-                price_records.append({
-                    "commodity_id": commodity_id,
-                    "region_id": region_id,
-                    "price": price,
-                    "source": "Market Survey",
-                    "notes": "Historical price data",
-                    "recorded_at": current_date
-                })
-                
-                # Move to the next date based on the interval
-                current_date += timedelta(days=interval_days)
-                
-                # Add some additional data points with small variations for the last 30 days
-                # This provides better granularity for weekly analysis
-                if current_date >= (today - timedelta(days=30)) and current_date <= today:
-                    # Add 1-2 extra data points between weekly intervals
-                    for extra_days in [2, 5]:
-                        extra_date = current_date - timedelta(days=interval_days - extra_days)
-                        if extra_date <= today:
-                            # Small variation from the calculated price (±2%)
-                            extra_factor = 1.0 + (random.uniform(-0.02, 0.02))
-                            extra_price = int(price * extra_factor)
-                            
-                            price_records.append({
-                                "commodity_id": commodity_id,
-                                "region_id": region_id,
-                                "price": extra_price,
-                                "source": "Market Survey",
-                                "notes": "Additional price point",
-                                "recorded_at": extra_date
-                            })
-    
-    # Insert price records
-    op.bulk_insert(price_record, price_records)
-
 
 def downgrade() -> None:
     op.execute("DELETE FROM pricerecord")

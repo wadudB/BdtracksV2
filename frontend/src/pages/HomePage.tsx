@@ -71,14 +71,14 @@ const HomePage: FC = () => {
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-muted-foreground">Rice</span>
                           <div className="flex items-center">
-                            <span className="font-medium text-sm mr-1">₹75</span>
+                            <span className="font-medium text-sm mr-1">৳75</span>
                             <span className="text-xs text-red-500">±2.4%</span>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-muted-foreground">Onions</span>
                           <div className="flex items-center">
-                            <span className="font-medium text-sm mr-1">₹60</span>
+                            <span className="font-medium text-sm mr-1">৳60</span>
                             <span className="text-xs text-green-500">↑3.1%</span>
                           </div>
                         </div>
