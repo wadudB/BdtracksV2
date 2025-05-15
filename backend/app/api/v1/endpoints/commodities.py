@@ -20,66 +20,99 @@ def read_commodities(
     category: Optional[str] = None,
 ) -> Any:
     """
-    Retrieve commodities.
+    Retrieve commodities that have price records.
     """
-    commodities = crud.commodity.get_multi(db, skip=skip, limit=limit, category=category)
+    # Define time ranges for calculations
+    today = datetime.now().date()
+    thirty_days_ago = today - timedelta(days=30)
+    one_week_ago = today - timedelta(days=7)
+    two_weeks_ago = today - timedelta(days=14)
     
-    # Convert to list of dictionaries so we can add prices
-    result = []
-    for commodity in commodities:
+    # Subquery for current week average prices
+    current_week_avg = db.query(
+        PriceRecord.commodity_id,
+        func.avg(PriceRecord.price).label("current_week_avg")
+    ).filter(
+        PriceRecord.recorded_at >= one_week_ago
+    ).group_by(
+        PriceRecord.commodity_id
+    ).subquery()
+    
+    # Subquery for previous week average prices
+    previous_week_avg = db.query(
+        PriceRecord.commodity_id,
+        func.avg(PriceRecord.price).label("previous_week_avg")
+    ).filter(
+        PriceRecord.recorded_at >= two_weeks_ago,
+        PriceRecord.recorded_at < one_week_ago
+    ).group_by(
+        PriceRecord.commodity_id
+    ).subquery()
+    
+    # Main query with all price statistics in one go
+    query = db.query(
+        crud.commodity.model,
+        func.min(PriceRecord.price).label("min_price"),
+        func.max(PriceRecord.price).label("max_price"),
+        func.avg(PriceRecord.price).label("avg_price"),
+        current_week_avg.c.current_week_avg,
+        previous_week_avg.c.previous_week_avg
+    ).join(
+        PriceRecord, 
+        crud.commodity.model.id == PriceRecord.commodity_id
+    ).outerjoin(
+        current_week_avg,
+        crud.commodity.model.id == current_week_avg.c.commodity_id
+    ).outerjoin(
+        previous_week_avg,
+        crud.commodity.model.id == previous_week_avg.c.commodity_id
+    ).filter(
+        PriceRecord.recorded_at >= thirty_days_ago
+    ).group_by(
+        crud.commodity.model.id,
+        current_week_avg.c.current_week_avg,
+        previous_week_avg.c.previous_week_avg
+    )
+    
+    # Apply category filter if provided
+    if category:
+        query = query.filter(crud.commodity.model.category == category)
+    
+    # Apply pagination
+    query = query.offset(skip).limit(limit)
+    
+    # Execute the query
+    results = query.all()
+    
+    # Process results
+    commodities_list = []
+    for row in results:
+        commodity = row[0]
+        min_price = row.min_price
+        max_price = row.max_price
+        avg_price = row.avg_price
+        current_week_avg = row.current_week_avg or 0
+        previous_week_avg = row.previous_week_avg or current_week_avg or 0
+        
+        # Convert to dict
         commodity_dict = schemas.Commodity.model_validate(commodity).model_dump()
         
-        # Get recent price records for this commodity
-        # Limit to last 30 days
-        thirty_days_ago = datetime.now().date() - timedelta(days=30)
-        
-        # Query for min, max, and average prices
-        price_data = db.query(
-            func.min(PriceRecord.price).label("min_price"),
-            func.max(PriceRecord.price).label("max_price"),
-            func.avg(PriceRecord.price).label("avg_price")
-        ).filter(
-            PriceRecord.commodity_id == commodity.id,
-            PriceRecord.recorded_at >= thirty_days_ago
-        ).first()
-        
-        # Add prices to the result if they exist
-        if price_data and price_data.min_price is not None:
-            commodity_dict["min_price"] = price_data.min_price
-            commodity_dict["max_price"] = price_data.max_price
-            commodity_dict["current_price"] = round(price_data.avg_price)
+        # Add price statistics
+        if min_price is not None:
+            commodity_dict["min_price"] = min_price
+            commodity_dict["max_price"] = max_price
+            commodity_dict["current_price"] = round(avg_price)
             
             # Calculate weekly change
-            one_week_ago = datetime.now().date() - timedelta(days=7)
-            
-            # Current average price (last 7 days)
-            current_week_avg = db.query(
-                func.avg(PriceRecord.price).label("avg_price")
-            ).filter(
-                PriceRecord.commodity_id == commodity.id,
-                PriceRecord.recorded_at >= one_week_ago
-            ).scalar() or 0
-            
-            # Previous week average price (7-14 days ago)
-            previous_week_ago = one_week_ago - timedelta(days=7)
-            previous_week_avg = db.query(
-                func.avg(PriceRecord.price).label("avg_price")
-            ).filter(
-                PriceRecord.commodity_id == commodity.id,
-                PriceRecord.recorded_at >= previous_week_ago,
-                PriceRecord.recorded_at < one_week_ago
-            ).scalar() or current_week_avg  # Fallback to current if no previous data
-            
-            # Calculate percent change
             if previous_week_avg > 0:
                 weekly_change = ((current_week_avg - previous_week_avg) / previous_week_avg) * 100
                 commodity_dict["weeklyChange"] = round(weekly_change, 1)
             else:
                 commodity_dict["weeklyChange"] = 0
         
-        result.append(commodity_dict)
+        commodities_list.append(commodity_dict)
     
-    return result
+    return commodities_list
 
 
 @router.get("/dropdown", response_model=List[schemas.CommodityInDropdown])
