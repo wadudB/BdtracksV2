@@ -35,6 +35,13 @@ import { toast } from "sonner";
 import { useCreatePriceRecord, useGetCommodityDropdown, useGetRegions } from "@/hooks/useQueries";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { Search } from "lucide-react";
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  useMap,
+  useMapsLibrary,
+} from "@vis.gl/react-google-maps";
 
 declare global {
   interface Window {
@@ -73,24 +80,14 @@ function InteractiveMap({
   onRegionChange: (regionId: string) => void;
   onNameChange: (name: string) => void;
 }) {
-  const [mapRef, setMapRef] = useState<HTMLDivElement | null>(null);
   const [searchInput, setSearchInput] = useState("");
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  // const [marker, setMarker] = useState<google.maps.Marker | null>(null);
-  const markerRef = useRef<google.maps.Marker | null>(null);
-  // const [searchBox, setSearchBox] = useState<google.maps.places.Autocomplete | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [markerPosition, setMarkerPosition] = useState<google.maps.LatLngLiteral | null>(
+    latitude && longitude ? { lat: latitude, lng: longitude } : null
+  );
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Function to clear any existing marker
-  const clearMarkers = useCallback(() => {
-    if (markerRef.current) {
-      markerRef.current.setMap(null);
-      markerRef.current = null;
-    }
-    // setMarker(null);
-  }, []);
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   // Helper function to find nearest region to the selected point
   const findNearestRegion = useCallback(
@@ -145,381 +142,44 @@ function InteractiveMap({
     []
   );
 
-  // Handle marker drag end event
-  const handleMarkerDragEnd = () => {
-    if (!markerRef.current) return;
+  // Map Component that handles places and markers
+  const MapContent = () => {
+    const map = useMap();
+    const placesLib = useMapsLibrary("places");
+    const geocodingLib = useMapsLibrary("geocoding");
+    const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 
-    const position = markerRef.current.getPosition();
-    if (!position) return;
+    // Initialize Places Autocomplete
+    useEffect(() => {
+      if (!placesLib || !map || !searchInputRef.current || autocomplete) return;
 
-    const newLat = position.lat();
-    const newLng = position.lng();
-
-    // Update coordinates
-    onLocationChange(newLat, newLng);
-
-    // Use Places service to get location information
-    if (map) {
-      const service = new google.maps.places.PlacesService(map);
-
-      // Use nearby search to find places near the dragged location
-      service.nearbySearch(
-        {
-          location: position,
-          radius: 50, // Small radius to get only places very close to the dragged point
-        },
-        (results, status) => {
-          if (
-            status === google.maps.places.PlacesServiceStatus.OK &&
-            results &&
-            results.length > 0
-          ) {
-            // Get details of the first place found
-            service.getDetails(
-              {
-                placeId: results[0].place_id as string, // Explicitly cast to string
-                fields: ["name", "formatted_address"],
-              },
-              (place, detailsStatus) => {
-                if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && place) {
-                  // We found a place, update the name and address
-                  if (place.name) {
-                    onNameChange(place.name);
-                  }
-                  if (place.formatted_address) {
-                    onAddressChange(place.formatted_address);
-                  }
-                } else {
-                  // If no place found or details failed, fall back to geocoding
-                  const geocoder = new google.maps.Geocoder();
-                  geocoder.geocode({ location: position }, (results, status) => {
-                    if (status === "OK" && results?.[0]) {
-                      const address = results[0].formatted_address;
-                      onAddressChange(address);
-
-                      // Try to extract a place name from the address
-                      const addressParts = address.split(",");
-                      if (addressParts.length > 0 && addressParts[0].trim()) {
-                        onNameChange(addressParts[0].trim());
-                      }
-                    } else {
-                      console.error("Geocoder failed after drag:", status);
-                      toast.error("Failed to get address for this location");
-                    }
-                  });
-                }
-              }
-            );
-          } else {
-            // If no place found, fall back to geocoding
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ location: position }, (results, status) => {
-              if (status === "OK" && results?.[0]) {
-                const address = results[0].formatted_address;
-                onAddressChange(address);
-
-                // Try to extract a place name from the address
-                const addressParts = address.split(",");
-                if (addressParts.length > 0 && addressParts[0].trim()) {
-                  onNameChange(addressParts[0].trim());
-                }
-              } else {
-                console.error("Geocoder failed after drag:", status);
-                toast.error("Failed to get address for this location");
-              }
-            });
-          }
-        }
-      );
-    }
-
-    // Find nearest region
-    findNearestRegion(newLat, newLng);
-  };
-
-  // Function to handle marker creation and cleanup
-  const createMarker = (
-    position: google.maps.LatLng | google.maps.LatLngLiteral,
-    title?: string,
-    mapInstance?: google.maps.Map,
-    placeName?: string
-  ): google.maps.Marker | null => {
-    // Use the passed map instance or fall back to the state map
-    const mapToUse = mapInstance || map;
-
-    if (!mapToUse) {
-      console.error("Map not initialized yet");
-      return null;
-    }
-
-    try {
-      // Remove existing marker if there's one
-      if (markerRef.current) {
-        markerRef.current.setMap(null);
-      }
-
-      // Create the new marker
-      const marker = new google.maps.Marker({
-        position,
-        map: mapToUse,
-        title: title || "Selected location",
-        draggable: true,
-        animation: google.maps.Animation.DROP,
-      });
-
-      // Store the marker reference
-      markerRef.current = marker;
-
-      // Add listener for drag end to update coordinates
-      marker.addListener("dragend", handleMarkerDragEnd);
-
-      // Get location details from marker position
-      const latlng = marker.getPosition()!;
-      onLocationChange(latlng.lat(), latlng.lng());
-
-      // Find nearest region for region dropdown
-      findNearestRegion(latlng.lat(), latlng.lng());
-
-      // If placeName is provided, use it directly and update the name field
-      if (placeName) {
-        onAddressChange(title || "");
-        onNameChange(placeName);
-        return marker;
-      }
-
-      // Get address for these coordinates - this is now handled directly in the map click event
-      // or the handleMarkerDragEnd function to ensure we properly extract place names
-      // We only use this for initial marker placement and search results
-
-      // Center and zoom map to marker
-      mapToUse.setCenter(position);
-      mapToUse.setZoom(15);
-
-      return marker;
-    } catch (error) {
-      console.error("Error creating marker:", error);
-      toast.error("Failed to create marker");
-      return null;
-    }
-  };
-
-  // Load the map
-  useEffect(() => {
-    if (!mapRef) return;
-
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-      setMapError("Google Maps API key is missing");
-      return;
-    }
-
-    // Check if Google Maps API is already loaded
-    if (window.google && window.google.maps) {
-      initializeMap();
-      return;
-    }
-
-    // Load Google Maps API with Places library using the recommended async loading pattern
-    const loadGoogleMapsScript = () => {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&loading=async&callback=initMap`;
-      script.defer = true;
-
-      // Define the callback function in the global scope
-      window.initMap = initializeMap;
-
-      script.onerror = () => setMapError("Failed to load Google Maps API");
-      document.head.appendChild(script);
-    };
-
-    loadGoogleMapsScript();
-
-    return () => {
-      // Clean up global callback if component unmounts before script loads
-      if (window.initMap) {
-        window.initMap = () => {}; // Replace with no-op function instead of delete
-      }
-    };
-  }, [mapRef]);
-
-  // Initialize the map
-  function initializeMap() {
-    if (!mapRef || !window.google || !window.google.maps) return;
-
-    try {
-      console.log("Initializing map");
-      const newMap = new window.google.maps.Map(mapRef, {
-        center: { lat: latitude || 23.8041, lng: longitude || 90.4152 },
-        zoom: 10,
-        zoomControl: false,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-        scrollwheel: true,
-      });
-
-      // Set the map state right away
-      setMap(newMap);
-
-      // Create initial marker if latitude and longitude are provided
-      if (latitude && longitude) {
-        console.log("Creating initial marker at:", latitude, longitude);
-        const initialPosition = { lat: latitude, lng: longitude };
-        createMarker(initialPosition, undefined, newMap);
-
-        // Pan and zoom to the marker location
-        newMap.setCenter(initialPosition);
-        newMap.setZoom(15);
-      }
-
-      // Set up our own click listener that works with InfoWindow
-      newMap.addListener("click", (e: google.maps.MapMouseEvent | google.maps.IconMouseEvent) => {
-        // Check if the event has a placeId (indicating a click on a POI icon)
-        const iconEvent = e as google.maps.IconMouseEvent;
-        if (iconEvent.placeId) {
-          console.log("POI clicked:", iconEvent.placeId);
-          // Use PlacesService to get details for the POI
-          const service = new google.maps.places.PlacesService(newMap);
-          service.getDetails(
-            {
-              placeId: iconEvent.placeId,
-              fields: ["name", "formatted_address", "geometry"],
-            },
-            (place, status) => {
-              if (
-                status === google.maps.places.PlacesServiceStatus.OK &&
-                place &&
-                place.geometry?.location
-              ) {
-                // Update form with POI details
-                const lat = place.geometry.location.lat();
-                const lng = place.geometry.location.lng();
-                onLocationChange(lat, lng);
-                findNearestRegion(lat, lng);
-                if (place.name) {
-                  onNameChange(place.name);
-                }
-                if (place.formatted_address) {
-                  onAddressChange(place.formatted_address);
-                }
-
-                // Create marker at the POI location
-                if (markerRef.current) {
-                  markerRef.current.setMap(null);
-                }
-                const marker = new google.maps.Marker({
-                  position: place.geometry.location,
-                  map: newMap,
-                  title: place.name,
-                  draggable: true,
-                  animation: google.maps.Animation.DROP,
-                });
-                markerRef.current = marker;
-                marker.addListener("dragend", handleMarkerDragEnd);
-                newMap.setCenter(place.geometry.location);
-                newMap.setZoom(15);
-              } else {
-                console.error("Place details request failed:", status);
-                // Optionally fall back to geocoding if getDetails fails
-                if (e.latLng) {
-                  fallbackToGeocoding(e.latLng);
-                }
-              }
-            }
-          );
-        } else if (e.latLng) {
-          // Handle clicks on empty map space (no placeId)
-          console.log("Empty map space clicked at:", e.latLng.lat(), e.latLng.lng());
-          const lat = e.latLng.lat();
-          const lng = e.latLng.lng();
-          onLocationChange(lat, lng);
-          findNearestRegion(lat, lng);
-
-          // Create marker at the clicked location
-          if (markerRef.current) {
-            markerRef.current.setMap(null);
-          }
-          const marker = new google.maps.Marker({
-            position: e.latLng,
-            map: newMap,
-            draggable: true,
-            animation: google.maps.Animation.DROP,
-          });
-          markerRef.current = marker;
-          marker.addListener("dragend", handleMarkerDragEnd);
-          newMap.setCenter(e.latLng);
-          newMap.setZoom(15);
-
-          // Fall back to geocoding for address/name
-          fallbackToGeocoding(e.latLng);
-        }
-      });
-
-      // Function to fall back to geocoding when no place is found or click is on empty space
-      const fallbackToGeocoding = (location: google.maps.LatLng) => {
-        if (!location) return; // Add null check for location
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ location }, (results, status) => {
-          if (status === "OK" && results?.[0]) {
-            const address = results[0].formatted_address;
-            onAddressChange(address);
-
-            // Try to extract a place name from the address
-            // First try to get the first part of the address
-            const addressParts = address.split(",");
-            if (addressParts.length > 0 && addressParts[0].trim()) {
-              onNameChange(addressParts[0].trim());
-            }
-          } else {
-            console.error("Geocoder failed:", status);
-          }
-        });
-      };
-
-      // Initialize Autocomplete instead of SearchBox
       try {
-        console.log("Setting up autocomplete");
-        const input = document.getElementById("map-search-input") as HTMLInputElement;
-
-        if (!input) {
-          console.error("Could not find map-search-input element");
-          return;
-        }
-
-        if (!window.google.maps.places) {
-          console.error("Google Maps Places library not loaded");
-          return;
-        }
-
-        const autocomplete = new window.google.maps.places.Autocomplete(input, {
-          fields: ["formatted_address", "geometry", "name"],
+        const autoCompleteInstance = new placesLib.Autocomplete(searchInputRef.current, {
+          fields: ["formatted_address", "geometry", "name", "place_id"],
           strictBounds: false,
         });
 
-        // Store in state for potential future reference
-        // setSearchBox(autocomplete as any); // Temporary type cast
+        setAutocomplete(autoCompleteInstance);
 
-        // Bias the autocomplete results toward the current map viewport
-        newMap.addListener("bounds_changed", () => {
-          autocomplete.setBounds(newMap.getBounds() as google.maps.LatLngBounds);
+        // Bias autocomplete results toward map's current bounds
+        map.addListener("bounds_changed", () => {
+          if (autoCompleteInstance) {
+            autoCompleteInstance.setBounds(map.getBounds() as google.maps.LatLngBounds);
+          }
         });
 
         // Listen for place selection
-        autocomplete.addListener("place_changed", () => {
-          const place = autocomplete.getPlace();
-          console.log("Place selected:", place);
+        autoCompleteInstance.addListener("place_changed", () => {
+          const place = autoCompleteInstance.getPlace();
 
           if (!place.geometry || !place.geometry.location) {
-            console.error("Place has no geometry or location");
             toast.error(
               "Could not find details for this location. Please try another search term."
             );
             return;
           }
 
-          console.log("Selected place:", place.name, place.formatted_address);
-
-          // Get the place name and update the priceForm.name field
+          // Update place name
           if (place.name) {
             onNameChange(place.name);
           }
@@ -530,54 +190,274 @@ function InteractiveMap({
           }
 
           // Update coordinates
-          const position = place.geometry.location;
-          onLocationChange(position.lat(), position.lng());
+          const position = {
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+          };
+          setMarkerPosition(position);
+          onLocationChange(position.lat, position.lng);
 
-          // Create marker at the selected place
-          if (markerRef.current) {
-            markerRef.current.setMap(null);
-          }
-
-          const marker = new google.maps.Marker({
-            position,
-            map: newMap,
-            title: place.name,
-            draggable: true,
-            animation: google.maps.Animation.DROP,
-          });
-
-          markerRef.current = marker;
-
-          // Add listener for drag end to update coordinates
-          marker.addListener("dragend", handleMarkerDragEnd);
-
-          // Center map on the selected place with animation
-          newMap.panTo(position);
-          newMap.setZoom(15);
+          // Center map on the selected place
+          map.panTo(position);
+          map.setZoom(15);
 
           // Find nearest region
-          findNearestRegion(position.lat(), position.lng());
+          findNearestRegion(position.lat, position.lng);
 
           // Clear the input field
           setSearchInput("");
         });
       } catch (error) {
         console.error("Error initializing autocomplete:", error);
+        setMapError("Failed to initialize search functionality");
+      }
+    }, [placesLib, map]);
+
+    // Handle map click
+    useEffect(() => {
+      if (!map || !geocodingLib) return;
+
+      const clickListener = map.addListener("click", async (e: google.maps.MapMouseEvent) => {
+        if (!e.latLng) return;
+
+        // Check if this is a POI click (Point of Interest)
+        const iconEvent = e as google.maps.IconMouseEvent;
+        if (placesLib && iconEvent.placeId) {
+          console.log("POI clicked:", iconEvent.placeId);
+          // Use PlacesService to get details for the POI
+          const service = new placesLib.PlacesService(map as any);
+
+          service.getDetails(
+            {
+              placeId: iconEvent.placeId,
+              fields: ["name", "formatted_address", "geometry", "place_id"],
+            },
+            (place, status) => {
+              if (
+                status === google.maps.places.PlacesServiceStatus.OK &&
+                place &&
+                place.geometry?.location
+              ) {
+                // Update form with POI details
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+
+                // Update coordinates and marker
+                setMarkerPosition({ lat, lng });
+                onLocationChange(lat, lng);
+
+                // Find nearest region
+                findNearestRegion(lat, lng);
+
+                // Update name and address
+                if (place.name) {
+                  onNameChange(place.name);
+                }
+
+                if (place.formatted_address) {
+                  onAddressChange(place.formatted_address);
+                }
+
+                // Center map on the POI location
+                map.panTo({ lat, lng });
+                map.setZoom(15);
+              } else {
+                console.error("Place details request failed:", status);
+                // Fall back to regular click handling
+                if (e.latLng) {
+                  // feature disabled for now
+                  // handleRegularClick(e.latLng);
+                }
+              }
+            }
+          );
+        } else if (e.latLng) {
+          // This is a regular map click
+          // feature disabled for now
+          // handleRegularClick(e.latLng);
+        }
+      });
+
+      // Handle regular map click (not on a POI)
+      // feature disabled for now
+      const handleRegularClick = async (latLng: google.maps.LatLng) => {
+        const lat = latLng.lat();
+        const lng = latLng.lng();
+
+        // Update marker position
+        setMarkerPosition({ lat, lng });
+        onLocationChange(lat, lng);
+
+        // Find nearest region
+        findNearestRegion(lat, lng);
+
+        // Get address using Geocoder
+        try {
+          if (geocodingLib) {
+            const geocoder = new geocodingLib.Geocoder();
+            const response = await geocoder.geocode({ location: { lat, lng } });
+
+            if (response.results?.[0]) {
+              const address = response.results[0].formatted_address;
+              onAddressChange(address);
+
+              // Try to extract a place name from the address
+              const addressParts = address.split(",");
+              if (addressParts.length > 0 && addressParts[0].trim()) {
+                onNameChange(addressParts[0].trim());
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Geocoder failed:", error);
+          toast.error("Failed to get address for this location");
+        }
+      };
+
+      return () => {
+        google.maps.event.removeListener(clickListener);
+      };
+    }, [map, geocodingLib, placesLib, findNearestRegion]);
+
+    // Handle marker drag
+    const handleMarkerDrag = (e: google.maps.MapMouseEvent) => {
+      if (!e.latLng) return;
+
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+
+      setMarkerPosition({ lat, lng });
+      onLocationChange(lat, lng);
+      findNearestRegion(lat, lng);
+    };
+
+    // Handle marker drag end
+    const handleMarkerDragEnd = async (e: google.maps.MapMouseEvent) => {
+      if (!e.latLng || !geocodingLib) return;
+
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+
+      // Update coordinates in form
+      onLocationChange(lat, lng);
+
+      // Find nearest region
+      findNearestRegion(lat, lng);
+
+      if (placesLib && map) {
+        // First try Places API to get rich data
+        try {
+          const service = new placesLib.PlacesService(map as any);
+
+          service.nearbySearch(
+            {
+              location: e.latLng,
+              radius: 50, // Small radius to get only places very close to the dragged point
+            },
+            (results, status) => {
+              if (
+                status === google.maps.places.PlacesServiceStatus.OK &&
+                results &&
+                results.length > 0
+              ) {
+                // Get details of the first place found
+                service.getDetails(
+                  {
+                    placeId: results[0].place_id as string,
+                    fields: ["name", "formatted_address", "place_id"],
+                  },
+                  (place, detailsStatus) => {
+                    if (detailsStatus === google.maps.places.PlacesServiceStatus.OK && place) {
+                      // Log place ID if available
+                      if (place.place_id) {
+                        console.log("Nearby place ID after drag:", place.place_id);
+                        // You can store this in your form state if needed
+                        // e.g., setPriceForm(prev => ({ ...prev, placeId: place.place_id }));
+                      }
+
+                      // We found a place, update the name and address
+                      if (place.name) {
+                        onNameChange(place.name);
+                      }
+                      if (place.formatted_address) {
+                        onAddressChange(place.formatted_address);
+                      }
+                    } else {
+                      // If no place found or details failed, fall back to geocoding
+                      if (e.latLng) {
+                        fallbackToGeocoding(e.latLng);
+                      }
+                    }
+                  }
+                );
+              } else {
+                // If no nearby places found, fall back to geocoding
+                if (e.latLng) {
+                  fallbackToGeocoding(e.latLng);
+                }
+              }
+            }
+          );
+        } catch (error) {
+          console.error("Error in places service:", error);
+          if (e.latLng) {
+            fallbackToGeocoding(e.latLng);
+          }
+        }
+      } else {
+        // If Places API not available, use geocoding
+        if (e.latLng) {
+          fallbackToGeocoding(e.latLng);
+        }
       }
 
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error initializing map:", error);
-      setMapError("Failed to initialize map");
-    }
-  }
+      // Fallback to geocoding when places API fails or isn't available
+      async function fallbackToGeocoding(latLng: google.maps.LatLng) {
+        if (!geocodingLib) return;
 
-  // Clean up markers when component unmounts
-  useEffect(() => {
-    return () => {
-      clearMarkers();
+        try {
+          const geocoder = new geocodingLib.Geocoder();
+          const response = await geocoder.geocode({
+            location: { lat: latLng.lat(), lng: latLng.lng() },
+          });
+
+          if (response.results?.[0]) {
+            const address = response.results[0].formatted_address;
+            onAddressChange(address);
+
+            // Try to extract a place name from the address
+            const addressParts = address.split(",");
+            if (addressParts.length > 0 && addressParts[0].trim()) {
+              onNameChange(addressParts[0].trim());
+            }
+          }
+        } catch (error) {
+          console.error("Geocoder failed:", error);
+          toast.error("Failed to get address for this location");
+        }
+      }
     };
-  }, [clearMarkers]);
+
+    return markerPosition ? (
+      <AdvancedMarker
+        position={markerPosition}
+        draggable={true}
+        onDrag={handleMarkerDrag}
+        onDragEnd={handleMarkerDragEnd}
+      />
+    ) : null;
+  };
+
+  // If API key is missing
+  if (!apiKey) {
+    return (
+      <div className="space-y-3">
+        <div className="w-full h-[250px] relative rounded-md overflow-hidden border bg-muted flex items-center justify-center">
+          <p className="text-muted-foreground">Google Maps API key is missing.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -595,25 +475,22 @@ function InteractiveMap({
 
       <div className="w-full h-[250px] relative rounded-md overflow-hidden border">
         {mapError && (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted/30 text-muted-foreground">
+          <div className="absolute inset-0 flex items-center justify-center bg-muted/30 text-muted-foreground z-10">
             {mapError}
           </div>
         )}
 
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
-              <p className="text-sm text-muted-foreground">Loading map...</p>
-            </div>
-          </div>
-        )}
-
-        <div
-          ref={setMapRef}
-          className="w-full h-full"
-          style={{ display: mapError ? "none" : "block" }}
-        />
+        <APIProvider apiKey={apiKey}>
+          <Map
+            defaultCenter={{ lat: latitude || 23.8041, lng: longitude || 90.4152 }}
+            defaultZoom={10}
+            gestureHandling={"greedy"}
+            disableDefaultUI={true}
+            mapId="interactive-map"
+          >
+            <MapContent />
+          </Map>
+        </APIProvider>
       </div>
 
       <p className="text-xs text-muted-foreground">
@@ -634,7 +511,7 @@ function FormContent({
   isSubmitting,
   isLoading,
   isMobile,
-  // onClose,
+  onClose,
 }: {
   priceForm: any;
   setPriceForm: (form: any) => void;
