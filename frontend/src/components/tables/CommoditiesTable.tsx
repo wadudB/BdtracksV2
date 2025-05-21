@@ -42,7 +42,7 @@ export const CommoditiesTable: FC<{ commodities: Commodity[]; isLoading?: boolea
       className: "text-right",
       headerClassName: "text-right",
       showOn: "lg",
-      isHidden: true, // Hide in card view
+      // isHidden: true, // Hide in card view
     },
     {
       header: "Max Price (৳)",
@@ -50,10 +50,10 @@ export const CommoditiesTable: FC<{ commodities: Commodity[]; isLoading?: boolea
       className: "text-right",
       headerClassName: "text-right",
       showOn: "lg",
-      isHidden: true, // Hide in card view
+      // isHidden: true, // Hide in card view
     },
     {
-      header: "Current Price",
+      header: "Average Price (৳)",
       cell: (commodity) => formatCurrencyPrice(commodity.currentPrice, "৳"),
       className: "text-right font-medium",
       headerClassName: "text-right",

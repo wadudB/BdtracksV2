@@ -44,6 +44,8 @@ const CommoditiesPage = () => {
   const params = categoryFilter !== "all" ? { category: categoryFilter } : undefined;
   const { data: commoditiesData = [], isLoading, error: queryError } = useGetCommodities(params);
 
+  console.log(commoditiesData);
+
   // Filter commodities based on search query
   const filteredCommodities = commoditiesData.filter((commodity) => {
     const matchesSearch =

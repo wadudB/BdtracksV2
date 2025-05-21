@@ -1,4 +1,4 @@
-import { Commodity, PriceRecord, Region } from "../types";
+import { Commodity, PriceRecord, Region, Location } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -84,6 +84,31 @@ export const regionService = {
 };
 
 /**
+ * Location API services
+ */
+export const locationService = {
+  // Get location by ID
+  getById: async (id: string) => {
+    return (await apiClient(`/locations/${id}`)) as Location;
+  },
+  
+  // Create a new location
+  create: async (data: {
+    name: string;
+    address?: string;
+    latitude: number;
+    longitude: number;
+    place_id?: string;
+    poi_id?: string;
+  }) => {
+    return (await apiClient("/locations/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })) as Location;
+  },
+};
+
+/**
  * Price records API services
  */
 export const priceService = {
@@ -124,7 +149,7 @@ export const priceService = {
     return (await apiClient(`/prices/${id}/`)) as PriceRecord;
   },
 
-  // Create a new price record
+  // Create a new price record with location data
   create: async (data: {
     commodity_id: number;
     region_id: number;
@@ -132,6 +157,14 @@ export const priceService = {
     source?: string;
     notes?: string;
     recorded_at: string;
+    location?: {
+      name: string;
+      address?: string;
+      latitude: number;
+      longitude: number;
+      place_id?: string;
+      poi_id?: string;
+    };
   }) => {
     return (await apiClient("/prices/", {
       method: "POST",

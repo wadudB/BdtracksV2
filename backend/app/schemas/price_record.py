@@ -1,6 +1,7 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from typing import Optional
 from datetime import date, datetime
+from app.schemas.location import LocationCreate, Location
 
 
 # Shared properties
@@ -11,26 +12,30 @@ class PriceRecordBase(BaseModel):
     recorded_by: Optional[int] = None
     source: Optional[str] = None
     notes: Optional[str] = None
-    address: Optional[str] = Field(None, description="Formatted address of the price record location")
-    name: Optional[str] = Field(None, description="Name of the location from Google Maps")
-    latitude: Optional[float] = Field(None, description="Latitude coordinate of the price record location")
-    longitude: Optional[float] = Field(None, description="Longitude coordinate of the price record location")
+    location_id: Optional[int] = Field(None, description="ID of the associated location")
     recorded_at: date
 
 
 # Properties to receive on item creation
 class PriceRecordCreate(PriceRecordBase):
-    pass
+    location: Optional[LocationCreate] = Field(None, description="Location details to create")
+    
+    @validator('location', always=True)
+    def validate_location(cls, v, values):
+        """Validate that location data is provided (frontend always sends complete location data)"""
+        if not v:
+            raise ValueError("Location data is required")
+        return v
 
 
 # Properties to receive on item update
-class PriceRecordUpdate(PriceRecordBase):
+class PriceRecordUpdate(BaseModel):
     commodity_id: Optional[int] = None
     region_id: Optional[int] = None
     price: Optional[int] = None
-    address: Optional[str] = Field(None, description="Formatted address of the price record location")
-    latitude: Optional[float] = Field(None, description="Latitude coordinate of the price record location")
-    longitude: Optional[float] = Field(None, description="Longitude coordinate of the price record location")
+    source: Optional[str] = None
+    notes: Optional[str] = None
+    location_id: Optional[int] = None
     recorded_at: Optional[date] = None
 
 
@@ -41,10 +46,9 @@ class PriceRecordInDBBase(PriceRecordBase):
 
     class Config:
         from_attributes = True
-        # Keep backward compatibility with older versions
-        orm_mode = True
+        orm_mode = True  # Keep backward compatibility
 
 
 # Properties to return to client
 class PriceRecord(PriceRecordInDBBase):
-    pass 
+    location: Optional[Location] = None 

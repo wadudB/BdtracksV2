@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case, and_
 from typing import Any, List, Optional
 from datetime import datetime, timedelta
+import time
+import logging
 
 from app import schemas, crud
 from app.models.price_record import PriceRecord
@@ -10,6 +12,9 @@ from app.models.region import Region
 from app.db.session import get_db
 
 router = APIRouter()
+
+# Set up logger
+logger = logging.getLogger("commodities_api")
 
 
 @router.get("/", response_model=List[schemas.Commodity])
@@ -22,61 +27,65 @@ def read_commodities(
     """
     Retrieve commodities that have price records.
     """
+    total_start_time = time.time()
+    
     # Define time ranges for calculations
     today = datetime.now().date()
     thirty_days_ago = today - timedelta(days=30)
     one_week_ago = today - timedelta(days=7)
     two_weeks_ago = today - timedelta(days=14)
     
-    # Subquery for current week average prices
-    current_week_avg = db.query(
-        PriceRecord.commodity_id,
-        func.avg(PriceRecord.price).label("current_week_avg")
-    ).filter(
-        PriceRecord.recorded_at >= one_week_ago
-    ).group_by(
-        PriceRecord.commodity_id
-    ).subquery()
-    
-    # Subquery for previous week average prices
-    previous_week_avg = db.query(
-        PriceRecord.commodity_id,
-        func.avg(PriceRecord.price).label("previous_week_avg")
-    ).filter(
-        PriceRecord.recorded_at >= two_weeks_ago,
-        PriceRecord.recorded_at < one_week_ago
-    ).group_by(
-        PriceRecord.commodity_id
-    ).subquery()
-    
-    # Main query with all price statistics in one go
+    commodity_model = crud.commodity.model
     query = db.query(
-        crud.commodity.model,
+        commodity_model.id,
+        commodity_model.name,
+        commodity_model.bengali_name,
+        commodity_model.category,
+        commodity_model.unit,
+        commodity_model.created_at,
+        # Price calculations
         func.min(PriceRecord.price).label("min_price"),
         func.max(PriceRecord.price).label("max_price"),
         func.avg(PriceRecord.price).label("avg_price"),
-        current_week_avg.c.current_week_avg,
-        previous_week_avg.c.previous_week_avg
+        # Current week average using CASE
+        func.avg(
+            case(
+                {
+                    (PriceRecord.recorded_at >= one_week_ago): PriceRecord.price
+                },
+                else_=None
+            )
+        ).label("current_week_avg"),
+        # Previous week average using CASE
+        func.avg(
+            case(
+                {
+                    and_(
+                        PriceRecord.recorded_at >= two_weeks_ago,
+                        PriceRecord.recorded_at < one_week_ago
+                    ): PriceRecord.price
+                },
+                else_=None
+            )
+        ).label("previous_week_avg")
     ).join(
         PriceRecord, 
-        crud.commodity.model.id == PriceRecord.commodity_id
-    ).outerjoin(
-        current_week_avg,
-        crud.commodity.model.id == current_week_avg.c.commodity_id
-    ).outerjoin(
-        previous_week_avg,
-        crud.commodity.model.id == previous_week_avg.c.commodity_id
+        commodity_model.id == PriceRecord.commodity_id
     ).filter(
-        PriceRecord.recorded_at >= thirty_days_ago
+        PriceRecord.recorded_at >= thirty_days_ago,
+        PriceRecord.price > 0  # Exclude records with price of 0
     ).group_by(
-        crud.commodity.model.id,
-        current_week_avg.c.current_week_avg,
-        previous_week_avg.c.previous_week_avg
+        commodity_model.id,
+        commodity_model.name,
+        commodity_model.bengali_name,
+        commodity_model.category,
+        commodity_model.unit,
+        commodity_model.created_at
     )
     
     # Apply category filter if provided
     if category:
-        query = query.filter(crud.commodity.model.category == category)
+        query = query.filter(commodity_model.category == category)
     
     # Apply pagination
     query = query.offset(skip).limit(limit)
@@ -87,15 +96,20 @@ def read_commodities(
     # Process results
     commodities_list = []
     for row in results:
-        commodity = row[0]
+        commodity_dict = {
+            "id": row.id,
+            "name": row.name,
+            "bengali_name": row.bengali_name,
+            "category": row.category,
+            "unit": row.unit,
+            "created_at": row.created_at,
+        }
+        
         min_price = row.min_price
         max_price = row.max_price
         avg_price = row.avg_price
         current_week_avg = row.current_week_avg or 0
         previous_week_avg = row.previous_week_avg or current_week_avg or 0
-        
-        # Convert to dict
-        commodity_dict = schemas.Commodity.model_validate(commodity).model_dump()
         
         # Add price statistics
         if min_price is not None:
@@ -106,11 +120,16 @@ def read_commodities(
             # Calculate weekly change
             if previous_week_avg > 0:
                 weekly_change = ((current_week_avg - previous_week_avg) / previous_week_avg) * 100
-                commodity_dict["weeklyChange"] = round(weekly_change, 1)
+                commodity_dict["weekly_change"] = round(weekly_change, 1)
             else:
-                commodity_dict["weeklyChange"] = 0
+                commodity_dict["weekly_change"] = 0
         
-        commodities_list.append(commodity_dict)
+        # Validate with Pydantic model
+        validated_commodity = schemas.Commodity.model_validate(
+            commodity_dict, 
+            by_name=True
+        )
+        commodities_list.append(validated_commodity)
     
     return commodities_list
 

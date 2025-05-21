@@ -71,6 +71,8 @@ function InteractiveMap({
   regions,
   onRegionChange,
   onNameChange,
+  onPlaceIdChange,
+  onPoiIdChange,
 }: {
   latitude: number | null;
   longitude: number | null;
@@ -79,6 +81,8 @@ function InteractiveMap({
   regions: any[];
   onRegionChange: (regionId: string) => void;
   onNameChange: (name: string) => void;
+  onPlaceIdChange: (placeId: string) => void;
+  onPoiIdChange: (poiId: string) => void;
 }) {
   const [searchInput, setSearchInput] = useState("");
   const [mapError, setMapError] = useState<string | null>(null);
@@ -179,6 +183,12 @@ function InteractiveMap({
             return;
           }
 
+          // Update place ID if available
+          if (place.place_id) {
+            console.log("Place ID:", place.place_id);
+            onPlaceIdChange(place.place_id);
+          }
+
           // Update place name
           if (place.name) {
             onNameChange(place.name);
@@ -224,6 +234,9 @@ function InteractiveMap({
         const iconEvent = e as google.maps.IconMouseEvent;
         if (placesLib && iconEvent.placeId) {
           console.log("POI clicked:", iconEvent.placeId);
+          // Save the POI ID
+          onPoiIdChange(iconEvent.placeId);
+          
           // Use PlacesService to get details for the POI
           const service = new placesLib.PlacesService(map as any);
 
@@ -248,6 +261,11 @@ function InteractiveMap({
 
                 // Find nearest region
                 findNearestRegion(lat, lng);
+
+                // Update place ID
+                if (place.place_id) {
+                  onPlaceIdChange(place.place_id);
+                }
 
                 // Update name and address
                 if (place.name) {
@@ -371,8 +389,7 @@ function InteractiveMap({
                       // Log place ID if available
                       if (place.place_id) {
                         console.log("Nearby place ID after drag:", place.place_id);
-                        // You can store this in your form state if needed
-                        // e.g., setPriceForm(prev => ({ ...prev, placeId: place.place_id }));
+                        onPlaceIdChange(place.place_id);
                       }
 
                       // We found a place, update the name and address
@@ -528,8 +545,11 @@ function FormContent({
     console.log("handleLocationChange called with:", lat, lng);
     setPriceForm((prevForm: typeof priceForm) => ({
       ...prevForm,
-      latitude: lat,
-      longitude: lng,
+      location: {
+        ...prevForm.location,
+        latitude: lat,
+        longitude: lng,
+      },
     }));
   };
 
@@ -538,7 +558,10 @@ function FormContent({
     console.log("handleAddressChange called with:", address);
     setPriceForm((prevForm: typeof priceForm) => ({
       ...prevForm,
-      address,
+      location: {
+        ...prevForm.location,
+        address,
+      },
     }));
   };
 
@@ -556,7 +579,34 @@ function FormContent({
     console.log("handleNameChange called with:", name);
     setPriceForm((prevForm: typeof priceForm) => ({
       ...prevForm,
-      name,
+      location: {
+        ...prevForm.location,
+        name,
+      },
+    }));
+  };
+
+  // Handle place ID updates
+  const handlePlaceIdChange = (placeId: string) => {
+    console.log("handlePlaceIdChange called with:", placeId);
+    setPriceForm((prevForm: typeof priceForm) => ({
+      ...prevForm,
+      location: {
+        ...prevForm.location,
+        place_id: placeId,
+      },
+    }));
+  };
+
+  // Handle POI ID updates
+  const handlePoiIdChange = (poiId: string) => {
+    console.log("handlePoiIdChange called with:", poiId);
+    setPriceForm((prevForm: typeof priceForm) => ({
+      ...prevForm,
+      location: {
+        ...prevForm.location,
+        poi_id: poiId,
+      },
     }));
   };
 
@@ -649,13 +699,15 @@ function FormContent({
 
         {/* Interactive Map Section */}
         <InteractiveMap
-          latitude={priceForm.latitude}
-          longitude={priceForm.longitude}
+          latitude={priceForm.location?.latitude || null}
+          longitude={priceForm.location?.longitude || null}
           onLocationChange={handleLocationChange}
           onAddressChange={handleAddressChange}
           regions={regions}
           onRegionChange={handleRegionChange}
           onNameChange={handleNameChange}
+          onPlaceIdChange={handlePlaceIdChange}
+          onPoiIdChange={handlePoiIdChange}
         />
 
         {/* Name Field */}
@@ -663,8 +715,16 @@ function FormContent({
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
-            value={priceForm.name}
-            onChange={(e) => setPriceForm({ ...priceForm, name: e.target.value })}
+            value={priceForm.location?.name || ""}
+            onChange={(e) => 
+              setPriceForm({
+                ...priceForm,
+                location: {
+                  ...priceForm.location,
+                  name: e.target.value,
+                },
+              })
+            }
           />
         </div>
 
@@ -673,10 +733,32 @@ function FormContent({
           <Label htmlFor="address">Address</Label>
           <Input
             id="address"
-            value={priceForm.address || ""}
+            value={priceForm.location?.address || ""}
             className="bg-muted text-sm"
             readOnly
           />
+        </div>
+
+        {/* Place ID & POI ID (hidden but stored) */}
+        <div className={`grid grid-cols-1 gap-4 ${!isMobile ? "sm:grid-cols-2" : ""} mt-3 hidden`}>
+          <div className="space-y-2">
+            <Label htmlFor="place_id">Place ID</Label>
+            <Input
+              id="place_id"
+              value={priceForm.location?.place_id || ""}
+              className="bg-muted text-sm"
+              readOnly
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="poi_id">POI ID</Label>
+            <Input
+              id="poi_id"
+              value={priceForm.location?.poi_id || ""}
+              className="bg-muted text-sm"
+              readOnly
+            />
+          </div>
         </div>
 
         {/* Coordinate Display Section */}
@@ -686,7 +768,7 @@ function FormContent({
             <div className="flex items-center gap-2">
               <Input
                 id="latitude"
-                value={priceForm.latitude === null ? "" : priceForm.latitude}
+                value={priceForm.location?.latitude === null ? "" : priceForm.location?.latitude}
                 className="bg-muted font-mono text-sm"
                 readOnly
               />
@@ -697,7 +779,7 @@ function FormContent({
             <div className="flex items-center gap-2">
               <Input
                 id="longitude"
-                value={priceForm.longitude === null ? "" : priceForm.longitude}
+                value={priceForm.location?.longitude === null ? "" : priceForm.location?.longitude}
                 className="bg-muted font-mono text-sm"
                 readOnly
               />
@@ -758,11 +840,15 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
     source: "submitted by user",
     notes: "",
     recordedAt: new Date().toISOString().split("T")[0],
-    latitude: null as number | null,
-    longitude: null as number | null,
-    address: "",
     commodity: commodity,
-    name: "",
+    location: {
+      name: "",
+      address: "",
+      latitude: null as number | null,
+      longitude: null as number | null,
+      place_id: "",
+      poi_id: "",
+    }
   });
 
   const [open, setOpen] = useState<boolean>(false);
@@ -786,6 +872,12 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
       return;
     }
 
+    // Check if location data is valid
+    if (!priceForm.location?.name || !priceForm.location?.latitude || !priceForm.location?.longitude) {
+      toast.error("Please select a valid location on the map");
+      return;
+    }
+
     // Create price record using the mutation
     createPriceRecord(
       {
@@ -794,11 +886,15 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
         price: parseFloat(priceForm.price),
         source: priceForm.source,
         notes: priceForm.notes,
-        address: priceForm.address,
         recorded_at: priceForm.recordedAt,
-        latitude: priceForm.latitude,
-        longitude: priceForm.longitude,
-        name: priceForm.name,
+        location: {
+          name: priceForm.location.name,
+          address: priceForm.location.address,
+          latitude: priceForm.location.latitude!,
+          longitude: priceForm.location.longitude!,
+          place_id: priceForm.location.place_id,
+          poi_id: priceForm.location.poi_id,
+        }
       },
       {
         onSuccess: () => {
@@ -817,10 +913,14 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
             regionId: "",
             price: "",
             notes: "",
-            name: "",
-            address: "",
-            latitude: null,
-            longitude: null,
+            location: {
+              name: "",
+              address: "",
+              latitude: null,
+              longitude: null,
+              place_id: "",
+              poi_id: "",
+            }
           });
 
           // Call the onSuccess callback if provided

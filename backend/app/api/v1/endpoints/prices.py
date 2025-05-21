@@ -123,8 +123,14 @@ def create_price_record(
     """
     Create new price record.
     """
-    price = crud.price_record.create(db=db, obj_in=price_in)
-    return price
+    try:
+        price = crud.price_record.create_with_location(db=db, obj_in=price_in)
+        return price
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
 
 
 @router.get("/{id}", response_model=schemas.PriceRecord)

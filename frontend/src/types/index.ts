@@ -19,6 +19,16 @@ export type RegionalPrice = {
   price: number;
 };
 
+export type Location = {
+  id?: number;
+  name: string;
+  address?: string;
+  latitude: number;
+  longitude: number;
+  place_id?: string;
+  poi_id?: string;
+};
+
 export type PriceRecord = {
   id: number;
   commodity_id: number;
@@ -28,10 +38,8 @@ export type PriceRecord = {
   created_at: string;
   source?: string;
   notes?: string;
-  address?: string;
-  latitude?: number | null;
-  longitude?: number | null;
-  name?: string;
+  location_id?: number;
+  location?: Location;
 };
 
 export type Commodity = {
