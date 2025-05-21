@@ -298,39 +298,39 @@ function InteractiveMap({
 
       // Handle regular map click (not on a POI)
       // feature disabled for now
-      const handleRegularClick = async (latLng: google.maps.LatLng) => {
-        const lat = latLng.lat();
-        const lng = latLng.lng();
+      // const handleRegularClick = async (latLng: google.maps.LatLng) => {
+      //   const lat = latLng.lat();
+      //   const lng = latLng.lng();
 
-        // Update marker position
-        setMarkerPosition({ lat, lng });
-        onLocationChange(lat, lng);
+      //   // Update marker position
+      //   setMarkerPosition({ lat, lng });
+      //   onLocationChange(lat, lng);
 
-        // Find nearest region
-        findNearestRegion(lat, lng);
+      //   // Find nearest region
+      //   findNearestRegion(lat, lng);
 
-        // Get address using Geocoder
-        try {
-          if (geocodingLib) {
-            const geocoder = new geocodingLib.Geocoder();
-            const response = await geocoder.geocode({ location: { lat, lng } });
+      //   // Get address using Geocoder
+      //   try {
+      //     if (geocodingLib) {
+      //       const geocoder = new geocodingLib.Geocoder();
+      //       const response = await geocoder.geocode({ location: { lat, lng } });
 
-            if (response.results?.[0]) {
-              const address = response.results[0].formatted_address;
-              onAddressChange(address);
+      //       if (response.results?.[0]) {
+      //         const address = response.results[0].formatted_address;
+      //         onAddressChange(address);
 
-              // Try to extract a place name from the address
-              const addressParts = address.split(",");
-              if (addressParts.length > 0 && addressParts[0].trim()) {
-                onNameChange(addressParts[0].trim());
-              }
-            }
-          }
-        } catch (error) {
-          console.error("Geocoder failed:", error);
-          toast.error("Failed to get address for this location");
-        }
-      };
+      //         // Try to extract a place name from the address
+      //         const addressParts = address.split(",");
+      //         if (addressParts.length > 0 && addressParts[0].trim()) {
+      //           onNameChange(addressParts[0].trim());
+      //         }
+      //       }
+      //     }
+      //   } catch (error) {
+      //     console.error("Geocoder failed:", error);
+      //     toast.error("Failed to get address for this location");
+      //   }
+      // };
 
       return () => {
         google.maps.event.removeListener(clickListener);
@@ -528,7 +528,6 @@ function FormContent({
   isSubmitting,
   isLoading,
   isMobile,
-  onClose,
 }: {
   priceForm: any;
   setPriceForm: (form: any) => void;
