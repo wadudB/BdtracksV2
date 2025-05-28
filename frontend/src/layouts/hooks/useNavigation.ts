@@ -8,7 +8,7 @@ export function useNavigation() {
   const location = useLocation();
 
   const paths: NavigationPaths = {
-    showSubNav: ["/commodities", "/commodities/map"],
+    showSubNav: ["/commodities", "/commodities/map", "/find-prices"],
   };
 
   // Check if current path matches exactly

@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import CommoditiesPage from "./pages/CommoditiesPage";
 import CommodityDetails from "./pages/CommodityDetails";
 import MapPage from "./pages/MapPage";
+import FindPricesPage from "./pages/FindPricesPage";
 import { RootLayout } from "./layouts";
 import { Toaster } from "sonner";
 
@@ -16,6 +17,7 @@ function App() {
           <Route path="/commodities" element={<CommoditiesPage />} />
           <Route path="/commodity/:id" element={<CommodityDetails />} />
           <Route path="/commodities/map" element={<MapPage />} />
+          <Route path="/find-prices" element={<FindPricesPage />} />
 
           {/* Add other routes here */}
 

@@ -106,6 +106,24 @@ export const locationService = {
       body: JSON.stringify(data),
     })) as Location;
   },
+
+  // Get locations with price data within a geographic range
+  getWithPrices: async (params: {
+    lat: number;
+    lng: number;
+    radius_km?: number;
+    days?: number;
+    category?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("lat", params.lat.toString());
+    queryParams.append("lng", params.lng.toString());
+    if (params.radius_km) queryParams.append("radius_km", params.radius_km.toString());
+    if (params.days) queryParams.append("days", params.days.toString());
+    if (params.category) queryParams.append("category", params.category);
+
+    return await apiClient(`/locations/with-prices?${queryParams.toString()}`);
+  },
 };
 
 /**

@@ -29,6 +29,26 @@ export type Location = {
   poi_id?: string;
 };
 
+export type LocationWithPrices = {
+  id: number;
+  name: string;
+  address: string;
+  category: "all" | "gas" | "grocery" | "restaurant";
+  price: number;
+  originalPrice: number;
+  discount: string;
+  lat: number;
+  lng: number;
+  commodities: Array<{
+    name: string;
+    price: number;
+    unit: string;
+    recorded_at: string;
+    category: string;
+  }>;
+  region_name: string;
+};
+
 export type PriceRecord = {
   id: number;
   commodity_id: number;

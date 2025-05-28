@@ -16,8 +16,8 @@ export default function SubNavigation({ isOpen }: SubNavigationProps) {
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold">Bangladesh Commodity Prices</h2>
           </div>
-          <div className="flex overflow-x-auto scrollbar-hide">
-            <Link
+          <div className="flex overflow-x-auto scrollbar-hide gap-6">
+            {/* <Link
               to="/commodities/map"
               className={`whitespace-nowrap py-2 text-sm font-medium flex items-center
                          ${isActive("/commodities/map") ? "text-primary" : "text-muted-foreground"} 
@@ -25,6 +25,15 @@ export default function SubNavigation({ isOpen }: SubNavigationProps) {
             >
               <span className="material-icons mr-1 text-sm">map</span>
               Regional Prices
+            </Link> */}
+            <Link
+              to="/find-prices"
+              className={`whitespace-nowrap py-2 text-sm font-medium flex items-center
+                        ${isActive("/find-prices") ? "text-primary" : "text-muted-foreground"} 
+                        hover:text-primary transition-colors`}
+            >
+              <span className="material-icons mr-1 text-sm">place</span>
+              Find Prices Near Me
             </Link>
           </div>
         </div>
