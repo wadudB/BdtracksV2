@@ -1,115 +1,107 @@
-# BdTracks Commodity API
+# BDTracks Backend API
 
-Backend API for the Bangladesh Commodity Price Tracking System.
+## 🚀 Quick Start
 
-## Features
+### Prerequisites
+- Python 3.11 or higher
+- MySQL 8.0 or higher
+- Poetry (Python dependency manager)
 
-- Track commodity prices across different regions in Bangladesh
-- View historical price data and trends
-- Analyze regional price variations
-- Track supply chain stages and data
-- User authentication and role-based access
+### Installation
 
-## Technology Stack
-
-- FastAPI - High-performance web framework
-- SQLAlchemy - SQL toolkit and ORM
-- Alembic - Database migration tool
-- MySQL - Relational database
-- Poetry - Python dependency management
-
-## Installation
-
-1. Clone the repository
-
-2. Install Poetry (if not already installed):
-
+1. **Install Poetry** (if not already installed):
 ```bash
 # On Linux, macOS, Windows (WSL)
 curl -sSL https://install.python-poetry.org | python3 -
 
 # On Windows (PowerShell)
 (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+
+# With pip
+Pip install poetry
 ```
 
-3. Set up the project and install dependencies:
-
+2. **Set up the project**:
 ```bash
 cd backend
 poetry install
 ```
 
-4. Configure your environment variables by creating a `.env` file:
-
+3. **Environment Configuration**:
 ```bash
-# Create .env file from the example template
+# Copy the environment template
 cp .env.example .env
-# Edit the .env file with your specific database credentials
+
+# Edit the .env file with your configuration
+nano .env
 ```
 
-Your .env file should contain values like:
-
-```
+Required environment variables:
+```env
+# Database Configuration
 MYSQL_SERVER=localhost
 MYSQL_PORT=3306
 MYSQL_USER=root
 MYSQL_PASSWORD=your_mysql_password
 MYSQL_DB=bdtracks
+
+# Application Settings
+ENVIRONMENT=development
+SECRET_KEY=your-secret-key-here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+
+# CORS Settings (development)
+BACKEND_CORS_ORIGINS=["http://localhost:5173", "http://localhost:3000"]
 ```
 
-5. Create MySQL database:
-
+4. **Database Setup**:
 ```bash
+# Create MySQL database
 mysql -u root -p
 ```
-
 ```sql
 CREATE DATABASE bdtracks CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+EXIT;
 ```
 
-6. Activate the Poetry virtual environment and run database migrations:
-
+5. **Run Database Migrations**:
 ```bash
+# Activate Poetry environment
 poetry shell
-alembic revision --autogenerate -m "Initial migration"
+
+# Run migrations
 alembic upgrade head
+
+# Optional: Create a new migration (if you made model changes)
+alembic revision --autogenerate -m "Description of changes"
 ```
 
-7. Start the API server:
-
+6. **Start the Development Server**:
 ```bash
 # Inside Poetry environment
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # Or without activating the environment
 poetry run uvicorn app.main:app --reload
 ```
 
-## API Documentation
+## 📡 API Documentation
 
-Once the server is running, you can access the API documentation at:
+Once the server is running, access the interactive API documentation:
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **OpenAPI JSON**: http://localhost:8000/api/v1/openapi.json
 
-## Project Structure
+### Health Check Endpoints
+- **Root**: `GET /` - Welcome message
+- **Health**: `GET /healthcheck` - Application health status
 
-```
-backend/
-├── alembic/              # Database migrations
-├── app/                  # Application code
-│   ├── api/              # API endpoints
-│   │   └── v1/           # API version 1
-│   ├── core/             # Core functionality, config
-│   ├── crud/             # Database CRUD operations
-│   ├── db/               # Database session, base models
-│   ├── models/           # SQLAlchemy models
-│   └── schemas/          # Pydantic schemas
-└── tests/                # Unit and integration tests
-```
 
-## Poetry Commands
+## 🔧 Development Commands
 
+### Poetry Commands
 ```bash
 # Add a new dependency
 poetry add package-name
@@ -120,6 +112,99 @@ poetry add --group dev package-name
 # Update dependencies
 poetry update
 
-# Export requirements.txt (if needed)
-poetry export -f requirements.txt --output requirements.txt --without-hashes
-``` 
+# Show dependency tree
+poetry show --tree
+
+# Run commands in Poetry environment
+poetry run python script.py
+poetry run pytest
+```
+
+### Database Commands
+```bash
+# Create a new migration
+alembic revision --autogenerate -m "Description"
+
+# Apply migrations
+alembic upgrade head
+
+# Downgrade migration
+alembic downgrade -1
+
+# View current migration
+alembic current
+
+# View migration history
+alembic history
+```
+
+### Testing
+```bash
+# Run all tests
+poetry run pytest
+
+# Run tests with coverage
+poetry run pytest --cov=app
+
+# Run specific test file
+poetry run pytest tests/test_specific.py
+
+# Run tests in verbose mode
+poetry run pytest -v
+```
+
+## 🔒 Security Features
+
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: Bcrypt for secure password storage
+- **CORS Configuration**: Configurable cross-origin policies
+- **Input Validation**: Pydantic schemas for request validation
+- **SQL Injection Protection**: SQLAlchemy ORM prevents SQL injection
+- **Environment-based Configuration**: Secure handling of sensitive data
+
+## 📊 Performance Optimization
+
+- **Async/Await**: Asynchronous request handling
+- **Connection Pooling**: Efficient database connections
+- **Query Optimization**: Optimized SQLAlchemy queries
+- **Response Caching**: Strategic caching for frequently accessed data
+- **Pagination**: Efficient data pagination for large datasets
+
+## 🧪 Testing
+
+The project includes comprehensive testing:
+- Unit tests for individual functions
+- Integration tests for API endpoints
+- Database testing with test fixtures
+- Authentication and authorization testing
+
+## 🤝 Contributing
+
+1. Follow PEP 8 coding standards
+2. Write comprehensive tests for new features
+3. Update documentation for API changes
+4. Use type hints throughout the codebase
+5. Run tests and linting before submitting PRs
+
+### Code Quality Tools
+```bash
+# Install development dependencies
+poetry install
+
+# Run linting
+poetry run flake8 app/
+poetry run black app/ --check
+poetry run isort app/ --check-only
+
+# Auto-format code
+poetry run black app/
+poetry run isort app/
+```
+
+## 📚 Additional Resources
+
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/)
+- [Alembic Documentation](https://alembic.sqlalchemy.org/)
+- [Pydantic Documentation](https://docs.pydantic.dev/)
+- [Poetry Documentation](https://python-poetry.org/docs/) 

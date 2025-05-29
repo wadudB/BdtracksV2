@@ -1,51 +1,92 @@
-# Bangladesh Commodity Price Tracker
+# BDTracks
 
-A platform for tracking commodity prices across different regions of Bangladesh.
+## 🛠️ Technology Stack
 
-## Features
+### Frontend
+- **React 19** with TypeScript
+- **TanStack Query** for API state management
+- **React Router Dom** for navigation
+- **Tailwind CSS** for styling
+- **Radix UI** components
+- **Shadcn/ui** component library
+- **Google Maps API** for interactive maps
+- **Vite** for fast development and building
 
-- Display of commodity prices with historical data
-- Regional price variations across Bangladesh
-- Filtering by commodity categories
-- Adding new price data records
-- Responsive design for all devices
+### Backend
+- **FastAPI** - High-performance Python web framework
+- **SQLAlchemy** - SQL toolkit and ORM
+- **Alembic** - Database migration tool
+- **MySQL** - Relational database
+- **Pydantic** - Data validation
+- **Python-Jose** - JWT token handling
+- **Poetry** - Python dependency management
 
-## API Integration
+## 🚀 Quick Start
 
-The application uses TanStack Query (React Query) for data fetching and state management.
+### Prerequisites
+- Node.js 22+ and npm
+- Python 3.11+
+- MySQL 8.0+
+- Poetry (for Python dependency management)
 
-### Query Hooks
-
-All API interactions are centralized in custom hooks located in `src/hooks/useQueries.ts`:
-
-- `useGetCommodities` - For fetching all commodities with optional filtering
-- `useGetCommodity` - For fetching a single commodity by ID
-- `useGetCommodityDropdown` - For fetching commodity dropdown data
-- `useGetRegions` - For fetching all regions
-- `useCreatePriceRecord` - For creating new price records
-
-### Benefits of TanStack Query
-
-- Automatic caching and background refetching
-- Loading and error states management
-- Optimistic updates with invalidation
-- Reduced boilerplate code
-- Consistent data fetching patterns
-
-## Running the Application
-
+### 1. Clone the Repository
 ```bash
-# Install dependencies
-npm install
+git clone <repository-url>
+cd BdtracksV2
+```
 
-# Start development server
+### 2. Backend Setup
+```bash
+cd backend
+poetry install
+cp .env.example .env  # Configure your database credentials
+alembic upgrade head
+poetry run uvicorn app.main:app --reload
+```
+
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-## Technologies
+### 4. Access the Application
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
-- React with TypeScript
-- TanStack Query for API management
-- Radix UI components
-- Tailwind CSS for styling
-- Vite for bundling
+## 📁 Project Structure
+
+```
+BdtracksV2/
+├── frontend/          # React TypeScript frontend
+│   ├── src/
+│   │   ├── components/    # Reusable UI components
+│   │   ├── pages/         # Application pages
+│   │   ├── services/      # API services
+│   │   ├── hooks/         # Custom React hooks
+│   │   └── utils/         # Utility functions
+│   └── public/
+├── backend/           # FastAPI Python backend
+│   ├── app/
+│   │   ├── api/           # API endpoints
+│   │   ├── models/        # Database models
+│   │   ├── schemas/       # Pydantic schemas
+│   │   ├── crud/          # Database operations
+│   │   └── core/          # Core functionality
+│   └── alembic/           # Database migrations
+└── README.md
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a develop branch (`git checkout -b develop/your-name`)
+3. Commit your changes (`git commit -m 'Add some feature'`)
+4. Push to the branch (`git push origin develop/your-name`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

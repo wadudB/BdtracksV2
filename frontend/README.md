@@ -1,54 +1,92 @@
-# React + TypeScript + Vite
+# BDTracks Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Installation
 
-Currently, two official plugins are available:
+```bash
+# Install dependencies
+npm install
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Start development server
+npm run dev
 
-## Expanding the ESLint configuration
+# Build for production
+npm run build
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# Preview production build
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Available Scripts
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Development
+npm run dev              # Start dev server (localhost:5173)
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+# Building
+npm run build           # Build for production
+npm run preview         # Preview production build
+
+# Code Quality
+npm run lint            # Run ESLint
+npm run lint:fix        # Fix ESLint errors
+npm run format          # Format code with Prettier
+npm run format:check    # Check code formatting
+
+# Pre-commit hooks
+npm run prepare         # Setup Husky pre-commit hooks
 ```
+
+## 🌐 API Integration
+
+- **TanStack Query** for efficient data fetching, caching, and synchronization
+- **Axios** for HTTP requests
+- Custom hooks for API operations
+- Error boundaries for graceful error handling
+- Loading states and optimistic updates
+
+### Code Style
+
+- ESLint configuration with React and TypeScript rules
+- Prettier for code formatting
+- Husky pre-commit hooks for code quality
+- Consistent naming conventions
+
+### Component Structure
+
+```tsx
+// Preferred component structure
+import { ComponentProps } from "./Component.types";
+
+export function Component({ prop1, prop2 }: ComponentProps) {
+  // Component logic
+  return <div className="component-styles">{/* Component JSX */}</div>;
+}
+```
+
+### State Management
+
+- React useState and useReducer for local state
+- TanStack Query for server state
+- Context API for global application state
+
+### Build Optimization
+
+- Code splitting with React.lazy
+- Tree shaking for minimal bundle size
+- Asset optimization with Vite
+- Progressive Web App features
+
+## 🤝 Contributing
+
+1. Follow the established code style and patterns
+2. Write TypeScript with proper type definitions
+3. Test components thoroughly
+4. Update documentation for new features
+5. Run linting and formatting before commits
+
+## 📚 Resources
+
+- [React Documentation](https://react.dev)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs)
+- [Tailwind CSS Docs](https://tailwindcss.com/docs)
+- [TanStack Query Docs](https://tanstack.com/query)
