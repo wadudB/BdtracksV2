@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { locationService } from "@/services/api";
@@ -43,7 +43,13 @@ export default function FindPricesPage() {
       try {
         setLoading(true);
         setError(null);
-        const params: any = {
+        const params: {
+          lat: number;
+          lng: number;
+          radius_km?: number;
+          days?: number;
+          category?: string;
+        } = {
           lat: DEFAULT_CENTER.lat,
           lng: DEFAULT_CENTER.lng,
           radius_km: 50,
@@ -95,6 +101,8 @@ export default function FindPricesPage() {
               disableDefaultUI={false}
               mapTypeControl={false}
               fullscreenControl={false}
+              streetViewControl={false}
+              cameraControl={false}
               className="h-full w-full"
               styles={[
                 {
@@ -128,7 +136,7 @@ export default function FindPricesPage() {
       <Button
         variant="default"
         size="icon"
-        className="fixed top-[calc(var(--header-height)+var(--submenu-height)+1rem)] left-4 z-30 rounded-full h-12 w-12 shadow-xl bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-200 lg:hidden"
+        className="fixed top-[calc(var(--header-height)+var(--submenu-height)+2rem)] left-4 z-30 rounded-full h-12 w-12 shadow-xl bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-900 lg:hidden"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
         <span className="material-icons text-xl">{isMobileMenuOpen ? "close" : "menu"}</span>

@@ -1,9 +1,5 @@
 import { LocationWithPrices } from "@/types";
-import {
-  AdvancedMarker,
-  InfoWindow,
-  useAdvancedMarkerRef,
-} from "@vis.gl/react-google-maps";
+import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import { getCategoryConfig } from "@/utils/categoryConfig";
 
 interface LocationMarkerProps {
@@ -66,7 +62,7 @@ export function LocationMarker({
                 </div>
 
                 {/* Market name horizontal - responsive */}
-                <div className="absolute left-full ml-1 sm:ml-2 top-1/2 transform -translate-y-1/2 whitespace-nowrap hidden sm:block">
+                <div className="absolute left-full ml-1 sm:ml-2 top-1/2 transform -translate-y-1/2 w-full sm:block">
                   <span className="text-xs sm:text-sm font-semibold text-gray-900">
                     {location.name}
                   </span>
@@ -95,7 +91,7 @@ export function LocationMarker({
                 </div>
 
                 {/* Market name horizontal - responsive */}
-                <div className="absolute left-full ml-1 sm:ml-2 top-1/2 transform -translate-y-1/2 whitespace-nowrap hidden sm:block">
+                <div className="absolute left-full ml-1 sm:ml-2 top-1/2 transform -translate-y-1/2 max-w-[50ch] sm:block">
                   <span className="text-xs sm:text-sm font-semibold text-gray-900">
                     {location.name}
                   </span>
@@ -177,4 +173,4 @@ export function LocationMarker({
       )}
     </>
   );
-} 
+}
