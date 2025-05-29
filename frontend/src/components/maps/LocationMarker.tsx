@@ -63,7 +63,7 @@ export function LocationMarker({
 
                 {/* Market name horizontal - responsive */}
                 <div className="absolute left-full ml-1 sm:ml-2 top-1/2 transform -translate-y-1/2 w-full sm:block">
-                  <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                  <span className="text-xs sm:text-sm font-semibold text-gray-900  backdrop-blur-sm py-1">
                     {location.name}
                   </span>
                 </div>
@@ -92,7 +92,7 @@ export function LocationMarker({
 
                 {/* Market name horizontal - responsive */}
                 <div className="absolute left-full ml-1 sm:ml-2 top-1/2 transform -translate-y-1/2 max-w-[50ch] sm:block">
-                  <span className="text-xs sm:text-sm font-semibold text-gray-900">
+                  <span className="text-xs sm:text-sm font-semibold text-gray-900 bg-white/80 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm">
                     {location.name}
                   </span>
                 </div>
