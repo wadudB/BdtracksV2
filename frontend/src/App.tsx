@@ -1,11 +1,24 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import CommoditiesPage from "./pages/CommoditiesPage";
-import CommodityDetails from "./pages/CommodityDetails";
-import MapPage from "./pages/MapPage";
-import FindPricesPage from "./pages/FindPricesPage";
 import { RootLayout } from "./layouts";
 import { Toaster } from "sonner";
+import React, { Suspense } from "react";
+
+// Lazy load pages for code splitting
+const HomePage = React.lazy(() => import("./pages/HomePage"));
+const CommoditiesPage = React.lazy(() => import("./pages/CommoditiesPage"));
+const CommodityDetails = React.lazy(() => import("./pages/CommodityDetails"));
+const MapPage = React.lazy(() => import("./pages/MapPage"));
+const FindPricesPage = React.lazy(() => import("./pages/FindPricesPage"));
+
+// Loading component for suspense fallback
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="flex flex-col items-center gap-3">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <p className="text-muted-foreground">Loading page...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
@@ -13,16 +26,58 @@ function App() {
       <Routes>
         {/* Main application routes with standard layout */}
         <Route element={<RootLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/commodities" element={<CommoditiesPage />} />
-          <Route path="/commodity/:id" element={<CommodityDetails />} />
-          <Route path="/commodities/map" element={<MapPage />} />
-          <Route path="/find-prices" element={<FindPricesPage />} />
+          <Route
+            path="/"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <HomePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/commodities"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <CommoditiesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/commodity/:id"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <CommodityDetails />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/commodities/map"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <MapPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/find-prices"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <FindPricesPage />
+              </Suspense>
+            }
+          />
 
           {/* Add other routes here */}
 
           {/* Fallback route */}
-          <Route path="*" element={<HomePage />} />
+          <Route
+            path="*"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <HomePage />
+              </Suspense>
+            }
+          />
         </Route>
 
         {/* You can add routes with different layouts here 
