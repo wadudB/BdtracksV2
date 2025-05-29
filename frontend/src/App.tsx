@@ -3,14 +3,12 @@ import { RootLayout } from "./layouts";
 import { Toaster } from "sonner";
 import React, { Suspense } from "react";
 
-// Lazy load pages for code splitting
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const CommoditiesPage = React.lazy(() => import("./pages/CommoditiesPage"));
 const CommodityDetails = React.lazy(() => import("./pages/CommodityDetails"));
 const MapPage = React.lazy(() => import("./pages/MapPage"));
 const FindPricesPage = React.lazy(() => import("./pages/FindPricesPage"));
 
-// Loading component for suspense fallback
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[400px]">
     <div className="flex flex-col items-center gap-3">
@@ -67,8 +65,6 @@ function App() {
             }
           />
 
-          {/* Add other routes here */}
-
           {/* Fallback route */}
           <Route
             path="*"
@@ -80,7 +76,7 @@ function App() {
           />
         </Route>
 
-        {/* You can add routes with different layouts here 
+        {/* Routes with different layouts here 
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
