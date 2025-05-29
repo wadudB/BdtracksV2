@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,8 +44,6 @@ export default function MapPage() {
     parseInt(selectedTimeWindow)
   );
 
-  console.log("Regional prices data:", regionalPricesData);
-
   // Set default selected commodity on initial load
   useEffect(() => {
     if (commodities.length > 0 && !selectedCommodityId) {
@@ -71,8 +69,6 @@ export default function MapPage() {
     })
   );
 
-  console.log("Regional prices data:", regionalPricesData);
-  console.log("Formatted map price data:", mapPriceData);
 
   return (
     <Section>
