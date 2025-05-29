@@ -7,7 +7,7 @@ import { LocationMarker } from "@/components/maps/LocationMarker";
 import { LocationSidebar } from "@/components/maps/LocationSidebar";
 
 // Default center coordinates (Dhaka, Bangladesh)
-const DEFAULT_CENTER = { lat: 23.7973, lng: 90.4338 };
+const DEFAULT_CENTER = { lat: 23.7413, lng: 90.395 };
 
 export default function FindPricesPage() {
   const [activeTab, setActiveTab] = useState("all");
