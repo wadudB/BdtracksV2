@@ -61,7 +61,7 @@ export function LocationSidebar({
       {/* Sidebar content */}
       <Card
         className={`
-        h-full flex flex-col shadow-2xl border-0 bg-white/95 backdrop-blur-lg rounded-2xl p-0
+        h-full flex flex-col shadow-2xl border-0 bg-white/95 backdrop-blur-lg rounded-2xl p-0 gap-0
         ${
           isMobileMenuOpen
             ? "fixed inset-x-3 top-[calc(var(--header-height)+var(--submenu-height)+1rem)] bottom-3 lg:relative lg:inset-auto"
@@ -70,20 +70,17 @@ export function LocationSidebar({
       `}
       >
         {/* Optimized header */}
-        <CardHeader className="pb-2 px-4 pt-3 border-b bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl flex items-center">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl flex items-center px-4 py-3">
           <div className="flex items-center justify-between w-full">
             {!isCollapsed && (
               <div className="flex items-center gap-3">
-                <div className="bg-blue-100 rounded-full p-2 text-blue-600">
+                <div className="bg-blue-100 rounded-full text-blue-600">
                   <span className="material-icons text-base">place</span>
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-gray-900 leading-tight">
                     Find Prices Near Me
                   </h2>
-                  <p className="text-sm text-gray-600 leading-tight">
-                    Discover the best deals near you
-                  </p>
                 </div>
               </div>
             )}
