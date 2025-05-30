@@ -46,4 +46,4 @@ export function getCategoryConfig(category: string): CategoryConfig {
         badgeColor: "bg-gray-600",
       };
   }
-} 
+}

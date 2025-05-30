@@ -69,7 +69,6 @@ export default function MapPage() {
     })
   );
 
-
   return (
     <Section>
       <Container>

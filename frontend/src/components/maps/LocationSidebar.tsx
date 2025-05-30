@@ -62,7 +62,7 @@ export function LocationSidebar({
       <Card
         className={`
         h-full flex flex-col shadow-2xl border-0 bg-white/95 backdrop-blur-lg rounded-2xl p-0
-        ${ 
+        ${
           isMobileMenuOpen
             ? "fixed inset-x-3 top-[calc(var(--header-height)+var(--submenu-height)+1rem)] bottom-3 lg:relative lg:inset-auto"
             : "hidden lg:flex"
@@ -78,7 +78,9 @@ export function LocationSidebar({
                   <span className="material-icons text-base">place</span>
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-gray-900 leading-tight">Find Prices Near Me</h2>
+                  <h2 className="text-base font-bold text-gray-900 leading-tight">
+                    Find Prices Near Me
+                  </h2>
                   <p className="text-sm text-gray-600 leading-tight">
                     Discover the best deals near you
                   </p>
@@ -142,7 +144,7 @@ export function LocationSidebar({
                   )}
                 </div>
               </div>
-              
+
               {/* View toggle button */}
               <Button
                 variant="ghost"
@@ -151,9 +153,7 @@ export function LocationSidebar({
                 onClick={() => setShowList(!showList)}
                 aria-label={showList ? "Switch to grid view" : "Switch to list view"}
               >
-                <span className="material-icons">
-                  {showList ? "grid_view" : "list"}
-                </span>
+                <span className="material-icons">{showList ? "grid_view" : "list"}</span>
               </Button>
             </div>
 
@@ -166,16 +166,16 @@ export function LocationSidebar({
                 className="w-full"
               >
                 <TabsList className="grid grid-cols-4 h-9 bg-gray-100 rounded-lg p-0.5 gap-0.5">
-                  <TabsTrigger 
-                    value="all" 
+                  <TabsTrigger
+                    value="all"
                     className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all"
                     aria-label="Show all locations"
                   >
                     <span className="material-icons text-base mr-1">category</span>
                     All
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="gas" 
+                  <TabsTrigger
+                    value="gas"
                     className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all"
                     aria-label="Show gas stations"
                   >
@@ -200,7 +200,7 @@ export function LocationSidebar({
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
-              
+
               {/* Results summary with maintained font size */}
               <div className="flex items-center justify-between mt-2">
                 {loading ? (
@@ -232,16 +232,14 @@ export function LocationSidebar({
                 </div>
               ) : error ? (
                 <div className="flex flex-col items-center justify-center p-6 text-center">
-                  <span className="material-icons text-3xl text-red-400 mb-3">
-                    error_outline
-                  </span>
+                  <span className="material-icons text-3xl text-red-400 mb-3">error_outline</span>
                   <h3 className="font-semibold text-gray-900 mb-1 text-base">
                     Something went wrong
                   </h3>
                   <p className="text-sm text-gray-600 mb-3">{error}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => window.location.reload()}
                     className="rounded-lg border border-gray-300 hover:bg-gray-100 transition-all text-sm h-9"
                   >
@@ -251,12 +249,8 @@ export function LocationSidebar({
                 </div>
               ) : filteredLocations.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-6 text-center">
-                  <span className="material-icons text-3xl text-gray-400 mb-3">
-                    search_off
-                  </span>
-                  <h3 className="font-semibold text-gray-900 mb-1 text-base">
-                    No locations found
-                  </h3>
+                  <span className="material-icons text-3xl text-gray-400 mb-3">search_off</span>
+                  <h3 className="font-semibold text-gray-900 mb-1 text-base">No locations found</h3>
                   <p className="text-sm text-gray-600">
                     Try adjusting your search or category filter
                   </p>
@@ -282,4 +276,4 @@ export function LocationSidebar({
       </Card>
     </div>
   );
-} 
+}

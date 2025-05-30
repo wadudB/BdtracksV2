@@ -45,13 +45,13 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
               {/* Price badge */}
               {location.commodities.length > 0 && (
                 <div className="flex-shrink-0 ml-2">
-                  <div className={`${config.badgeColor} text-white px-2 py-1 rounded-lg shadow-sm text-center`}>
+                  <div
+                    className={`${config.badgeColor} text-white px-2 py-1 rounded-lg shadow-sm text-center`}
+                  >
                     <div className="text-xs leading-tight opacity-90 truncate max-w-[70px]">
                       {location.commodities[0].name}
                     </div>
-                    <div className="text-sm font-bold">
-                      ৳{location.commodities[0].price}
-                    </div>
+                    <div className="text-sm font-bold">৳{location.commodities[0].price}</div>
                   </div>
                 </div>
               )}
@@ -90,4 +90,4 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
       </CardContent>
     </Card>
   );
-} 
+}

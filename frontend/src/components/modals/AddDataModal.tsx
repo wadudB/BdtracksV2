@@ -236,7 +236,7 @@ function InteractiveMap({
           console.log("POI clicked:", iconEvent.placeId);
           // Save the POI ID
           onPoiIdChange(iconEvent.placeId);
-          
+
           // Use PlacesService to get details for the POI
           const service = new placesLib.PlacesService(map as any);
 
@@ -715,7 +715,7 @@ function FormContent({
           <Input
             id="name"
             value={priceForm.location?.name || ""}
-            onChange={(e) => 
+            onChange={(e) =>
               setPriceForm({
                 ...priceForm,
                 location: {
@@ -847,7 +847,7 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
       longitude: null as number | null,
       place_id: "",
       poi_id: "",
-    }
+    },
   });
 
   const [open, setOpen] = useState<boolean>(false);
@@ -872,7 +872,11 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
     }
 
     // Check if location data is valid
-    if (!priceForm.location?.name || !priceForm.location?.latitude || !priceForm.location?.longitude) {
+    if (
+      !priceForm.location?.name ||
+      !priceForm.location?.latitude ||
+      !priceForm.location?.longitude
+    ) {
       toast.error("Please select a valid location on the map");
       return;
     }
@@ -893,7 +897,7 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
           longitude: priceForm.location.longitude!,
           place_id: priceForm.location.place_id,
           poi_id: priceForm.location.poi_id,
-        }
+        },
       },
       {
         onSuccess: () => {
@@ -919,7 +923,7 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
               longitude: null,
               place_id: "",
               poi_id: "",
-            }
+            },
           });
 
           // Call the onSuccess callback if provided

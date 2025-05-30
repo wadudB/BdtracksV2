@@ -91,7 +91,7 @@ export const locationService = {
   getById: async (id: string) => {
     return (await apiClient(`/locations/${id}`)) as Location;
   },
-  
+
   // Create a new location
   create: async (data: {
     name: string;

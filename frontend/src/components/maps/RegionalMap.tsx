@@ -1,5 +1,11 @@
 import { useState, useCallback } from "react";
-import { APIProvider, Map, AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  InfoWindow,
+  useAdvancedMarkerRef,
+} from "@vis.gl/react-google-maps";
 
 interface RegionalMapProps {
   priceData: {
@@ -15,17 +21,17 @@ interface RegionalMapProps {
 }
 
 // Marker component with info window functionality
-function RegionMarker({ 
-  position, 
-  price, 
+function RegionMarker({
+  position,
+  price,
   regionName,
   selectedCommodity,
   isActive,
   onClick,
-  onInfoWindowClose 
-}: { 
-  position: google.maps.LatLngLiteral; 
-  price: number; 
+  onInfoWindowClose,
+}: {
+  position: google.maps.LatLngLiteral;
+  price: number;
   regionName: string;
   regionId: string | number;
   selectedCommodity: string;
@@ -48,12 +54,9 @@ function RegionMarker({
           ৳{price}
         </div>
       </AdvancedMarker>
-      
+
       {isActive && (
-        <InfoWindow
-          anchor={marker}
-          onClose={onInfoWindowClose}
-        >
+        <InfoWindow anchor={marker} onClose={onInfoWindowClose}>
           <div style={{ padding: "8px", maxWidth: "200px" }}>
             <h3 style={{ margin: "0 0 8px 0", fontSize: "16px" }}>{regionName}</h3>
             <p style={{ margin: "0", fontSize: "14px" }}>
@@ -86,7 +89,7 @@ export default function RegionalMap({
 
   // Handle marker click - set the active marker or toggle if the same marker
   const handleMarkerClick = useCallback((regionId: string | number) => {
-    setActiveMarkerId(current => current === regionId ? null : regionId);
+    setActiveMarkerId((current) => (current === regionId ? null : regionId));
   }, []);
 
   // Handle info window close
@@ -111,10 +114,10 @@ export default function RegionalMap({
         </div>
       )}
 
-      <APIProvider 
+      <APIProvider
         apiKey={apiKey}
         onError={(error: unknown) => {
-          console.error('Google Maps API error:', error);
+          console.error("Google Maps API error:", error);
           setMapError(`Google Maps API error occurred`);
         }}
       >
@@ -127,29 +130,32 @@ export default function RegionalMap({
           reuseMaps={true}
           colorScheme="LIGHT"
         >
-          {!isLoading && priceData.map((region) => {
-            // Skip regions without coordinates
-            if (!region.latitude || !region.longitude) {
-              console.log(`Missing coordinates for region: ${region.regionName || region.regionId}`);
-              return null;
-            }
+          {!isLoading &&
+            priceData.map((region) => {
+              // Skip regions without coordinates
+              if (!region.latitude || !region.longitude) {
+                console.log(
+                  `Missing coordinates for region: ${region.regionName || region.regionId}`
+                );
+                return null;
+              }
 
-            const regionName = region.regionName || `Region ${region.regionId}`;
-            
-            return (
-              <RegionMarker
-                key={region.regionId}
-                regionId={region.regionId}
-                position={{ lat: region.latitude, lng: region.longitude }}
-                price={region.price}
-                regionName={regionName}
-                selectedCommodity={selectedCommodity}
-                isActive={activeMarkerId === region.regionId}
-                onClick={() => handleMarkerClick(region.regionId)}
-                onInfoWindowClose={handleInfoWindowClose}
-              />
-            );
-          })}
+              const regionName = region.regionName || `Region ${region.regionId}`;
+
+              return (
+                <RegionMarker
+                  key={region.regionId}
+                  regionId={region.regionId}
+                  position={{ lat: region.latitude, lng: region.longitude }}
+                  price={region.price}
+                  regionName={regionName}
+                  selectedCommodity={selectedCommodity}
+                  isActive={activeMarkerId === region.regionId}
+                  onClick={() => handleMarkerClick(region.regionId)}
+                  onInfoWindowClose={handleInfoWindowClose}
+                />
+              );
+            })}
         </Map>
       </APIProvider>
     </div>
