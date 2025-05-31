@@ -1,6 +1,6 @@
-from sqlalchemy import String, Integer, ForeignKey, Date, Text, DateTime, Float, Index
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import Optional, List
+from sqlalchemy import String, Integer, ForeignKey, Date, Text, DateTime, Index
+from sqlalchemy.orm import Mapped, mapped_column
+from typing import Optional
 from datetime import date
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import func

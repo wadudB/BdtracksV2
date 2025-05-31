@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc
-from typing import Any, Dict, List, Optional
+from sqlalchemy import desc
+from typing import Any, Dict, Optional
 from datetime import datetime, timedelta
 import statistics
 
-from app import schemas, crud
+from app import crud
 from app.models.price_record import PriceRecord
 from app.db.session import get_db
 

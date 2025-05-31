@@ -1,4 +1,4 @@
-from sqlalchemy import String, Integer, Boolean, Text, Float, DateTime
+from sqlalchemy import String, Integer, Boolean, Text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 from sqlalchemy.ext.declarative import declared_attr

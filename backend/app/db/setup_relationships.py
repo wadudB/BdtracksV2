@@ -6,7 +6,6 @@ from sqlalchemy.orm import relationship
 from app.models.commodity import Commodity
 from app.models.region import Region
 from app.models.price_record import PriceRecord
-from app.models.user import User
 from app.models.location import Location
 
 # Setup Commodity relationships

@@ -1,6 +1,5 @@
 from sqlalchemy import Integer, ForeignKey, Date, Enum, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import Optional
+from sqlalchemy.orm import Mapped, mapped_column
 from datetime import date
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import func

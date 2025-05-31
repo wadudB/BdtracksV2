@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_, or_
+from sqlalchemy import func, and_
 from typing import Any, List, Optional
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 from app import schemas, crud
 from app.db.session import get_db

@@ -1,5 +1,5 @@
-from sqlalchemy import String, Boolean, Float, ForeignKey, event, Integer, DateTime
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import String, Boolean, Float, ForeignKey, Integer, DateTime
+from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.sql import func
