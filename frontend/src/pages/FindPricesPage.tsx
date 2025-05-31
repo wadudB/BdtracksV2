@@ -9,8 +9,51 @@ import { LocationSidebar } from "@/components/maps/LocationSidebar";
 // Default center coordinates (Dhaka, Bangladesh)
 const DEFAULT_CENTER = { lat: 23.7413, lng: 90.395 };
 
+// Category definitions to match backend
+const CATEGORY_GROUPS = {
+  all: { label: "All", icon: "category" },
+  food: {
+    label: "Food",
+    icon: "restaurant",
+    subcategories: [
+      "agriculture",
+      "pulses",
+      "vegetables",
+      "spices",
+      "fish",
+      "meat",
+      "dairy",
+      "grocery",
+      "fruits",
+      "poultry",
+    ],
+  },
+  energy: { label: "Energy", icon: "local_gas_station", subcategories: ["oil"] },
+  household: { label: "Household", icon: "home", subcategories: ["stationery", "construction"] },
+};
+
+// Individual categories with their display names and icons
+const INDIVIDUAL_CATEGORIES = {
+  agriculture: { label: "Agriculture", icon: "agriculture", group: "food" },
+  oil: { label: "Oil", icon: "oil_barrel", group: "energy" },
+  pulses: { label: "Pulses", icon: "breakfast_dining", group: "food" },
+  vegetables: { label: "Vegetables", icon: "eco", group: "food" },
+  spices: { label: "Spices", icon: "spa", group: "food" },
+  fish: { label: "Fish", icon: "set_meal", group: "food" },
+  meat: { label: "Meat", icon: "lunch_dining", group: "food" },
+  dairy: { label: "Dairy", icon: "egg", group: "food" },
+  grocery: { label: "Grocery", icon: "shopping_basket", group: "food" },
+  fruits: { label: "Fruits", icon: "nutrition", group: "food" },
+  poultry: { label: "Poultry", icon: "egg_alt", group: "food" },
+  stationery: { label: "Stationery", icon: "edit", group: "household" },
+  construction: { label: "Construction", icon: "construction", group: "household" },
+};
+
 export default function FindPricesPage() {
+  // State for current category filter (can be a group or individual category)
   const [activeTab, setActiveTab] = useState("all");
+  // State to track if we're viewing categories by group or individually
+  const [viewMode, setViewMode] = useState<"group" | "individual">("group");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
   const [locations, setLocations] = useState<LocationWithPrices[]>([]);
@@ -73,6 +116,40 @@ export default function FindPricesPage() {
 
     fetchLocations();
   }, [activeTab]);
+
+  // Toggle between group view and individual category view
+  const toggleViewMode = () => {
+    if (viewMode === "group") {
+      setViewMode("individual");
+      // If current active tab is a group, reset to "all"
+      if (["all", "food", "energy", "household"].includes(activeTab)) {
+        setActiveTab("all");
+      }
+    } else {
+      setViewMode("group");
+      // If current active tab is an individual category, reset to its group
+      if (activeTab in INDIVIDUAL_CATEGORIES) {
+        setActiveTab(INDIVIDUAL_CATEGORIES[activeTab as keyof typeof INDIVIDUAL_CATEGORIES].group);
+      }
+    }
+  };
+
+  // Get the categories to display based on current view mode
+  const getCategoriesToDisplay = () => {
+    if (viewMode === "group") {
+      return Object.entries(CATEGORY_GROUPS).map(([key, value]) => ({
+        id: key,
+        label: value.label,
+        icon: value.icon,
+      }));
+    } else {
+      return Object.entries(INDIVIDUAL_CATEGORIES).map(([key, value]) => ({
+        id: key,
+        label: value.label,
+        icon: value.icon,
+      }));
+    }
+  };
 
   const handleMarkerClick = (locationId: number) => {
     setActiveMarkerId((current) => (current === locationId ? null : locationId));
@@ -142,7 +219,7 @@ export default function FindPricesPage() {
         <span className="material-icons text-xl">{isMobileMenuOpen ? "close" : "menu"}</span>
       </Button>
 
-      {/* Sidebar Component */}
+      {/* Pass new props to the LocationSidebar */}
       <LocationSidebar
         filteredLocations={filteredLocations}
         activeMarkerId={activeMarkerId}
@@ -159,6 +236,9 @@ export default function FindPricesPage() {
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         setShowList={setShowList}
         handleMarkerClick={handleMarkerClick}
+        viewMode={viewMode}
+        toggleViewMode={toggleViewMode}
+        categories={getCategoriesToDisplay()}
       />
 
       {/* Enhanced responsive floating action buttons */}
@@ -171,6 +251,19 @@ export default function FindPricesPage() {
           title="Find my location"
         >
           <span className="material-icons text-lg sm:text-xl">my_location</span>
+        </Button>
+
+        {/* Category view toggle button */}
+        <Button
+          variant="secondary"
+          size="icon"
+          className="rounded-full h-10 w-10 sm:h-12 sm:w-12 shadow-lg transition-all duration-200 hover:scale-110"
+          title={viewMode === "group" ? "Show individual categories" : "Show category groups"}
+          onClick={toggleViewMode}
+        >
+          <span className="material-icons text-base sm:text-lg">
+            {viewMode === "group" ? "tune" : "category"}
+          </span>
         </Button>
 
         {/* Refresh button */}

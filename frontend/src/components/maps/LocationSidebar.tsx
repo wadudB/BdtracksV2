@@ -6,6 +6,12 @@ import { LocationCard } from "@/components/ui/LocationCard";
 import { LocationCardSkeleton } from "@/components/ui/LocationCardSkeleton";
 import { LocationWithPrices } from "@/types";
 
+interface CategoryItem {
+  id: string;
+  label: string;
+  icon: string;
+}
+
 interface LocationSidebarProps {
   filteredLocations: LocationWithPrices[];
   activeMarkerId: number | null;
@@ -22,6 +28,10 @@ interface LocationSidebarProps {
   setIsMobileMenuOpen: (open: boolean) => void;
   setShowList: (showList: boolean) => void;
   handleMarkerClick: (locationId: number) => void;
+  // New props for category system
+  viewMode: "group" | "individual";
+  toggleViewMode: () => void;
+  categories: CategoryItem[];
 }
 
 export function LocationSidebar({
@@ -40,6 +50,10 @@ export function LocationSidebar({
   setIsMobileMenuOpen,
   setShowList,
   handleMarkerClick,
+  // New props
+  viewMode,
+  toggleViewMode,
+  categories,
 }: LocationSidebarProps) {
   return (
     <div
@@ -142,16 +156,36 @@ export function LocationSidebar({
                 </div>
               </div>
 
-              {/* View toggle button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="border-l px-2 h-auto rounded-none text-sm flex items-center gap-1 hover:bg-gray-100"
-                onClick={() => setShowList(!showList)}
-                aria-label={showList ? "Switch to grid view" : "Switch to list view"}
-              >
-                <span className="material-icons">{showList ? "grid_view" : "list"}</span>
-              </Button>
+              {/* View toggle buttons */}
+              <div className="flex">
+                {/* Grid/List view toggle */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="border-l px-2 h-auto rounded-none text-sm flex items-center gap-1 hover:bg-gray-100"
+                  onClick={() => setShowList(!showList)}
+                  aria-label={showList ? "Switch to grid view" : "Switch to list view"}
+                >
+                  <span className="material-icons">{showList ? "grid_view" : "list"}</span>
+                </Button>
+
+                {/* Category view mode toggle */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="border-l px-2 h-auto rounded-none text-sm flex items-center gap-1 hover:bg-gray-100"
+                  onClick={toggleViewMode}
+                  aria-label={
+                    viewMode === "group"
+                      ? "Switch to individual categories"
+                      : "Switch to category groups"
+                  }
+                >
+                  <span className="material-icons text-base">
+                    {viewMode === "group" ? "tune" : "category"}
+                  </span>
+                </Button>
+              </div>
             </div>
 
             {/* Tabs section with maintained font size */}
@@ -162,43 +196,24 @@ export function LocationSidebar({
                 onValueChange={setActiveTab}
                 className="w-full"
               >
-                <TabsList className="grid grid-cols-4 h-9 bg-gray-100 rounded-lg p-0.5 gap-0.5">
-                  <TabsTrigger
-                    value="all"
-                    className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all"
-                    aria-label="Show all locations"
-                  >
-                    <span className="material-icons text-base mr-1">category</span>
-                    All
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="gas"
-                    className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all"
-                    aria-label="Show gas stations"
-                  >
-                    <span className="material-icons text-base mr-1">local_gas_station</span>
-                    Gas
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="grocery"
-                    className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all"
-                    aria-label="Show grocery stores"
-                  >
-                    <span className="material-icons text-base mr-1">shopping_cart</span>
-                    Grocery
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="restaurant"
-                    className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all"
-                    aria-label="Show restaurants"
-                  >
-                    <span className="material-icons text-base mr-1">restaurant</span>
-                    Food
-                  </TabsTrigger>
+                <TabsList
+                  className={`grid ${categories.length <= 4 ? `grid-cols-${categories.length}` : "grid-cols-4"} h-9 bg-gray-100 rounded-lg p-0.5 gap-0.5 overflow-x-auto custom-scrollbar`}
+                >
+                  {categories.map((category) => (
+                    <TabsTrigger
+                      key={category.id}
+                      value={category.id}
+                      className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all whitespace-nowrap min-w-max"
+                      aria-label={`Show ${category.label.toLowerCase()} locations`}
+                    >
+                      <span className="material-icons text-base mr-1">{category.icon}</span>
+                      {category.label}
+                    </TabsTrigger>
+                  ))}
                 </TabsList>
               </Tabs>
 
-              {/* Results summary with maintained font size */}
+              {/* View mode indicator */}
               <div className="flex items-center justify-between mt-2">
                 {loading ? (
                   <div className="flex items-center gap-2">
@@ -214,6 +229,9 @@ export function LocationSidebar({
                         "{searchQuery}"
                       </span>
                     )}
+                    <span className="ml-1.5 bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
+                      {viewMode === "group" ? "Group View" : "Detailed View"}
+                    </span>
                   </div>
                 )}
               </div>
