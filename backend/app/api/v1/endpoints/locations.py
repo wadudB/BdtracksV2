@@ -38,6 +38,10 @@ def get_locations_with_prices(
         None,
         description="Filter by commodity category or group (agriculture, oil, pulses, vegetables, spices, fish, meat, dairy, grocery, fruits, poultry, stationery, construction, food, energy, household)",
     ),
+    commodity_id: Optional[int] = Query(
+        None,
+        description="Filter by specific commodity ID"
+    ),
     skip: int = Query(0, description="Skip records for pagination"),
     limit: int = Query(100, description="Limit number of records returned"),
 ) -> Any:
@@ -49,6 +53,8 @@ def get_locations_with_prices(
     - food: includes agriculture, pulses, vegetables, spices, fish, meat, dairy, grocery, fruits, poultry
     - energy: includes oil
     - household: includes stationery, construction
+    
+    Can also filter by specific commodity_id to show only locations with that commodity.
     """
     # Calculate date range
     end_date = datetime.now().date()
@@ -83,8 +89,11 @@ def get_locations_with_prices(
         )
     )
 
-    # Apply category filter if specified
-    if category:
+    # Apply commodity_id filter if specified (takes precedence over category)
+    if commodity_id:
+        location_query = location_query.filter(PriceRecord.commodity_id == commodity_id)
+    # Apply category filter if specified and no commodity_id is provided
+    elif category:
         location_query = location_query.join(
             Commodity, PriceRecord.commodity_id == Commodity.id
         )
@@ -134,6 +143,17 @@ def get_locations_with_prices(
 
     paginated_location_ids = location_ids[skip : skip + limit]
 
+    # Build the price record query with potential commodity filter
+    price_filter_conditions = [
+        PriceRecord.location_id.in_(paginated_location_ids),
+        PriceRecord.recorded_at >= start_date,
+        PriceRecord.recorded_at <= end_date,
+    ]
+    
+    # Add commodity filter to price records if specified
+    if commodity_id:
+        price_filter_conditions.append(PriceRecord.commodity_id == commodity_id)
+
     ranked_prices = (
         db.query(
             PriceRecord.id,
@@ -149,13 +169,7 @@ def get_locations_with_prices(
             )
             .label("rank"),
         )
-        .filter(
-            and_(
-                PriceRecord.location_id.in_(paginated_location_ids),
-                PriceRecord.recorded_at >= start_date,
-                PriceRecord.recorded_at <= end_date,
-            )
-        )
+        .filter(and_(*price_filter_conditions))
         .subquery()
     )
 

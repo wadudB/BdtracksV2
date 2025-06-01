@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import {
+  APIProvider,
+  Map,
+} from "@vis.gl/react-google-maps";
 import { locationService } from "@/services/api";
 import { LocationWithPrices } from "@/types";
 import { LocationMarker } from "@/components/maps/LocationMarker";
 import { LocationSidebar } from "@/components/maps/LocationSidebar";
+import { MapClickHandler } from "@/components/maps/MapClickHandler";
+import { useGetCommodityDropdown } from "@/hooks/useQueries";
 
 // Default center coordinates (Dhaka, Bangladesh)
 const DEFAULT_CENTER = { lat: 23.7413, lng: 90.395 };
@@ -62,8 +67,13 @@ export default function FindPricesPage() {
   const [error, setError] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState(DEFAULT_CENTER);
+  const [selectedCommodityId, setSelectedCommodityId] = useState("all");
+  const [searchRadius, _setSearchRadius] = useState(50); // km
 
-  // Enhanced filtering with memoization
+  const { data: commodities = [] } = useGetCommodityDropdown();
+
+  // Filtering
   const filteredLocations = useMemo(() => {
     let filtered = locations;
 
@@ -80,7 +90,7 @@ export default function FindPricesPage() {
     return filtered;
   }, [searchQuery, locations]);
 
-  // Enhanced data fetching
+  // Data fetching
   useEffect(() => {
     const fetchLocations = async () => {
       try {
@@ -92,14 +102,19 @@ export default function FindPricesPage() {
           radius_km?: number;
           days?: number;
           category?: string;
+          commodity_id?: number;
         } = {
-          lat: DEFAULT_CENTER.lat,
-          lng: DEFAULT_CENTER.lng,
-          radius_km: 50,
+          lat: currentLocation.lat,
+          lng: currentLocation.lng,
+          radius_km: searchRadius,
           days: 30,
         };
 
-        if (activeTab !== "all") {
+        // Add commodity filter if selected
+        if (selectedCommodityId && selectedCommodityId !== "all") {
+          params.commodity_id = parseInt(selectedCommodityId);
+        } else if (activeTab !== "all") {
+          // Only use category filter if no specific commodity is selected
           params.category = activeTab;
         }
 
@@ -115,7 +130,29 @@ export default function FindPricesPage() {
     };
 
     fetchLocations();
-  }, [activeTab]);
+  }, [activeTab, currentLocation, selectedCommodityId, searchRadius]);
+
+  // Handle location search from the sidebar
+  const handleLocationSearch = (location: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    place_id?: string;
+    poi_id?: string;
+  }) => {
+    console.log("Location selected:", location);
+    setCurrentLocation({ lat: location.latitude, lng: location.longitude });
+    // Reset active marker when location changes
+    setActiveMarkerId(null);
+  };
+
+  // Handle commodity selection
+  const handleCommodityChange = (commodityId: string) => {
+    setSelectedCommodityId(commodityId);
+    // Reset active marker when commodity filter changes
+    setActiveMarkerId(null);
+  };
 
   // Toggle between group view and individual category view
   const toggleViewMode = () => {
@@ -169,9 +206,10 @@ export default function FindPricesPage() {
       {/* Enhanced map container */}
       <div className="h-full w-full">
         {apiKey ? (
-          <APIProvider apiKey={apiKey}>
+          <APIProvider apiKey={apiKey} libraries={["places"]}>
             <Map
-              defaultCenter={DEFAULT_CENTER}
+              key={`${currentLocation.lat}-${currentLocation.lng}`}
+              defaultCenter={currentLocation}
               defaultZoom={15}
               mapId="find-prices-map"
               gestureHandling="greedy"
@@ -189,6 +227,9 @@ export default function FindPricesPage() {
                 },
               ]}
             >
+              {/* Add the MapClickHandler to intercept clicks */}
+              <MapClickHandler />
+
               {filteredLocations.map((location) => (
                 <LocationMarker
                   key={location.id}
@@ -239,6 +280,10 @@ export default function FindPricesPage() {
         viewMode={viewMode}
         toggleViewMode={toggleViewMode}
         categories={getCategoriesToDisplay()}
+        commodities={commodities}
+        selectedCommodityId={selectedCommodityId}
+        setSelectedCommodityId={handleCommodityChange}
+        onLocationSearch={handleLocationSearch}
       />
 
       {/* Enhanced responsive floating action buttons */}
@@ -249,21 +294,26 @@ export default function FindPricesPage() {
           size="icon"
           className="rounded-full h-12 w-12 sm:h-14 sm:w-14 shadow-xl bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-110"
           title="Find my location"
+          onClick={() => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const { latitude, longitude } = position.coords;
+                  setCurrentLocation({ lat: latitude, lng: longitude });
+                },
+                (error) => {
+                  console.error("Error getting location:", error);
+                  // Fallback to default location
+                  setCurrentLocation(DEFAULT_CENTER);
+                }
+              );
+            } else {
+              console.error("Geolocation is not supported by this browser.");
+              setCurrentLocation(DEFAULT_CENTER);
+            }
+          }}
         >
           <span className="material-icons text-lg sm:text-xl">my_location</span>
-        </Button>
-
-        {/* Category view toggle button */}
-        <Button
-          variant="secondary"
-          size="icon"
-          className="rounded-full h-10 w-10 sm:h-12 sm:w-12 shadow-lg transition-all duration-200 hover:scale-110"
-          title={viewMode === "group" ? "Show individual categories" : "Show category groups"}
-          onClick={toggleViewMode}
-        >
-          <span className="material-icons text-base sm:text-lg">
-            {viewMode === "group" ? "tune" : "category"}
-          </span>
         </Button>
 
         {/* Refresh button */}

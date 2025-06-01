@@ -1,6 +1,9 @@
 import { LocationWithPrices } from "@/types";
 import { AdvancedMarker, InfoWindow, useAdvancedMarkerRef } from "@vis.gl/react-google-maps";
 import { getCategoryConfig } from "@/utils/categoryConfig";
+import { useState, useEffect } from "react";
+import AddDataModal from "@/components/modals/AddDataModal";
+import { Button } from "@/components/ui/button";
 
 interface LocationMarkerProps {
   location: LocationWithPrices;
@@ -17,6 +20,26 @@ export function LocationMarker({
 }: LocationMarkerProps) {
   const [markerRef, marker] = useAdvancedMarkerRef();
   const config = getCategoryConfig(location.category);
+  const [showAllItems, setShowAllItems] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredCommodities, setFilteredCommodities] = useState(location.commodities);
+
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredCommodities(location.commodities);
+    } else {
+      const filtered = location.commodities.filter((commodity) =>
+        commodity.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredCommodities(filtered);
+    }
+  }, [searchTerm, location.commodities]);
+
+  // Reset search and view state when location changes or info window closes
+  useEffect(() => {
+    setSearchTerm("");
+    setShowAllItems(false);
+  }, [location.id, isActive]);
 
   return (
     <>
@@ -26,7 +49,7 @@ export function LocationMarker({
         title={location.name}
         onClick={onClick}
       >
-        <div className="relative flex flex-col items-center">
+        <div className="relative flex flex-col items-center top-[-5px]">
           <div className="relative">
             {/* Main price badge with speech bubble tail */}
             {location.commodities.length > 0 ? (
@@ -104,69 +127,143 @@ export function LocationMarker({
 
       {isActive && (
         <InfoWindow anchor={marker} onClose={onInfoWindowClose}>
-          <div className="p-3 sm:p-5 max-w-[280px] sm:max-w-[350px]">
-            {/* Enhanced header */}
-            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="p-1 max-w-[280px] sm:max-w-[340px]">
+            {/* More compact header */}
+            <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
               <div
-                className={`flex-shrink-0 rounded-xl w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center ${config.lightColor} ${config.textColor}`}
+                className={`flex-shrink-0 rounded-lg w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center ${config.lightColor} ${config.textColor} shadow-sm`}
               >
-                <span className="material-icons text-base sm:text-lg">{config.icon}</span>
+                <span className="material-icons text-sm sm:text-base">{config.icon}</span>
               </div>
               <div className="flex-grow min-w-0">
-                <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight mb-1">
+                <h3 className="font-bold text-gray-900 text-sm sm:text-base leading-tight mb-0.5">
                   {location.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1">
-                  <span className="material-icons text-xs sm:text-sm">location_on</span>
+                <p className="text-[10px] sm:text-xs text-gray-600 flex items-center gap-1">
                   {location.address}
                 </p>
               </div>
             </div>
 
-            {/* Enhanced commodities list */}
-            <div className="space-y-2 sm:space-y-3">
-              <div className="flex items-center justify-between border-b pb-2">
-                <h4 className="text-xs sm:text-sm font-bold text-gray-800">Available Items</h4>
-                <span className="text-[10px] sm:text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+            {/* Compact commodities list with search */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b pb-1.5">
+                <h4 className="text-xs font-bold text-gray-800">Available Items</h4>
+                <span className="text-[9px] sm:text-[10px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded-full">
                   {location.commodities.length} items
                 </span>
               </div>
 
-              <div className="max-h-40 sm:max-h-48 overflow-y-auto space-y-1 sm:space-y-2">
-                {location.commodities.slice(0, 8).map((commodity, index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center py-1.5 sm:py-2 px-2 sm:px-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <span className="text-xs sm:text-sm font-medium text-gray-700 truncate mr-2 sm:mr-3 flex-grow">
-                      {commodity.name}
-                    </span>
-                    <div className="text-right">
-                      <span className={`text-xs sm:text-sm font-bold ${config.accentColor}`}>
-                        ৳{commodity.price}
-                      </span>
-                      <span className="text-[10px] sm:text-xs text-gray-500">
-                        /{commodity.unit}
-                      </span>
-                    </div>
-                  </div>
-                ))}
+              {/* Compact search input */}
+              {location.commodities.length > 5 && (
+                <div className="relative mb-1">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search items..."
+                    className="w-full text-xs px-2 py-1.5 pl-7 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <span className="material-icons text-gray-400 text-xs absolute left-1.5 top-1/2 transform -translate-y-1/2">
+                    search
+                  </span>
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-1.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <span className="material-icons text-xs">close</span>
+                    </button>
+                  )}
+                </div>
+              )}
 
-                {location.commodities.length > 8 && (
+              {/* Compact results summary */}
+              {searchTerm && (
+                <div className="text-[9px] sm:text-[10px] text-gray-500 italic -mt-1 mb-1">
+                  Found {filteredCommodities.length} of {location.commodities.length} items
+                </div>
+              )}
+
+              {/* Compact commodities list */}
+              <div className="max-h-40 sm:max-h-48 overflow-y-auto space-y-1 pr-1">
+                {filteredCommodities.length > 0 ? (
+                  filteredCommodities
+                    .slice(0, showAllItems ? filteredCommodities.length : 8)
+                    .map((commodity, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center py-1 sm:py-1.5 px-2 sm:px-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-all"
+                      >
+                        <span className="text-[10px] sm:text-xs font-medium text-gray-700 truncate mr-1 sm:mr-2 flex-grow">
+                          {commodity.name}
+                        </span>
+                        <div className="text-right whitespace-nowrap">
+                          <span
+                            className={`text-[10px] sm:text-xs font-bold ${config.accentColor}`}
+                          >
+                            ৳{commodity.price}
+                          </span>
+                          <span className="text-[8px] sm:text-[10px] text-gray-500 ml-0.5">
+                            /{commodity.unit}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="text-[10px] sm:text-xs text-gray-500 text-center py-3 bg-gray-50 rounded-md">
+                    <span className="material-icons text-gray-400 mb-1 text-sm">search_off</span>
+                    <div>No items match your search</div>
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="mt-1 text-blue-500 underline text-[9px] sm:text-[10px]"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                )}
+
+                {!showAllItems && filteredCommodities.length > 8 && (
                   <div
-                    className={`text-[10px] sm:text-xs font-medium text-center py-2 border-t ${config.accentColor}`}
+                    onClick={() => setShowAllItems(true)}
+                    className={`text-sm sm:text-sm font-medium text-center py-1 border-t ${config.accentColor} cursor-pointer flex items-center justify-center gap-1.5`}
                   >
-                    +{location.commodities.length - 8} more items available
+                    <span className="material-icons">expand_more</span>
+                    <span className="hover:underline">
+                      Show {filteredCommodities.length - 8} more items
+                    </span>
+                  </div>
+                )}
+
+                {showAllItems && filteredCommodities.length > 8 && (
+                  <div
+                    onClick={() => setShowAllItems(false)}
+                    className={`text-sm sm:text-sm font-medium text-center py-1 border-t text-gray-500 cursor-pointer flex items-center justify-center gap-1.5`}
+                  >
+                    <span className="material-icons">expand_less</span>
+                    <span className="hover:underline">Show less</span>
                   </div>
                 )}
 
                 {location.commodities.length === 0 && (
-                  <div className="text-xs sm:text-sm text-gray-500 text-center py-3 sm:py-4 bg-gray-50 rounded-lg">
-                    <span className="material-icons text-gray-400 mb-2">info</span>
+                  <div className="text-[10px] sm:text-xs text-gray-500 text-center py-3 bg-gray-50 rounded-md">
+                    <span className="material-icons text-gray-400 mb-1 text-sm">info</span>
                     <div>No price data available</div>
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Add Price Data Button - Always show regardless of whether there's commodity data */}
+            <div className="mt-3 pt-2 border-t border-gray-200">
+              <AddDataModal
+                trigger={
+                  <Button size="sm" className="w-full text-xs py-2 h-8">
+                    <span className="material-icons text-sm mr-1">add</span>
+                    Add New Price Data
+                  </Button>
+                }
+              />
             </div>
           </div>
         </InfoWindow>

@@ -1,15 +1,28 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LocationCard } from "@/components/ui/LocationCard";
 import { LocationCardSkeleton } from "@/components/ui/LocationCardSkeleton";
 import { LocationWithPrices } from "@/types";
+import { LocationSearchInput } from "@/components/ui/LocationSearchInput";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CategoryItem {
   id: string;
   label: string;
   icon: string;
+}
+
+interface CommodityDropdownItem {
+  id: number;
+  name: string;
+  bengaliName?: string;
 }
 
 interface LocationSidebarProps {
@@ -28,10 +41,20 @@ interface LocationSidebarProps {
   setIsMobileMenuOpen: (open: boolean) => void;
   setShowList: (showList: boolean) => void;
   handleMarkerClick: (locationId: number) => void;
-  // New props for category system
   viewMode: "group" | "individual";
   toggleViewMode: () => void;
   categories: CategoryItem[];
+  commodities: CommodityDropdownItem[];
+  selectedCommodityId: string;
+  setSelectedCommodityId: (commodityId: string) => void;
+  onLocationSearch: (location: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    place_id?: string;
+    poi_id?: string;
+  }) => void;
 }
 
 export function LocationSidebar({
@@ -43,17 +66,18 @@ export function LocationSidebar({
   searchQuery,
   loading,
   error,
-  showList,
+  showList: _showList,
   setActiveTab,
-  setSearchQuery,
   setIsCollapsed,
   setIsMobileMenuOpen,
-  setShowList,
+  setShowList: _setShowList,
   handleMarkerClick,
-  // New props
-  viewMode,
-  toggleViewMode,
+  toggleViewMode: _toggleViewMode,
   categories,
+  commodities,
+  selectedCommodityId,
+  setSelectedCommodityId,
+  onLocationSearch,
 }: LocationSidebarProps) {
   return (
     <div
@@ -127,64 +151,44 @@ export function LocationSidebar({
 
         {!isCollapsed && (
           <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-            <div className="flex border-b">
-              {/* Search section with maintained font size */}
-              <div className="flex-1 px-3 py-2 bg-white">
-                <div className="relative">
-                  <Input
-                    type="text"
-                    placeholder="Search markets, areas, items..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 pr-8 h-10 border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-100 rounded-lg text-sm transition-all"
-                    aria-label="Search"
-                  />
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500">
-                    <span className="material-icons text-base">search</span>
-                  </span>
-                  {searchQuery && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-full hover:bg-gray-100"
-                      aria-label="Clear search"
-                    >
-                      <span className="material-icons text-sm">close</span>
-                    </Button>
-                  )}
-                </div>
+            <div className="flex flex-col items-center border-b">
+              {/* Location Search section */}
+              <div className="flex-1 px-3 py-2 bg-white w-full">
+                <LocationSearchInput
+                  placeholder="Search for a location..."
+                  onLocationSelect={onLocationSearch}
+                  className="w-full"
+                />
               </div>
 
-              {/* View toggle buttons */}
-              <div className="flex">
-                {/* Grid/List view toggle */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="border-l px-2 h-auto rounded-none text-sm flex items-center gap-1 hover:bg-gray-100"
-                  onClick={() => setShowList(!showList)}
-                  aria-label={showList ? "Switch to grid view" : "Switch to list view"}
-                >
-                  <span className="material-icons">{showList ? "grid_view" : "list"}</span>
-                </Button>
-
-                {/* Category view mode toggle */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="border-l px-2 h-auto rounded-none text-sm flex items-center gap-1 hover:bg-gray-100"
-                  onClick={toggleViewMode}
-                  aria-label={
-                    viewMode === "group"
-                      ? "Switch to individual categories"
-                      : "Switch to category groups"
-                  }
-                >
-                  <span className="material-icons text-base">
-                    {viewMode === "group" ? "tune" : "category"}
-                  </span>
-                </Button>
+              {/* Commodity Filter section */}
+              <div className="flex px-3 py-2 w-full">
+                <Select value={selectedCommodityId} onValueChange={setSelectedCommodityId}>
+                  <SelectTrigger id="commodity" className="w-full">
+                    <SelectValue placeholder="Filter by commodity (optional)" />
+                  </SelectTrigger>
+                  <SelectContent
+                    position="popper"
+                    className="max-h-[300px] overflow-y-auto z-50 w-[var(--radix-select-trigger-width)]"
+                    sideOffset={4}
+                    avoidCollisions={true}
+                    sticky="always"
+                  >
+                    <SelectItem value="all">
+                      <span className="text-base">All Commodities</span>
+                    </SelectItem>
+                    {commodities.map((commodity: CommodityDropdownItem) => (
+                      <SelectItem key={commodity.id} value={commodity.id.toString()}>
+                        <div className="flex flex-col">
+                          <span className="text-base">{commodity.name}</span>
+                          {commodity.bengaliName && (
+                            <span className="text-sm text-gray-500">{commodity.bengaliName}</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -197,17 +201,17 @@ export function LocationSidebar({
                 className="w-full"
               >
                 <TabsList
-                  className={`grid ${categories.length <= 4 ? `grid-cols-${categories.length}` : "grid-cols-4"} h-9 bg-gray-100 rounded-lg p-0.5 gap-0.5 overflow-x-auto custom-scrollbar`}
+                  className={`grid ${categories.length <= 4 ? `grid-cols-${categories.length}` : "grid-cols-4"} h-full  bg-gray-100 rounded-lg p-0.5 gap-0.5 overflow-x-auto custom-scrollbar`}
                 >
                   {categories.map((category) => (
                     <TabsTrigger
                       key={category.id}
                       value={category.id}
-                      className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all whitespace-nowrap min-w-max"
+                      className="rounded-md font-medium text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-blue-600 data-[state=active]:font-semibold transition-all whitespace-nowrap min-w-max justify-center items-center flex flex-col"
                       aria-label={`Show ${category.label.toLowerCase()} locations`}
                     >
-                      <span className="material-icons text-base mr-1">{category.icon}</span>
-                      {category.label}
+                      <span className="material-icons text-base">{category.icon}</span>
+                      <span className="text-sm">{category.label}</span>
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -229,9 +233,6 @@ export function LocationSidebar({
                         "{searchQuery}"
                       </span>
                     )}
-                    <span className="ml-1.5 bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
-                      {viewMode === "group" ? "Group View" : "Detailed View"}
-                    </span>
                   </div>
                 )}
               </div>
@@ -267,7 +268,7 @@ export function LocationSidebar({
                   <span className="material-icons text-3xl text-gray-400 mb-3">search_off</span>
                   <h3 className="font-semibold text-gray-900 mb-1 text-base">No locations found</h3>
                   <p className="text-sm text-gray-600">
-                    Try adjusting your search or category filter
+                    Try searching for a location or adjusting your filters
                   </p>
                 </div>
               ) : (

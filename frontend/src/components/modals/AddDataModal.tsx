@@ -204,6 +204,7 @@ function InteractiveMap({
             lat: place.geometry.location.lat(),
             lng: place.geometry.location.lng(),
           };
+          console.log("Position:", position);
           setMarkerPosition(position);
           onLocationChange(position.lat, position.lng);
 

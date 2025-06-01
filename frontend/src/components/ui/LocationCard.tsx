@@ -13,7 +13,7 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
 
   return (
     <Card
-      className={`overflow-hidden transition-all duration-200 hover:shadow-lg border cursor-pointer group rounded-lg ${
+      className={`overflow-hidden transition-all duration-200 hover:shadow-lg border cursor-pointer group rounded-lg p-0 ${
         isActive
           ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200 shadow-md"
           : "hover:bg-gray-50 border-gray-200 hover:border-gray-300"
@@ -37,13 +37,12 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
                   {location.name}
                 </h3>
                 <p className="text-xs text-gray-500 truncate flex items-center gap-1">
-                  <span className="material-icons text-xs">location_on</span>
                   {location.address}
                 </p>
               </div>
 
               {/* Price badge */}
-              {location.commodities.length > 0 && (
+              {/* {location.commodities.length > 0 && (
                 <div className="flex-shrink-0 ml-2">
                   <div
                     className={`${config.badgeColor} text-white px-2 py-1 rounded-lg shadow-sm text-center`}
@@ -54,7 +53,7 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
                     <div className="text-sm font-bold">৳{location.commodities[0].price}</div>
                   </div>
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* Commodities preview */}

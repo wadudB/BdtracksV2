@@ -114,6 +114,7 @@ export const locationService = {
     radius_km?: number;
     days?: number;
     category?: string;
+    commodity_id?: number;
   }) => {
     const queryParams = new URLSearchParams();
     queryParams.append("lat", params.lat.toString());
@@ -121,6 +122,7 @@ export const locationService = {
     if (params.radius_km) queryParams.append("radius_km", params.radius_km.toString());
     if (params.days) queryParams.append("days", params.days.toString());
     if (params.category) queryParams.append("category", params.category);
+    if (params.commodity_id) queryParams.append("commodity_id", params.commodity_id.toString());
 
     return await apiClient(`/locations/with-prices?${queryParams.toString()}`);
   },
