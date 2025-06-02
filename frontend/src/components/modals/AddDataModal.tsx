@@ -53,6 +53,14 @@ interface AddDataModalProps {
   trigger: React.ReactNode;
   commodity?: Commodity;
   onSuccess?: () => void;
+  initialLocation?: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    place_id?: string;
+    poi_id?: string;
+  };
 }
 
 // Type for dropdown commodities
@@ -620,55 +628,31 @@ function FormContent({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className={`grid grid-cols-1 gap-4 ${!isMobile ? "sm:grid-cols-2" : ""}`}>
-        <div className="space-y-2 w-auto">
-          <Label htmlFor="commodity">Commodity</Label>
-          {priceForm.commodity ? (
-            <Input id="commodity" value={priceForm.commodity.name} disabled />
-          ) : (
-            <Select
-              required
-              value={priceForm.commodityId}
-              onValueChange={(value) => setPriceForm({ ...priceForm, commodityId: value })}
-            >
-              <SelectTrigger id="commodity">
-                <SelectValue placeholder="Select commodity" />
-              </SelectTrigger>
-              <SelectContent
-                position={isMobile ? "popper" : "item-aligned"}
-                className="max-h-[40vh]"
-              >
-                {commodities.map((commodity: CommodityDropdownItem) => (
-                  <SelectItem key={commodity.id} value={commodity.id.toString()}>
-                    {commodity.name} {commodity.bengaliName ? `(${commodity.bengaliName})` : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="region">Region</Label>
+      <div className="space-y-2 w-full">
+        <Label htmlFor="commodity">Commodity</Label>
+        {priceForm.commodity ? (
+          <Input id="commodity" value={priceForm.commodity.name} disabled className="w-full" />
+        ) : (
           <Select
             required
-            value={priceForm.regionId}
-            onValueChange={(value) => setPriceForm({ ...priceForm, regionId: value })}
+            value={priceForm.commodityId}
+            onValueChange={(value) => setPriceForm({ ...priceForm, commodityId: value })}
           >
-            <SelectTrigger id="region">
-              <SelectValue placeholder="Select region" />
+            <SelectTrigger id="commodity" className="w-full">
+              <SelectValue placeholder="Select commodity" />
             </SelectTrigger>
-            <SelectContent position={isMobile ? "popper" : "item-aligned"} className="max-h-[40vh]">
-              {regions.map((region) => (
-                <SelectItem
-                  key={typeof region.id === "number" ? region.id : region.id.toString()}
-                  value={typeof region.id === "number" ? region.id.toString() : region.id}
-                >
-                  {region.name}
+            <SelectContent
+              position={isMobile ? "popper" : "item-aligned"}
+              className="max-h-[40vh] w-full"
+            >
+              {commodities.map((commodity: CommodityDropdownItem) => (
+                <SelectItem key={commodity.id} value={commodity.id.toString()}>
+                  {commodity.name} {commodity.bengaliName ? `(${commodity.bengaliName})` : ""}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
+        )}
       </div>
 
       <div className={`grid grid-cols-1 gap-4 ${!isMobile ? "sm:grid-cols-2" : ""}`}>
@@ -680,6 +664,7 @@ function FormContent({
             type="number"
             value={priceForm.price}
             onChange={(e) => setPriceForm({ ...priceForm, price: e.target.value })}
+            className="w-full"
           />
         </div>
         <div className="space-y-2">
@@ -690,6 +675,7 @@ function FormContent({
             type="date"
             value={priceForm.recordedAt}
             onChange={(e) => setPriceForm({ ...priceForm, recordedAt: e.target.value })}
+            className="w-full"
           />
         </div>
       </div>
@@ -710,24 +696,51 @@ function FormContent({
           onPoiIdChange={handlePoiIdChange}
         />
 
-        {/* Name Field */}
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            value={priceForm.location?.name || ""}
-            onChange={(e) =>
-              setPriceForm({
-                ...priceForm,
-                location: {
-                  ...priceForm.location,
-                  name: e.target.value,
-                },
-              })
-            }
-          />
+        <div className="flex flex-row gap-4">
+          {/* Name Field */}
+          <div className="space-y-2 w-full">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              value={priceForm.location?.name || ""}
+              onChange={(e) =>
+                setPriceForm({
+                  ...priceForm,
+                  location: {
+                    ...priceForm.location,
+                    name: e.target.value,
+                  },
+                })
+              }
+              className="w-full"
+            />
+          </div>
+          <div className="space-y-2 min-w-[130px]">
+            <Label htmlFor="region">Region</Label>
+            <Select
+              required
+              value={priceForm.regionId}
+              onValueChange={(value) => setPriceForm({ ...priceForm, regionId: value })}
+            >
+              <SelectTrigger id="region" className="w-full">
+                <SelectValue placeholder="Select region" />
+              </SelectTrigger>
+              <SelectContent
+                position={isMobile ? "popper" : "item-aligned"}
+                className="max-h-[40vh]"
+              >
+                {regions.map((region) => (
+                  <SelectItem
+                    key={typeof region.id === "number" ? region.id : region.id.toString()}
+                    value={typeof region.id === "number" ? region.id.toString() : region.id}
+                  >
+                    {region.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-
         {/* Address Display Section */}
         <div className="space-y-2">
           <Label htmlFor="address">Address</Label>
@@ -831,7 +844,12 @@ function FormContent({
   );
 }
 
-const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSuccess }) => {
+const AddDataModal: React.FC<AddDataModalProps> = ({
+  trigger,
+  commodity,
+  onSuccess,
+  initialLocation,
+}) => {
   // State for price record form
   const [priceForm, setPriceForm] = useState({
     commodityId: commodity?.id ? commodity.id.toString() : "",
@@ -841,14 +859,23 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
     notes: "",
     recordedAt: new Date().toISOString().split("T")[0],
     commodity: commodity,
-    location: {
-      name: "",
-      address: "",
-      latitude: null as number | null,
-      longitude: null as number | null,
-      place_id: "",
-      poi_id: "",
-    },
+    location: initialLocation
+      ? {
+          name: initialLocation.name,
+          address: initialLocation.address,
+          latitude: initialLocation.latitude,
+          longitude: initialLocation.longitude,
+          place_id: initialLocation.place_id || "",
+          poi_id: initialLocation.poi_id || "",
+        }
+      : {
+          name: "",
+          address: "",
+          latitude: null as number | null,
+          longitude: null as number | null,
+          place_id: "",
+          poi_id: "",
+        },
   });
 
   const [open, setOpen] = useState<boolean>(false);
@@ -863,6 +890,61 @@ const AddDataModal: React.FC<AddDataModalProps> = ({ trigger, commodity, onSucce
 
   // Determine if data is still loading
   const isLoading = isLoadingCommodities || isLoadingRegions;
+
+  // Auto-select region when modal opens with initialLocation
+  useEffect(() => {
+    if (
+      open &&
+      !isLoadingRegions &&
+      regions.length > 0 &&
+      initialLocation?.latitude &&
+      initialLocation?.longitude &&
+      !priceForm.regionId
+    ) {
+      // Helper function to find nearest region (using the same algorithm as in InteractiveMap)
+      const findNearestRegion = (latitude: number, longitude: number) => {
+        if (!regions || regions.length === 0) return;
+
+        // Find the closest region based on coordinates
+        let closestRegion = regions[0];
+        let minDistance = Number.MAX_VALUE;
+
+        regions.forEach((region) => {
+          if (region.latitude && region.longitude) {
+            // Calculate distance using Haversine formula
+            const R = 6371; // Earth's radius in km
+            const dLat = ((region.latitude - latitude) * Math.PI) / 180;
+            const dLon = ((region.longitude - longitude) * Math.PI) / 180;
+            const a =
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos((latitude * Math.PI) / 180) *
+                Math.cos((region.latitude * Math.PI) / 180) *
+                Math.sin(dLon / 2) *
+                Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c; // Distance in km
+
+            if (distance < minDistance) {
+              minDistance = distance;
+              closestRegion = region;
+            }
+          }
+        });
+
+        // Update the region if we found a match
+        if (closestRegion && closestRegion.id) {
+          setPriceForm((prevForm) => ({
+            ...prevForm,
+            regionId:
+              typeof closestRegion.id === "number" ? closestRegion.id.toString() : closestRegion.id,
+          }));
+        }
+      };
+
+      // Call findNearestRegion with the initialLocation coordinates
+      findNearestRegion(initialLocation.latitude, initialLocation.longitude);
+    }
+  }, [open, isLoadingRegions, regions, initialLocation, priceForm.regionId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

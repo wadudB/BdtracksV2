@@ -129,6 +129,13 @@ export function MapClickHandler() {
                     Add New Price Data
                   </Button>
                 }
+                initialLocation={{
+                  name: locationName,
+                  address: locationAddress,
+                  latitude: clickedPosition.lat,
+                  longitude: clickedPosition.lng,
+                  // We don't have direct access to place_id here, but the modal will handle it
+                }}
               />
             </div>
           </div>

@@ -263,6 +263,14 @@ export function LocationMarker({
                     Add New Price Data
                   </Button>
                 }
+                initialLocation={{
+                  name: location.name,
+                  address: location.address,
+                  latitude: location.lat,
+                  longitude: location.lng,
+                  // We don't have place_id and poi_id in the LocationWithPrices type,
+                  // but they'll be empty strings by default in the modal
+                }}
               />
             </div>
           </div>
