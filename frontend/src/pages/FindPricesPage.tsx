@@ -1,15 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  APIProvider,
-  Map,
-} from "@vis.gl/react-google-maps";
-import { locationService } from "@/services/api";
+import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { LocationWithPrices } from "@/types";
 import { LocationMarker } from "@/components/maps/LocationMarker";
 import { LocationSidebar } from "@/components/maps/LocationSidebar";
 import { MapClickHandler } from "@/components/maps/MapClickHandler";
-import { useGetCommodityDropdown } from "@/hooks/useQueries";
+import { useGetCommodityDropdown, useGetLocationsWithPrices } from "@/hooks/useQueries";
 
 // Default center coordinates (Dhaka, Bangladesh)
 const DEFAULT_CENTER = { lat: 23.7413, lng: 90.395 };
@@ -61,10 +57,7 @@ export default function FindPricesPage() {
   const [viewMode, setViewMode] = useState<"group" | "individual">("group");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeMarkerId, setActiveMarkerId] = useState<number | null>(null);
-  const [locations, setLocations] = useState<LocationWithPrices[]>([]);
   const [showList, setShowList] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(DEFAULT_CENTER);
@@ -73,6 +66,31 @@ export default function FindPricesPage() {
 
   const { data: commodities = [] } = useGetCommodityDropdown();
 
+  const locationParams = {
+    lat: currentLocation.lat,
+    lng: currentLocation.lng,
+    radius_km: searchRadius,
+    days: 30,
+    ...(selectedCommodityId && selectedCommodityId !== "all"
+      ? { commodity_id: parseInt(selectedCommodityId) }
+      : activeTab !== "all"
+        ? { category: activeTab }
+        : {}),
+  };
+
+  const {
+    data: locationsData,
+    isLoading: loading,
+    error: queryError,
+  } = useGetLocationsWithPrices(locationParams);
+
+  // Extract locations from the response and handle error
+  const locations = useMemo(
+    () => locationsData?.locations || ([] as LocationWithPrices[]),
+    [locationsData]
+  );
+  const error = queryError ? "Failed to load location data. Please try again." : null;
+
   // Filtering
   const filteredLocations = useMemo(() => {
     let filtered = locations;
@@ -80,57 +98,17 @@ export default function FindPricesPage() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (loc) =>
+        (loc: LocationWithPrices) =>
           loc.name.toLowerCase().includes(query) ||
           loc.address.toLowerCase().includes(query) ||
-          loc.commodities.some((commodity) => commodity.name.toLowerCase().includes(query))
+          loc.commodities.some((commodity: { name: string }) =>
+            commodity.name.toLowerCase().includes(query)
+          )
       );
     }
 
     return filtered;
   }, [searchQuery, locations]);
-
-  // Data fetching
-  useEffect(() => {
-    const fetchLocations = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const params: {
-          lat: number;
-          lng: number;
-          radius_km?: number;
-          days?: number;
-          category?: string;
-          commodity_id?: number;
-        } = {
-          lat: currentLocation.lat,
-          lng: currentLocation.lng,
-          radius_km: searchRadius,
-          days: 30,
-        };
-
-        // Add commodity filter if selected
-        if (selectedCommodityId && selectedCommodityId !== "all") {
-          params.commodity_id = parseInt(selectedCommodityId);
-        } else if (activeTab !== "all") {
-          // Only use category filter if no specific commodity is selected
-          params.category = activeTab;
-        }
-
-        const response = await locationService.getWithPrices(params);
-        setLocations(response.locations || []);
-      } catch (err) {
-        console.error("Failed to fetch locations:", err);
-        setError("Failed to load location data. Please try again.");
-        setLocations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLocations();
-  }, [activeTab, currentLocation, selectedCommodityId, searchRadius]);
 
   // Handle location search from the sidebar
   const handleLocationSearch = (location: {
@@ -227,10 +205,7 @@ export default function FindPricesPage() {
                 },
               ]}
             >
-              {/* Add the MapClickHandler to intercept clicks */}
-              <MapClickHandler />
-
-              {filteredLocations.map((location) => (
+              {filteredLocations.map((location: LocationWithPrices) => (
                 <LocationMarker
                   key={location.id}
                   location={location}
@@ -239,6 +214,8 @@ export default function FindPricesPage() {
                   onInfoWindowClose={handleInfoWindowClose}
                 />
               ))}
+
+              <MapClickHandler />
             </Map>
           </APIProvider>
         ) : (
@@ -320,7 +297,7 @@ export default function FindPricesPage() {
         <Button
           variant="secondary"
           size="icon"
-          className="rounded-full h-10 w-10 sm:h-12 sm:w-12 shadow-lg transition-all duration-200 hover:scale-110"
+          className="rounded-full h-12 w-12 sm:h-14 sm:w-14 shadow-lg transition-all duration-200 hover:scale-110"
           title="Refresh locations"
           onClick={() => window.location.reload()}
         >

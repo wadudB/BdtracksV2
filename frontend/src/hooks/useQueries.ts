@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { commodityService, priceService, regionService } from "@/services/api";
+import { commodityService, priceService, regionService, locationService } from "@/services/api";
 import { toast } from "sonner";
 import { PriceRecord } from "@/types";
 
@@ -11,6 +11,7 @@ export const QUERY_KEYS = {
   REGIONS: "regions",
   PRICE_RECORDS: "price-records",
   REGIONAL_PRICES: "regional-prices",
+  LOCATIONS_WITH_PRICES: "locations-with-prices",
 };
 
 // ====== Commodity Queries ======
@@ -69,6 +70,25 @@ export const useGetRegions = () => {
   });
 };
 
+// ====== Location Queries ======
+
+/**
+ * Hook to fetch locations with price data within a geographic range
+ */
+export const useGetLocationsWithPrices = (params: {
+  lat: number;
+  lng: number;
+  radius_km?: number;
+  days?: number;
+  category?: string;
+  commodity_id?: number;
+}) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.LOCATIONS_WITH_PRICES, params],
+    queryFn: () => locationService.getWithPrices(params),
+  });
+};
+
 // ====== Price Mutations ======
 
 /**
@@ -87,6 +107,10 @@ export const useCreatePriceRecord = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.REGIONAL_PRICES, variables.commodity_id.toString()],
+      });
+      // Invalidate locations with prices to update the map
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.LOCATIONS_WITH_PRICES],
       });
 
       // Show success toast

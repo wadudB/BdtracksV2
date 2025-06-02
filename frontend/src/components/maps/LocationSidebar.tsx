@@ -239,7 +239,7 @@ export function LocationSidebar({
             </div>
 
             {/* Listings section */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar">
+            <div className="flex-1 overflow-y-auto custom-scrollbar mb-2">
               {loading ? (
                 <div className="p-3 space-y-2.5">
                   {[...Array(5)].map((_, i) => (
