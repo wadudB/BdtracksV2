@@ -6,6 +6,7 @@ import { LocationMarker } from "@/components/maps/LocationMarker";
 import { LocationSidebar } from "@/components/maps/LocationSidebar";
 import { MapClickHandler } from "@/components/maps/MapClickHandler";
 import { useGetCommodityDropdown, useGetLocationsWithPrices } from "@/hooks/useQueries";
+import { toast } from "sonner";
 
 // Default center coordinates (Dhaka, Bangladesh)
 const DEFAULT_CENTER = { lat: 23.7413, lng: 90.395 };
@@ -63,6 +64,7 @@ export default function FindPricesPage() {
   const [currentLocation, setCurrentLocation] = useState(DEFAULT_CENTER);
   const [selectedCommodityId, setSelectedCommodityId] = useState("all");
   const [searchRadius, _setSearchRadius] = useState(50); // km
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
 
   const { data: commodities = [] } = useGetCommodityDropdown();
 
@@ -176,9 +178,83 @@ export default function FindPricesPage() {
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
+  // Enhanced location handling with proper error feedback
+  const getCurrentLocation = () => {
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by this browser. Using default location.");
+      setCurrentLocation(DEFAULT_CENTER);
+      return;
+    }
+
+    setIsGettingLocation(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setCurrentLocation({ lat: latitude, lng: longitude });
+        toast.success("Location found successfully!");
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        setIsGettingLocation(false);
+
+        let errorMessage = "Unable to get your location. Using default location.";
+        let toastType: "error" | "warning" = "error";
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage =
+              "Location access denied. Please allow location access in your browser settings and try again.";
+            toastType = "error";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage =
+              "Location information is unavailable. Please check your internet connection.";
+            toastType = "warning";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out. Please try again.";
+            toastType = "warning";
+            break;
+          default:
+            errorMessage = "An unknown error occurred while getting your location.";
+            break;
+        }
+
+        // Show different toast based on error severity
+        if (toastType === "error") {
+          toast.error(errorMessage, {
+            duration: 5000,
+            position: "top-center",
+            action: {
+              label: "How to enable?",
+              onClick: () => {
+                toast.info(
+                  "To enable location: Click the location icon in your browser's address bar, or go to Settings > Privacy > Location Services.",
+                  { duration: 8000, position: "top-center" }
+                );
+              },
+            },
+          });
+        } else {
+          toast.warning(errorMessage, { duration: 4000, position: "top-center" });
+        }
+
+        console.error("Geolocation error:", error);
+        setCurrentLocation(DEFAULT_CENTER);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000, // 10 seconds timeout
+        maximumAge: 300000, // 5 minutes cache
+      }
+    );
+  };
+
   return (
     <div
-      className="relative w-full bg-gray-50"
+      className="relative w-full bg-background"
       style={{ height: "calc(100vh - var(--header-height) - var(--submenu-height))" }}
     >
       {/* Enhanced map container */}
@@ -219,10 +295,14 @@ export default function FindPricesPage() {
             </Map>
           </APIProvider>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600">
-            <span className="material-icons text-4xl sm:text-6xl mb-4 text-gray-400">map</span>
-            <h3 className="text-base sm:text-lg font-semibold mb-2">Map Unavailable</h3>
-            <p className="text-sm">Google Maps API key is missing</p>
+          <div className="w-full h-full flex flex-col items-center justify-center bg-muted/50 text-muted-foreground">
+            <span className="material-icons text-4xl sm:text-6xl mb-4 text-muted-foreground">
+              map
+            </span>
+            <h3 className="text-base sm:text-lg font-semibold mb-2 text-foreground">
+              Map Unavailable
+            </h3>
+            <p className="text-sm text-muted-foreground">Google Maps API key is missing</p>
           </div>
         )}
       </div>
@@ -231,7 +311,7 @@ export default function FindPricesPage() {
       <Button
         variant="default"
         size="icon"
-        className="fixed top-[calc(var(--header-height)+var(--submenu-height)+2rem)] left-4 z-30 rounded-full h-12 w-12 shadow-xl bg-white hover:bg-gray-50 text-gray-900 border-2 border-gray-900 lg:hidden"
+        className="fixed top-[calc(var(--header-height)+var(--submenu-height)+2rem)] right-2 z-30 rounded-full h-12 w-12 shadow-xl bg-card hover:bg-muted text-foreground border-2 border-border lg:hidden"
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
       >
         <span className="material-icons text-xl">{isMobileMenuOpen ? "close" : "menu"}</span>
@@ -269,28 +349,16 @@ export default function FindPricesPage() {
         <Button
           variant="default"
           size="icon"
-          className="rounded-full h-12 w-12 sm:h-14 sm:w-14 shadow-xl bg-blue-600 hover:bg-blue-700 transition-all duration-200 hover:scale-110"
+          className="rounded-full h-12 w-12 sm:h-14 sm:w-14 shadow-xl bg-primary hover:bg-primary/90 transition-all duration-200 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Find my location"
-          onClick={() => {
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (position) => {
-                  const { latitude, longitude } = position.coords;
-                  setCurrentLocation({ lat: latitude, lng: longitude });
-                },
-                (error) => {
-                  console.error("Error getting location:", error);
-                  // Fallback to default location
-                  setCurrentLocation(DEFAULT_CENTER);
-                }
-              );
-            } else {
-              console.error("Geolocation is not supported by this browser.");
-              setCurrentLocation(DEFAULT_CENTER);
-            }
-          }}
+          disabled={isGettingLocation}
+          onClick={getCurrentLocation}
         >
-          <span className="material-icons text-lg sm:text-xl">my_location</span>
+          <span
+            className={`material-icons text-lg sm:text-xl text-primary-foreground ${isGettingLocation ? "animate-pulse" : ""}`}
+          >
+            {isGettingLocation ? "location_searching" : "my_location"}
+          </span>
         </Button>
 
         {/* Refresh button */}

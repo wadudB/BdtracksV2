@@ -15,28 +15,29 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
     <Card
       className={`overflow-hidden transition-all duration-200 hover:shadow-lg border cursor-pointer group rounded-lg p-0 ${
         isActive
-          ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200 shadow-md"
-          : "hover:bg-gray-50 border-gray-200 hover:border-gray-300"
+          ? "ring-2 ring-primary bg-primary/5 border-primary shadow-md"
+          : "hover:bg-muted/50 border-border hover:border-muted-foreground/20 bg-card"
       }`}
       onClick={onClick}
     >
-      <CardContent className="p-3">
-        <div className="flex items-start gap-3">
-          {/* Icon */}
+      <CardContent className="p-2.5 lg:p-3">
+        <div className="flex items-start gap-2.5 lg:gap-3">
+          {/* Icon - slightly smaller on mobile */}
           <div
-            className={`flex-shrink-0 rounded-lg w-12 h-12 flex items-center justify-center transition-all duration-200 ${config.lightColor} ${config.textColor} group-hover:scale-105`}
+            className={`flex-shrink-0 rounded-lg w-10 h-10 lg:w-12 lg:h-12 flex items-center justify-center transition-all duration-200 ${config.lightColor} ${config.textColor} group-hover:scale-105`}
           >
-            <span className="material-icons text-lg">{config.icon}</span>
+            <span className="material-icons text-base lg:text-lg">{config.icon}</span>
           </div>
 
           {/* Content */}
           <div className="flex-grow min-w-0">
             <div className="flex items-start justify-between">
               <div className="flex-grow min-w-0">
-                <h3 className="font-bold text-gray-900 text-sm leading-tight truncate">
+                <h3 className="font-bold text-foreground text-sm lg:text-sm leading-tight truncate">
                   {location.name}
                 </h3>
-                <p className="text-xs text-gray-500 truncate flex items-center gap-1">
+                <p className="text-xs text-muted-foreground truncate flex items-center gap-1 mt-0.5">
+                  <span className="material-icons text-xs">place</span>
                   {location.address}
                 </p>
               </div>
@@ -56,15 +57,17 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
               )} */}
             </div>
 
-            {/* Commodities preview */}
-            <div className="space-y-1.5 mt-2">
+            {/* Commodities preview - more compact on mobile */}
+            <div className="space-y-1 lg:space-y-1.5 mt-1.5 lg:mt-2">
               {location.commodities.slice(0, 2).map((commodity, index) => (
                 <div
                   key={index}
-                  className="flex justify-between items-center text-xs bg-gray-50 px-2.5 py-1.5 rounded"
+                  className="flex justify-between items-center text-xs bg-muted/50 px-2 lg:px-2.5 py-1 lg:py-1.5 rounded"
                 >
-                  <span className="text-gray-700 truncate mr-2 font-medium">{commodity.name}</span>
-                  <span className="text-gray-900 font-bold whitespace-nowrap">
+                  <span className="text-foreground truncate mr-2 font-medium">
+                    {commodity.name}
+                  </span>
+                  <span className="text-foreground font-bold whitespace-nowrap text-xs lg:text-sm">
                     ৳{commodity.price}/{commodity.unit}
                   </span>
                 </div>
@@ -72,14 +75,14 @@ export function LocationCard({ location, isActive, onClick }: LocationCardProps)
 
               {location.commodities.length > 2 && (
                 <div
-                  className={`text-xs font-medium ${config.accentColor} bg-gray-50 px-2.5 py-1.5 rounded text-center hover:bg-gray-100 transition-colors`}
+                  className={`text-xs font-medium ${config.accentColor} bg-muted/50 px-2 lg:px-2.5 py-1 lg:py-1.5 rounded text-center hover:bg-muted transition-colors`}
                 >
                   +{location.commodities.length - 2} more items
                 </div>
               )}
 
               {location.commodities.length === 0 && (
-                <div className="text-xs text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded text-center">
+                <div className="text-xs text-muted-foreground bg-muted/50 px-2 lg:px-2.5 py-1 lg:py-1.5 rounded text-center">
                   No price data available
                 </div>
               )}
