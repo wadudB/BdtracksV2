@@ -127,7 +127,11 @@ export function LocationMarker({
 
       {isActive && (
         <InfoWindow anchor={marker} onClose={onInfoWindowClose}>
-          <div className="p-1 max-w-[280px] sm:max-w-[340px]">
+          <div
+            className="p-1 max-w-[280px] sm:max-w-[340px]"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+          >
             {/* More compact header */}
             <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
               <div
@@ -156,11 +160,14 @@ export function LocationMarker({
 
               {/* Compact search input */}
               {location.commodities.length > 5 && (
-                <div className="relative mb-1">
+                <div className="relative mb-1" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onFocus={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                     placeholder="Search items..."
                     className="w-full text-xs px-2 py-1.5 pl-7 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent"
                   />
@@ -169,7 +176,11 @@ export function LocationMarker({
                   </span>
                   {searchTerm && (
                     <button
-                      onClick={() => setSearchTerm("")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSearchTerm("");
+                      }}
+                      onTouchStart={(e) => e.stopPropagation()}
                       className="absolute right-1.5 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     >
                       <span className="material-icons text-xs">close</span>
@@ -186,7 +197,10 @@ export function LocationMarker({
               )}
 
               {/* Compact commodities list */}
-              <div className="max-h-40 sm:max-h-48 overflow-y-auto space-y-1 pr-1">
+              <div
+                className="max-h-40 sm:max-h-48 overflow-y-auto space-y-1 pr-1"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {filteredCommodities.length > 0 ? (
                   filteredCommodities
                     .slice(0, showAllItems ? filteredCommodities.length : 8)
@@ -194,6 +208,7 @@ export function LocationMarker({
                       <div
                         key={index}
                         className="flex justify-between items-center py-1 sm:py-1.5 px-2 sm:px-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-all"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <span className="text-[10px] sm:text-xs font-medium text-gray-700 truncate mr-1 sm:mr-2 flex-grow">
                           {commodity.name}
@@ -215,7 +230,11 @@ export function LocationMarker({
                     <span className="material-icons text-gray-400 mb-1 text-sm">search_off</span>
                     <div>No items match your search</div>
                     <button
-                      onClick={() => setSearchTerm("")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSearchTerm("");
+                      }}
+                      onTouchStart={(e) => e.stopPropagation()}
                       className="mt-1 text-blue-500 underline text-[9px] sm:text-[10px]"
                     >
                       Clear search
@@ -225,7 +244,11 @@ export function LocationMarker({
 
                 {!showAllItems && filteredCommodities.length > 8 && (
                   <div
-                    onClick={() => setShowAllItems(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAllItems(true);
+                    }}
+                    onTouchStart={(e) => e.stopPropagation()}
                     className={`text-sm sm:text-sm font-medium text-center py-1 border-t ${config.accentColor} cursor-pointer flex items-center justify-center gap-1.5`}
                   >
                     <span className="material-icons">expand_more</span>
@@ -237,7 +260,11 @@ export function LocationMarker({
 
                 {showAllItems && filteredCommodities.length > 8 && (
                   <div
-                    onClick={() => setShowAllItems(false)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAllItems(false);
+                    }}
+                    onTouchStart={(e) => e.stopPropagation()}
                     className={`text-sm sm:text-sm font-medium text-center py-1 border-t text-gray-500 cursor-pointer flex items-center justify-center gap-1.5`}
                   >
                     <span className="material-icons">expand_less</span>
@@ -255,7 +282,11 @@ export function LocationMarker({
             </div>
 
             {/* Add Price Data Button - Always show regardless of whether there's commodity data */}
-            <div className="mt-3 pt-2 border-t border-gray-200">
+            <div
+              className="mt-3 pt-2 border-t border-gray-200"
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               <AddDataModal
                 trigger={
                   <Button size="sm" className="w-full text-xs py-2 h-8">
