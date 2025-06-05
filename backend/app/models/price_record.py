@@ -23,6 +23,7 @@ class PriceRecord(Base):
     price: Mapped[int] = mapped_column(Integer, nullable=False)
     recorded_by: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("user.id"), nullable=True)
     source: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    source_url: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     location_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("location.id"), nullable=True)
     recorded_at: Mapped[date] = mapped_column(Date, nullable=False, index=True)

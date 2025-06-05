@@ -11,6 +11,7 @@ class PriceRecordBase(BaseModel):
     price: int
     recorded_by: Optional[int] = None
     source: Optional[str] = None
+    source_url: Optional[str] = None
     notes: Optional[str] = None
     location_id: Optional[int] = Field(None, description="ID of the associated location")
     recorded_at: date
