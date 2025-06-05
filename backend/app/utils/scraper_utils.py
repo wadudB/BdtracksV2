@@ -4,21 +4,23 @@ Utility functions for TCB commodity price scraping
 import pandas as pd
 from io import BytesIO
 import requests
-from bs4 import BeautifulSoup
 import re
 from datetime import datetime, date
 import time
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
 from urllib.parse import urljoin
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
+import html
+import json
 
 # Configuration
 BASE_URL = "https://tcb.gov.bd/site/view/daily_rmp/%E0%A6%A2%E0%A6%BE%E0%A6%95%E0%A6%BE-%E0%A6%AE%E0%A6%B9%E0%A6%BE%E0%A6%A8%E0%A6%97%E0%A6%B0%E0%A7%80%E0%A6%B0-%E0%A6%AC%E0%A6%BF%E0%A6%AD%E0%A6%BF%E0%A6%A8%E0%A7%8D%E0%A6%A8-%E0%A6%AC%E0%A6%BE%E0%A6%9C%E0%A6%BE%E0%A6%B0%E0%A7%87%E0%A6%B0-%E0%A6%AE%E0%A7%82%E0%A6%B2%E0%A7%8D%E0%A6%AF"
+API_URL = "https://tcb.gov.bd/api/datatable/daily_rmp_view.php?domain_id=6383&lang=bn&subdomain=tcb.portal.gov.bd&content_type=daily_rmp"
+
+# Bengali to English digit mapping
+BENGALI_TO_ENGLISH_DIGITS = {
+    '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4',
+    '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
+}
 
 # Commodity name mapping (Bengali to English, with variations)
 COMMODITY_MAPPING = {
@@ -123,6 +125,10 @@ MARKETS_LIST = ", ".join(MARKET_MAPPING.values())
 
 # Market names
 MARKETS_LIST = "Karwan Bazar, Mohammadpur Town Hall Bazar, Kochukhet Bazar, New Market, Malibag, Hatirpool, Rampura Bazar, Katasur Raw Bazar"
+
+def bengali_to_english_digits(bengali_str):
+    """Convert Bengali digits to English digits"""
+    return ''.join(BENGALI_TO_ENGLISH_DIGITS.get(c, c) for c in bengali_str)
 
 def download_excel_in_memory(url):
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -263,114 +269,130 @@ def parse_excel(excel_data, date, source_url):
         print(f"Error parsing Excel: {e}")
         return pd.DataFrame()
 
+def convert_bengali_date_to_standard(bengali_date_str):
+    """Convert Bengali date string to standard date format"""
+    # Convert Bengali digits to English digits
+    english_date_str = bengali_to_english_digits(bengali_date_str)
+    
+    # Return the date string (already in YYYY-MM-DD format)
+    return english_date_str
+
 def scrape_excel_links() -> List[Dict[str, str]]:
-    """Scrape Excel download links and dates using Selenium"""
+    """Scrape Excel download links and dates using direct API calls instead of Selenium"""
     links = []
     seen_urls = set()
-
-    options = Options()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("window-size=1920,1080")
-    options.add_argument("--disable-gpu")
-    driver = None
-
+    
+    # Parameters for pagination
+    display_start = 0
+    display_length = 100
+    total_entries = None
+    page = 1
+    
     try:
-        driver = webdriver.Chrome(options=options)
-        print(f"Navigating to {BASE_URL}")
-        driver.get(BASE_URL)
-
-        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
-
-        try:
-            length_dropdown = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.NAME, "example1_length"))
-            )
-            select = Select(length_dropdown)
-            select.select_by_value("100")
-            print("Set page length to 100 entries per page")
-            time.sleep(3)
-        except Exception as e:
-            print(f"Error setting page length to 100: {e}")
-            return links
-
-        total_entries = 0
-        try:
-            info_text = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "dataTables_info"))
-            ).text
-            match = re.search(r"of (\d+) entries", info_text)
-            total_entries = int(match.group(1))
-            # total_entries = 1
-            print(f"Total entries found: {total_entries}")
-        except Exception as e:
-            print(f"Error determining total entries: {e}. Defaulting to 934.")
-            total_entries = 934
-
-        entries_per_page = 100
-        total_pages = (total_entries + entries_per_page - 1) // entries_per_page
-        print(f"Calculated total pages: {total_pages}")
-
-        current_page = 1
-        while current_page <= total_pages:
-            print(f"Processing page {current_page}/{total_pages}...")
-            WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
-
-            soup = BeautifulSoup(driver.page_source, "html.parser")
-            table = soup.find("table", id="example1") or soup.find("table")
-            if not table:
-                print("No table found on page")
-                break
-
-            rows = table.find_all("tr")[1:]
-            for row in rows:
-                cols = row.find_all("td")
-                if len(cols) < 5:
-                    continue
-                download_tag = cols[4].find("a")
-                if download_tag and "href" in download_tag.attrs:
-                    link = urljoin(BASE_URL, download_tag["href"])
-                    if link in seen_urls:
-                        continue
-                    seen_urls.add(link)
-                    match = re.search(r"(\d{4}-\d{2}-\d{2})", link)
-                    if match and re.match(r"\d{4}-\d{2}-\d{2}", match.group(1)):
-                        date = f"{match.group(1)} 12:30:00"
-                        links.append({"date": date, "url": link})
-                        print(f"Found link: {link} for date: {date}")
-
-            if current_page >= total_pages:
-                break
-
+        print(f"Making API requests to {API_URL}")
+        
+        while True:
+            # Prepare form data for POST request
+            form_data = {
+                "sEcho": str(page),
+                "iColumns": "5",
+                "sColumns": ",,,,",
+                "iDisplayStart": str(display_start),
+                "iDisplayLength": str(display_length),
+                "mDataProp_0": "0",
+                "sSearch_0": "",
+                "bRegex_0": "false",
+                "bSearchable_0": "true",
+                "mDataProp_1": "1",
+                "sSearch_1": "",
+                "bRegex_1": "false",
+                "bSearchable_1": "true",
+                "mDataProp_2": "2",
+                "sSearch_2": "",
+                "bRegex_2": "false",
+                "bSearchable_2": "true",
+                "mDataProp_3": "3",
+                "sSearch_3": "",
+                "bRegex_3": "false",
+                "bSearchable_3": "true",
+                "mDataProp_4": "4",
+                "sSearch_4": "",
+                "bRegex_4": "false",
+                "bSearchable_4": "true",
+                "sSearch": "",
+                "bRegex": "false"
+            }
+            
+            # Make API request
+            headers = {
+                "User-Agent": "Mozilla/5.0",
+                "Accept": "application/json",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+            
             for attempt in range(3):
                 try:
-                    next_button = WebDriverWait(driver, 15).until(
-                        EC.element_to_be_clickable((By.ID, "example1_next"))
-                    )
-                    if "disabled" in next_button.get_attribute("class"):
-                        print("No more pages to scrape")
-                        return links
-                    driver.execute_script("arguments[0].click();", next_button)
-                    WebDriverWait(driver, 60).until(
-                        lambda d: f"Showing {(current_page * entries_per_page) + 1} to" in d.find_element(By.CLASS_NAME, "dataTables_info").text
-                    )
-                    time.sleep(3)
-                    current_page += 1
+                    response = requests.post(API_URL, headers=headers, data=form_data, timeout=15)
+                    response.raise_for_status()
+                    data = response.json()
                     break
-                except Exception as e:
-                    print(f"Error navigating to page {current_page + 1} (attempt {attempt + 1}/3): {e}")
+                except (requests.RequestException, json.JSONDecodeError) as e:
+                    print(f"Error fetching API data (attempt {attempt + 1}/3): {e}")
                     if attempt == 2:
                         return links
-                    time.sleep(3)
-
+                    time.sleep(2)
+            
+            # Get total entries on first request
+            if total_entries is None:
+                total_entries = data.get("iTotalRecords", 0)
+                print(f"Total entries found: {total_entries}")
+            
+            # Process the data rows
+            for row in data.get("data", []):
+                if len(row) >= 5:
+                    bengali_date_str = row[3]  # Date is in the 4th column (index 3)
+                    bengali_time_str = row[2]  # Time is in the 3rd column (index 2)
+                    download_html = row[4]  # Download column is the 5th column (index 4)
+                    
+                    # Convert Bengali date to standard format
+                    standard_date = convert_bengali_date_to_standard(bengali_date_str)
+                    standard_time = bengali_to_english_digits(bengali_time_str)
+                    
+                    # Extract href from the HTML snippet
+                    href_match = re.search(r'href="([^"]+)"', html.unescape(download_html))
+                    if href_match:
+                        # Convert relative URL to absolute URL
+                        relative_url = href_match.group(1)
+                        if relative_url.startswith("//"):
+                            link = "https:" + relative_url
+                        else:
+                            link = urljoin(BASE_URL, relative_url)
+                        
+                        if link in seen_urls:
+                            continue
+                        
+                        seen_urls.add(link)
+                        
+                        # Format date and time (convert to standard format)
+                        formatted_date = f"{standard_date} {standard_time}:00"
+                        
+                        links.append({"date": formatted_date, "url": link})
+                        print(f"Found link: {link} for date: {formatted_date}")
+            
+            # Check if we need to fetch more pages
+            if display_start + display_length >= total_entries:
+                print(f"Completed scraping {len(links)} links from {page} pages")
+                break
+            
+            # Increment for next page
+            display_start += display_length
+            page += 1
+            print(f"Fetching page {page}...")
+            time.sleep(1)  # Be respectful to the server
+        
     except Exception as e:
-        print(f"Error during scraping: {e}")
-        return links
-    finally:
-        if driver:
-            driver.quit()
-
+        print(f"Error during API scraping: {e}")
+    
     return links
 
 def filter_links_by_date(links: List[Dict[str, str]], latest_date: Optional[date]) -> List[Dict[str, str]]:

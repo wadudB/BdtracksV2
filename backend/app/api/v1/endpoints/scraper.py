@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from typing import Any, Dict, List
 from datetime import datetime, date
-import pandas as pd
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
-from app import schemas, crud
+from app import crud
 from app.db.session import get_db
 from app.schemas.price_record import PriceRecordCreate
 from app.utils.scraper_utils import (
@@ -140,6 +141,10 @@ class ScrapingStatus:
 # Global status instance
 scraping_status = ScrapingStatus()
 
+# Create a thread pool executor for background tasks with a lock for thread safety
+executor = ThreadPoolExecutor(max_workers=1)
+status_lock = threading.RLock()
+
 def get_latest_tcb_date(db: Session) -> date:
     """Get the latest TCB record date from database"""
     from sqlalchemy import text
@@ -253,7 +258,7 @@ def convert_scraped_data_to_records(scraped_data: List[Dict], db: Session) -> Li
     return records
 
 @router.get("/status")
-def get_scraping_status() -> Dict[str, Any]:
+async def get_scraping_status() -> Dict[str, Any]:
     """Get current scraping status"""
     return {
         "is_running": scraping_status.is_running,
@@ -268,126 +273,162 @@ def get_scraping_status() -> Dict[str, Any]:
     }
 
 @router.post("/start")
-def start_tcb_scraping(
+async def start_tcb_scraping(
     background_tasks: BackgroundTasks,
     force_full_scrape: bool = False,
     db: Session = Depends(get_db)
 ) -> Dict[str, str]:
     """Start TCB commodity price scraping process"""
     
-    if scraping_status.is_running:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Scraping is already in progress"
-        )
+    with status_lock:
+        if scraping_status.is_running:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Scraping is already in progress"
+            )
+        
+        # Reset status
+        scraping_status.is_running = True
+        scraping_status.progress = 0
+        scraping_status.current_step = "Starting..."
+        scraping_status.errors = []
+        scraping_status.start_time = datetime.now()
+        scraping_status.records_created = 0
+        scraping_status.total_files = 0
+        scraping_status.processed_files = 0
     
-    # Reset status
-    scraping_status.is_running = True
-    scraping_status.progress = 0
-    scraping_status.current_step = "Starting..."
-    scraping_status.errors = []
-    scraping_status.start_time = datetime.now()
-    scraping_status.records_created = 0
+    # Start true background thread using ThreadPoolExecutor
+    future = executor.submit(run_scraping_process_thread, force_full_scrape)
     
-    # Start background task
-    background_tasks.add_task(
-        run_scraping_process, 
-        force_full_scrape=force_full_scrape
-    )
+    # Add error callback
+    def handle_completion(future):
+        try:
+            future.result()  # This will raise any exception that occurred in the thread
+        except Exception as e:
+            with status_lock:
+                scraping_status.errors.append(f"Unexpected thread error: {str(e)}")
+                scraping_status.current_step = f"Failed with unexpected error: {str(e)}"
+                scraping_status.is_running = False
     
-    return {"message": "TCB scraping started successfully"}
+    future.add_done_callback(handle_completion)
+    
+    return {"message": "TCB scraping started successfully in background thread"}
 
-async def run_scraping_process(force_full_scrape: bool = False):
-    """Run the complete scraping and database insertion process"""
+def run_scraping_process_thread(force_full_scrape: bool = False):
+    """Run the scraping process in a separate thread"""
     try:
         from app.db.session import SessionLocal
         
+        # Create a new db session for this thread
         db = SessionLocal()
         try:
+            # Run the actual scraping process
+            _run_scraping_process(db, force_full_scrape)
+        finally:
+            db.close()
+    except Exception as e:
+        with status_lock:
+            scraping_status.errors.append(f"Thread error: {str(e)}")
+            scraping_status.current_step = f"Failed in thread: {str(e)}"
+    finally:
+        with status_lock:
+            scraping_status.is_running = False
+
+def _run_scraping_process(db: Session, force_full_scrape: bool = False):
+    """Run the complete scraping and database insertion process"""
+    try:
+        with status_lock:
             scraping_status.current_step = "Checking database for latest records..."
-            
-            # Get latest date if not forcing full scrape
-            latest_date = None if force_full_scrape else get_latest_tcb_date(db)
-            
-            scraping_status.current_step = "Scraping Excel links from TCB website..."
-            links = scrape_excel_links()
-            
+        
+        # Get latest date if not forcing full scrape
+        latest_date = None if force_full_scrape else get_latest_tcb_date(db)
+        
+        with status_lock:
+            scraping_status.current_step = "Scraping Excel links using API calls..."
+        
+        links = scrape_excel_links()
+        
+        with status_lock:
             if not links:
                 scraping_status.errors.append("No Excel links found")
+                scraping_status.current_step = "Failed - No Excel links found"
                 return
             
             # Filter links based on latest date
             if force_full_scrape:
                 filtered_links = links
+                scraping_status.current_step = f"Processing all {len(links)} Excel files..."
             else:
                 filtered_links = filter_links_by_date(links, latest_date)
-                
-            if not filtered_links:
-                scraping_status.current_step = "Complete - No new data found"
-                return
+                if not filtered_links:
+                    scraping_status.current_step = "Complete - No new data found"
+                    return
+                scraping_status.current_step = f"Processing {len(filtered_links)} new Excel files..."
                 
             scraping_status.total_files = len(filtered_links)
-            scraping_status.current_step = f"Processing {len(filtered_links)} Excel files..."
-            
-            # Process each Excel file
-            for i, link in enumerate(filtered_links):
-                try:
-                    scraping_status.processed_files = i
-                    scraping_status.progress = int((i / len(filtered_links)) * 100)
-                    scraping_status.current_step = f"Processing file {i+1}/{len(filtered_links)}: {link['date']}"
-                    
-                    # Download and parse Excel
-                    excel_data = download_excel_in_memory(link['url'])
-                    if excel_data:
-                        # Parse Excel to get scraped data
-                        df = parse_excel(excel_data, link['date'], link['url'])
-                        
-                        if not df.empty:
-                            # Convert DataFrame to list of dicts
-                            scraped_data = df.to_dict('records')
-                            
-                            # Convert to database records
-                            records = convert_scraped_data_to_records(scraped_data, db)
-                            
-                            # Insert records into database
-                            for record in records:
-                                try:
-                                    crud.price_record.create_with_location(db=db, obj_in=record)
-                                    scraping_status.records_created += 1
-                                    db.commit()
-                                except Exception as e:
-                                    db.rollback()
-                                    scraping_status.errors.append(f"Error inserting record: {str(e)}")
-                    
-                    time.sleep(1)  # Be respectful to the server
-                    
-                except Exception as e:
-                    scraping_status.errors.append(f"Error processing {link['url']}: {str(e)}")
-                    continue
-            
-            scraping_status.current_step = f"Complete - Processed {scraping_status.records_created} records"
-            scraping_status.progress = 100
-            
-        finally:
-            db.close()
-            
-    except Exception as e:
-        scraping_status.errors.append(f"Critical error: {str(e)}")
-        scraping_status.current_step = f"Failed: {str(e)}"
         
-    finally:
-        scraping_status.is_running = False
+        # Process each Excel file
+        for i, link in enumerate(filtered_links):
+            try:
+                with status_lock:
+                    scraping_status.processed_files = i + 1
+                    scraping_status.progress = int(((i + 1) / len(filtered_links)) * 100)
+                    scraping_status.current_step = f"Processing file {i+1}/{len(filtered_links)}: {link['date']}"
+                
+                # Download and parse Excel
+                excel_data = download_excel_in_memory(link['url'])
+                if excel_data:
+                    # Parse Excel to get scraped data
+                    df = parse_excel(excel_data, link['date'], link['url'])
+                    
+                    if not df.empty:
+                        # Convert DataFrame to list of dicts
+                        scraped_data = df.to_dict('records')
+                        
+                        # Convert to database records
+                        records = convert_scraped_data_to_records(scraped_data, db)
+                        
+                        # Insert records into database
+                        for record in records:
+                            try:
+                                crud.price_record.create_with_location(db=db, obj_in=record)
+                                with status_lock:
+                                    scraping_status.records_created += 1
+                            except Exception as e:
+                                db.rollback()
+                                with status_lock:
+                                    scraping_status.errors.append(f"Error inserting record: {str(e)}")
+                                continue
+                            db.commit()
+                
+                time.sleep(1)  # Be respectful to the server
+                
+            except Exception as e:
+                with status_lock:
+                    scraping_status.errors.append(f"Error processing {link['url']}: {str(e)}")
+                continue
+        
+        with status_lock:
+            scraping_status.current_step = f"Complete - Processed {scraping_status.processed_files} files, created {scraping_status.records_created} records"
+            print(f"Complete - Processed {scraping_status.processed_files} files, created {scraping_status.records_created} records")
+            scraping_status.progress = 100
+        
+    except Exception as e:
+        with status_lock:
+            scraping_status.errors.append(f"Critical error: {str(e)}")
+            scraping_status.current_step = f"Failed: {str(e)}"
 
 @router.post("/stop")
-def stop_scraping() -> Dict[str, str]:
+async def stop_scraping() -> Dict[str, str]:
     """Stop the current scraping process"""
-    if not scraping_status.is_running:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No scraping process is currently running"
-        )
+    with status_lock:
+        if not scraping_status.is_running:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No scraping process is currently running"
+            )
+        
+        scraping_status.is_running = False
+        scraping_status.current_step = "Stopped by user"
     
-    scraping_status.is_running = False
-    scraping_status.current_step = "Stopped by user"
-    
-    return {"message": "Scraping process stopped"} 
+    return {"message": "Scraping process stopped"}
