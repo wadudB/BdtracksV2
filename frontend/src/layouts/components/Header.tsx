@@ -62,6 +62,16 @@ export default function Header() {
                   </NavigationMenuItem>
                   <NavigationMenuItem>
                     <Link
+                      to="/accidents"
+                      className={`${navigationMenuTriggerStyle()} ${
+                        isActive("/accidents") ? "bg-muted text-primary" : ""
+                      }`}
+                    >
+                      Road Accidents
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link
                       to="https://bdmovements.bdtracks.com/"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -125,6 +135,9 @@ export default function Header() {
             </Link>
             <Link to="/commodities" className="px-2 py-1 hover:bg-muted rounded">
               Commodities
+            </Link>
+            <Link to="/accidents" className="px-2 py-1 hover:bg-muted rounded">
+              Road Accidents
             </Link>
             <Link to="/about" className="px-2 py-1 hover:bg-muted rounded">
               About

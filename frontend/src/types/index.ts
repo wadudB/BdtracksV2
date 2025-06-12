@@ -90,3 +90,43 @@ export type RegionListResponse = {
   regions: Region[];
   total: number;
 };
+
+// Accident Data Types
+export interface AccidentData {
+  id: number;
+  year: number;
+  total_accidents: number;
+  total_killed: number;
+  total_injured: number;
+  accident_hotspot: string;
+  daily_deaths: string;
+  daily_injured: string;
+  monthly_deaths: string;
+  monthly_injured: string;
+  vehicles_involved: string;
+  accidents_by_district: string;
+  date: string | null;
+  created_at: string;
+  last_updated: string | null;
+}
+
+export interface LatestAccidentData {
+  accident_datetime_from_url: string;
+  accident_type: string;
+  district_of_accident: string;
+  exact_location_of_accident: string;
+  headline: string;
+  summary: string;
+  total_number_of_people_injured: string;
+  total_number_of_people_killed: string;
+}
+
+export interface District {
+  id: string;
+  division_id: string;
+  name: string;
+  bn_name: string;
+  lat: string;
+  lon: string;
+  url: string;
+}

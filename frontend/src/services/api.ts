@@ -1,4 +1,11 @@
-import { Commodity, PriceRecord, Region, Location } from "../types";
+import {
+  Commodity,
+  PriceRecord,
+  Region,
+  Location,
+  AccidentData,
+  LatestAccidentData,
+} from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -238,5 +245,32 @@ export const analyticsService = {
     const endpoint = `/analytics/price-analysis/${commodityId}/?${queryParams.toString()}`;
 
     return await apiClient(endpoint);
+  },
+};
+
+/**
+ * Accident Data API services
+ */
+export const accidentService = {
+  // Get all accident data (migrated from legacy /data endpoint)
+  getAll: async (params?: { skip?: number; limit?: number }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.skip) queryParams.append("skip", params.skip.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+
+    const queryString = queryParams.toString();
+    const endpoint = `/accident-data/${queryString ? `?${queryString}` : ""}`;
+
+    return (await apiClient(endpoint)) as AccidentData[];
+  },
+
+  // Get accident data by year
+  getByYear: async (year: number) => {
+    return (await apiClient(`/accident-data/${year}`)) as AccidentData;
+  },
+
+  // Get latest accident reports
+  getLatestReports: async () => {
+    return (await apiClient("/get_accident_reports")) as LatestAccidentData[];
   },
 };

@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { commodityService, priceService, regionService, locationService } from "@/services/api";
+import {
+  commodityService,
+  priceService,
+  regionService,
+  locationService,
+  accidentService,
+} from "@/services/api";
 import { toast } from "sonner";
 import { PriceRecord } from "@/types";
 
@@ -12,6 +18,9 @@ export const QUERY_KEYS = {
   PRICE_RECORDS: "price-records",
   REGIONAL_PRICES: "regional-prices",
   LOCATIONS_WITH_PRICES: "locations-with-prices",
+  ACCIDENT_DATA: "accident-data",
+  ACCIDENT_DATA_BY_YEAR: "accident-data-by-year",
+  LATEST_ACCIDENT_REPORTS: "latest-accident-reports",
 };
 
 // ====== Commodity Queries ======
@@ -120,5 +129,40 @@ export const useCreatePriceRecord = () => {
       console.error("Error creating price record:", error);
       toast.error("Failed to add price record. Please try again.");
     },
+  });
+};
+
+// ====== Accident Data Queries ======
+
+/**
+ * Hook to fetch all accident data with optional pagination
+ */
+export const useGetAccidentData = (params?: { skip?: number; limit?: number }) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ACCIDENT_DATA, params],
+    queryFn: () => accidentService.getAll(params),
+  });
+};
+
+/**
+ * Hook to fetch accident data by specific year
+ */
+export const useGetAccidentDataByYear = (year?: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ACCIDENT_DATA_BY_YEAR, year],
+    queryFn: () => accidentService.getByYear(year!),
+    enabled: !!year, // Only run the query if year is provided
+  });
+};
+
+/**
+ * Hook to fetch latest accident reports
+ */
+export const useGetLatestAccidentReports = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.LATEST_ACCIDENT_REPORTS],
+    queryFn: () => accidentService.getLatestReports(),
+    staleTime: 2 * 60 * 1000, // Data is fresh for 2 minutes (more frequent for latest reports)
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 };

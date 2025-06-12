@@ -8,6 +8,7 @@ const CommoditiesPage = React.lazy(() => import("./pages/CommoditiesPage"));
 const CommodityDetails = React.lazy(() => import("./pages/CommodityDetails"));
 const MapPage = React.lazy(() => import("./pages/MapPage"));
 const FindPricesPage = React.lazy(() => import("./pages/FindPricesPage"));
+const RoadAccidentDashBoard = React.lazy(() => import("./pages/RoadAccidentDashboard"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[400px]">
@@ -61,6 +62,14 @@ function App() {
             element={
               <Suspense fallback={<PageLoader />}>
                 <FindPricesPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/accidents"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <RoadAccidentDashBoard />
               </Suspense>
             }
           />
