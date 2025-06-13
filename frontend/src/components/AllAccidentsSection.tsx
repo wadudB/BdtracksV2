@@ -1,15 +1,11 @@
 import React, { useState } from "react";
-import { useGetAllAccidentsData, useGetAllAccidentsCount } from "@/hooks/useQueries";
+import { useGetAllAccidentsData } from "@/hooks/useQueries";
 import AllAccidentsTable from "@/components/tables/AllAccidentsTable";
 import DashboardCard from "@/components/DashboardCard";
 import { FileText, AlertCircle } from "lucide-react";
 
 const AllAccidentsSection: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
-  const [filters, setFilters] = useState<{
-    district?: string;
-    accidentType?: string;
-  }>({});
 
   const rowsPerPage = 10;
   const maxRecords = 50;
@@ -23,11 +19,8 @@ const AllAccidentsSection: React.FC = () => {
   } = useGetAllAccidentsData({
     skip,
     limit: Math.min(rowsPerPage, maxRecords - skip),
-    ...filters,
   });
 
-  // For display purposes, we'll limit the total count to 50
-  const totalCount = Math.min(maxRecords, accidentsData.length + skip);
   const maxPages = Math.ceil(maxRecords / rowsPerPage);
 
   const handlePageChange = (page: number) => {
@@ -67,7 +60,7 @@ const AllAccidentsSection: React.FC = () => {
             </h3>
           </div>
           <div className="text-xs sm:text-sm text-muted-foreground">
-            Showing latest {Math.min(maxRecords, totalCount)} records
+            Showing latest {maxRecords} records
           </div>
         </div>
 
@@ -75,7 +68,6 @@ const AllAccidentsSection: React.FC = () => {
           <AllAccidentsTable
             accidentsData={accidentsData}
             isLoading={isLoading}
-            totalCount={totalCount}
             maxPages={maxPages}
             currentPage={currentPage}
             onPageChange={handlePageChange}

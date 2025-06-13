@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -33,7 +33,6 @@ import { AllAccidentsData } from "@/types";
 interface AllAccidentsTableProps {
   accidentsData: AllAccidentsData[];
   isLoading?: boolean;
-  totalCount?: number;
   maxPages?: number;
   currentPage: number;
   onPageChange: (page: number) => void;
@@ -42,15 +41,11 @@ interface AllAccidentsTableProps {
 const AllAccidentsTable: React.FC<AllAccidentsTableProps> = ({
   accidentsData,
   isLoading = false,
-  totalCount = 0,
   maxPages = 5,
   currentPage,
   onPageChange,
 }) => {
-  const rowsPerPage = useRef(Number(10)).current;
   const [selectedRow, setSelectedRow] = useState<AllAccidentsData | null>(null);
-
-  const totalPages = Math.ceil(totalCount / rowsPerPage);
 
   const handleRowClick = (row: AllAccidentsData) => {
     setSelectedRow(row);
