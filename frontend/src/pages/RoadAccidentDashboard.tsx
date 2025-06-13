@@ -9,6 +9,7 @@ import LineChart from "../components/charts/LineChart";
 import BarChart from "../components/charts/BarChart";
 import VehicleInvolvedChart from "../components/charts/VehicleInvolvedChart";
 import RoadAccidentMap from "../components/maps/RoadAccidentMap";
+import AllAccidentsSection from "../components/AllAccidentsSection";
 import { Button } from "../components/ui/button";
 import { Section } from "@/components/ui/section";
 import { Container } from "@/components/ui/container";
@@ -198,7 +199,7 @@ const RoadAccidentDashBoard = () => {
           {/* Charts Section */}
           <section className="space-y-4 sm:space-y-6">
             {/* Desktop layout for charts */}
-            <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+            <div className="space-y-4 sm:space-y-6 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-6">
               {/* Daily Casualties Chart */}
               <div className="lg:col-span-2">
                 <DashboardCard>
@@ -267,6 +268,11 @@ const RoadAccidentDashBoard = () => {
           {/* Geographic Analysis */}
           <section>
             <RoadAccidentMap geojsonData={geojsonData} accidentsByDistrict={accidentsByDistrict} />
+          </section>
+
+          {/* All Accidents Section */}
+          <section>
+            <AllAccidentsSection />
           </section>
         </div>
         {/* </div>

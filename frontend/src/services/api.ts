@@ -5,6 +5,7 @@ import {
   Location,
   AccidentData,
   LatestAccidentData,
+  AllAccidentsData,
 } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -272,5 +273,46 @@ export const accidentService = {
   // Get latest accident reports
   getLatestReports: async () => {
     return (await apiClient("/get_accident_reports")) as LatestAccidentData[];
+  },
+};
+
+/**
+ * All Accidents Data API services
+ */
+export const allAccidentsDataService = {
+  // Get all accidents data with pagination and filters
+  getAll: async (params?: {
+    skip?: number;
+    limit?: number;
+    district?: string;
+    accidentType?: string;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.skip) queryParams.append("skip", params.skip.toString());
+    if (params?.limit) queryParams.append("limit", params.limit.toString());
+    if (params?.district) queryParams.append("district", params.district);
+    if (params?.accidentType) queryParams.append("accident_type", params.accidentType);
+
+    const queryString = queryParams.toString();
+    const endpoint = `/all-accidents-data/${queryString ? `?${queryString}` : ""}`;
+
+    return (await apiClient(endpoint)) as AllAccidentsData[];
+  },
+
+  // Get total count of accidents with filters
+  getCount: async (params?: { district?: string; accidentType?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.district) queryParams.append("district", params.district);
+    if (params?.accidentType) queryParams.append("accident_type", params.accidentType);
+
+    const queryString = queryParams.toString();
+    const endpoint = `/all-accidents-data/count${queryString ? `?${queryString}` : ""}`;
+
+    return (await apiClient(endpoint)) as { total_count: number };
+  },
+
+  // Get accident by ID
+  getById: async (uId: number) => {
+    return (await apiClient(`/all-accidents-data/${uId}`)) as AllAccidentsData;
   },
 };

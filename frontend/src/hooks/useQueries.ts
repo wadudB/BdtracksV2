@@ -5,6 +5,7 @@ import {
   regionService,
   locationService,
   accidentService,
+  allAccidentsDataService,
 } from "@/services/api";
 import { toast } from "sonner";
 import { PriceRecord } from "@/types";
@@ -21,6 +22,8 @@ export const QUERY_KEYS = {
   ACCIDENT_DATA: "accident-data",
   ACCIDENT_DATA_BY_YEAR: "accident-data-by-year",
   LATEST_ACCIDENT_REPORTS: "latest-accident-reports",
+  ALL_ACCIDENTS_DATA: "all-accidents-data",
+  ALL_ACCIDENTS_COUNT: "all-accidents-count",
 };
 
 // ====== Commodity Queries ======
@@ -164,5 +167,47 @@ export const useGetLatestAccidentReports = () => {
     queryFn: () => accidentService.getLatestReports(),
     staleTime: 2 * 60 * 1000, // Data is fresh for 2 minutes (more frequent for latest reports)
     gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+  });
+};
+
+// ====== All Accidents Data Queries ======
+
+/**
+ * Hook to fetch all accidents data with pagination and optional filters
+ */
+export const useGetAllAccidentsData = (params?: {
+  skip?: number;
+  limit?: number;
+  district?: string;
+  accidentType?: string;
+}) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ALL_ACCIDENTS_DATA, params],
+    queryFn: () => allAccidentsDataService.getAll(params),
+    staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+  });
+};
+
+/**
+ * Hook to fetch total count of all accidents data with optional filters
+ */
+export const useGetAllAccidentsCount = (params?: { district?: string; accidentType?: string }) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ALL_ACCIDENTS_COUNT, params],
+    queryFn: () => allAccidentsDataService.getCount(params),
+    staleTime: 5 * 60 * 1000, // Data is fresh for 5 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+  });
+};
+
+/**
+ * Hook to fetch a specific accident record by ID
+ */
+export const useGetAllAccidentsDataById = (uId?: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ALL_ACCIDENTS_DATA, uId],
+    queryFn: () => allAccidentsDataService.getById(uId!),
+    enabled: !!uId, // Only run the query if uId is provided
   });
 };

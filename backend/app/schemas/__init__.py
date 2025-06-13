@@ -1,4 +1,5 @@
 from .accident_data import AccidentData, AccidentDataCreate, AccidentDataUpdate
+from .all_accidents_data import AllAccidentsData, AllAccidentsDataCreate, AllAccidentsDataUpdate
 from .commodity import Commodity, CommodityCreate, CommodityUpdate, CommodityDetail, CommodityInDropdown
 from .price_record import PriceRecord, PriceRecordCreate, PriceRecordUpdate
 from .region import Region, RegionCreate, RegionUpdate

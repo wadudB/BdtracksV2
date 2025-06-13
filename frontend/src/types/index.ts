@@ -110,6 +110,42 @@ export interface AccidentData {
   last_updated: string | null;
 }
 
+export interface AllAccidentsData {
+  uId: number;
+  newsCategory?: string;
+  id?: string;
+  numberOfAccidentsOccured?: string;
+  isTheAccidentDataYearlyMonthlyOrDaily?: string;
+  dayOfTheWeekOfTheAccident?: string;
+  exactLocationOfAccident?: string;
+  areaOfAccident?: string;
+  divisionOfAccident?: string;
+  districtOfAccident?: string;
+  subdistrictOrUpazilaOfAccident?: string;
+  isPlaceOfAccidentHighwayOrExpresswayOrWaterOrOthers?: string;
+  isCountryBangladeshOrOtherCountry?: string;
+  accidentType?: string;
+  totalNumberOfPeopleKilled?: string;
+  totalNumberOfPeopleInjured?: string;
+  reasonOrCauseForAccident?: string;
+  primaryVehicleInvolved?: string;
+  secondaryVehicleInvolved?: string;
+  tertiaryVehicleInvolved?: string;
+  anyMoreVehiclesInvolved?: string;
+  availableAgesOfTheDeceased?: string;
+  accidentDatetimeFromUrl?: string;
+  accidentDate?: string;
+  url?: string;
+  source?: string;
+  accidentIdNumberUrl?: string;
+  contentsWholeGptResponse?: string;
+  articlesTextFromUrl?: string;
+  articleTitle?: string;
+  headline?: string;
+  summary?: string;
+  duplicateCheck?: boolean;
+}
+
 export interface LatestAccidentData {
   accident_datetime_from_url: string;
   accident_type: string;
