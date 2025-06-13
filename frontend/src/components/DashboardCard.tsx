@@ -31,11 +31,11 @@ const DashboardCard: React.FC<DashboardCardProps> = ({
   const getTrendIcon = () => {
     switch (trend) {
       case "up":
-        return <TrendingUp className="h-4 w-4 text-green-500" />;
+        return <TrendingUp className="h-4 w-4 text-white-500" />;
       case "down":
-        return <TrendingDown className="h-4 w-4 text-red-500" />;
+        return <TrendingDown className="h-4 w-4 text-white-500" />;
       case "neutral":
-        return <Minus className="h-4 w-4 text-yellow-500" />;
+        return <Minus className="h-4 w-4 text-white-500" />;
       default:
         return null;
     }

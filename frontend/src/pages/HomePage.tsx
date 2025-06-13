@@ -217,13 +217,8 @@ const HomePage: FC = () => {
                     Our dashboard collects up-to-date overview of road accidents, including total
                     impact and geographical distribution.
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs pointer-events-none mt-auto"
-                    disabled
-                  >
-                    Coming Soon
+                  <Button variant="outline" size="sm" className="w-full text-xs mt-auto" asChild>
+                    <Link to="/accidents">View</Link>
                   </Button>
                 </CardContent>
               </Card>
