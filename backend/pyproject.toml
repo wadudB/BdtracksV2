@@ -32,6 +32,7 @@ dependencies = [
     "openai (>=1.86.0,<2.0.0)",
     "newspaper3k (>=0.2.8,<0.3.0)",
     "sgmllib3k (>=1.0.0,<2.0.0)",
+    "tinysegmenter (>=0.3)",
 ]
 
 [project.optional-dependencies]
