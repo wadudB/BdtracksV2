@@ -94,19 +94,51 @@ class NewsPaperDateExtractor:
         headers = {"User-Agent": "Mozilla/5.0"}
         response = requests.get(url, headers=headers)
 
-        soup = BeautifulSoup(response.text, "html.parser")
-        article_text = soup.find_all(text=re.compile(r"Published: \d{2}:\d{2}, \w+ \d{2},\d{4}"))
-
-        if article_text:
-            # Extract the first matching text
-            date_text = article_text[0]
-            # Use regex to extract the date and time
-            match = re.search(r"Published: (\d{2}:\d{2}), (\w+ \d{2},\d{4})", date_text)
-            if match:
-                time_str, date_str = match.groups()
-                datetime_obj = datetime.strptime(f"{date_str} {time_str}", "%b %d,%Y %H:%M")
-                formatted_datetime = datetime_obj.strftime("%m/%d/%Y %I:%M:%S %p")
-                return formatted_datetime
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, "html.parser")
+            
+            # Primary method: Look for the specific time element with actual publication date and time
+            time_with_actual_datetime = soup.find("time", class_="ms-0 ms-sm-2 ms-md-3")
+            if time_with_actual_datetime:
+                time_text = time_with_actual_datetime.get_text(strip=True)
+                # Extract date and time from text like "15 June, 2025, 13:35"
+                datetime_match = re.search(r'(\d{1,2}\s+\w+,?\s+\d{4}),?\s+(\d{1,2}:\d{2})', time_text)
+                if datetime_match:
+                    date_part, time_part = datetime_match.groups()
+                    try:
+                        # Parse the date part (e.g., "15 June, 2025")
+                        date_obj = datetime.strptime(date_part.replace(',', ''), "%d %B %Y")
+                        # Parse the time part (e.g., "13:35")
+                        time_obj = datetime.strptime(time_part, "%H:%M")
+                        # Combine date and time
+                        combined_datetime = date_obj.replace(hour=time_obj.hour, minute=time_obj.minute)
+                        formatted_datetime = combined_datetime.strftime("%m/%d/%Y %I:%M:%S %p")
+                        print(f"Extracted date from publication time element: {formatted_datetime}")
+                        return formatted_datetime
+                    except ValueError as e:
+                        print(f"Error parsing publication datetime: {e}")
+            
+            # Fallback method: Look for the old "Published:" pattern with time
+            page_text = soup.get_text()
+            article_text = soup.find_all(text=re.compile(r"Published: \d{1,2}:\d{2}, \w+ \d{1,2},\d{4}"))
+            if article_text:
+                # Extract the first matching text
+                date_text = article_text[0]
+                # Use regex to extract the date and time
+                match = re.search(r"Published: (\d{1,2}:\d{2}), (\w+ \d{1,2},\d{4})", date_text)
+                if match:
+                    time_str, date_str = match.groups()
+                    try:
+                        datetime_obj = datetime.strptime(f"{date_str} {time_str}", "%b %d,%Y %H:%M")
+                        formatted_datetime = datetime_obj.strftime("%m/%d/%Y %I:%M:%S %p")
+                        print(f"Extracted date from Published pattern (fallback): {formatted_datetime}")
+                        return formatted_datetime
+                    except ValueError as e:
+                        print(f"Error parsing Published pattern: {e}")
+            
+            print("No date found using primary or fallback method")
+        else:
+            print(f"Failed to retrieve page: {response.status_code}")
 
         return None
 
