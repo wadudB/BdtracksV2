@@ -3,8 +3,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from .service.GPT4Api import GPT4Api
@@ -341,10 +339,20 @@ class ScrapingApi:
             # Apply the standardize_date function to the 'Date & Time' colum
             # Function to calculate text similarity
             def calculate_similarity(text_list):
-                vectorized = TfidfVectorizer()
-                tfidf_matrix = vectorized.fit_transform(text_list)
-                similarity_matrix = cosine_similarity(tfidf_matrix)
-                return similarity_matrix
+                try:
+                    # Lazy import sklearn modules only when needed
+                    from sklearn.metrics.pairwise import cosine_similarity
+                    from sklearn.feature_extraction.text import TfidfVectorizer
+                    
+                    vectorized = TfidfVectorizer()
+                    tfidf_matrix = vectorized.fit_transform(text_list)
+                    similarity_matrix = cosine_similarity(tfidf_matrix)
+                    return similarity_matrix
+                except ImportError:
+                    print("Warning: scikit-learn not available. Install with: pip install -e .[ml]")
+                    # Return a simple similarity matrix with no duplicates detected
+                    n = len(text_list)
+                    return [[0.0 for _ in range(n)] for _ in range(n)]  # No similarity detected without ML libraries
 
             # Revised function to check relevance based on keywords
             def is_relevant_article(text, accident_keywords):
