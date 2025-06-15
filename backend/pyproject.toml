@@ -30,11 +30,11 @@ dependencies = [
     "requests (>=2.32.3,<3.0.0)",
     "rsa (>=4.9.1,<5.0.0)",
     "openai (>=1.86.0,<2.0.0)",
-    "newspaper3k (>=0.2.8,<0.3.0)",
     "sgmllib3k (>=1.0.0,<2.0.0)",
     "tinysegmenter (>=0.3)",
     "feedfinder2 (>=0.0.4)",
     "jieba3k (>=0.35.1)",
+    "newspaper3k (>=0.2.8)",
 ]
 
 [project.optional-dependencies]
