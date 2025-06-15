@@ -1,10 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import os
 
 from app.api.v1.api import api_router
 from app.core.config import settings
 import logging
+
+# Configure OpenBLAS threading to prevent resource exhaustion
+os.environ.setdefault('OPENBLAS_NUM_THREADS', '1')
+os.environ.setdefault('OMP_NUM_THREADS', '1')
+os.environ.setdefault('MKL_NUM_THREADS', '1')
+os.environ.setdefault('NUMEXPR_NUM_THREADS', '1')
 
 # Set up logging
 logging_level = logging.DEBUG if settings.ENVIRONMENT == "development" else logging.INFO
@@ -15,6 +22,8 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup code
     logger.info(f"Application starting up in {settings.ENVIRONMENT} mode...")
+    logger.info(f"OpenBLAS threads: {os.environ.get('OPENBLAS_NUM_THREADS', 'not set')}")
+    logger.info(f"OMP threads: {os.environ.get('OMP_NUM_THREADS', 'not set')}")
     from app.db.setup_relationships import setup_relationships
     setup_relationships()
     yield
