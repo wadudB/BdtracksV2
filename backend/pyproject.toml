@@ -33,6 +33,8 @@ dependencies = [
     "newspaper3k (>=0.2.8,<0.3.0)",
     "sgmllib3k (>=1.0.0,<2.0.0)",
     "tinysegmenter (>=0.3)",
+    "feedfinder2 (>=0.0.4)",
+    "jieba3k (>=0.35.1)",
 ]
 
 [project.optional-dependencies]

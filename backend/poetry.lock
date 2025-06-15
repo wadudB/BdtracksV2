@@ -2862,4 +2862,4 @@ ml = ["numpy", "scikit-learn", "scipy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4"
-content-hash = "3efb4291c2788650c956941358705fbde90139bb9151cdb5e62c36578c57f06b"
+content-hash = "534318a827b301d486c55fd2b7532987c3caebbec9703dd98a50e64772a48d81"
