@@ -224,7 +224,7 @@ const AllAccidentsTable: React.FC<AllAccidentsTableProps> = ({
             Page {currentPage + 1} of {maxPages}
           </div>
           <Pagination className="w-fit">
-            <PaginationContent className="flex-wrap justify-center">
+            <PaginationContent className="flex justify-center">
               <PaginationItem>
                 <PaginationLink
                   onClick={() => onPageChange(0)}
