@@ -1,16 +1,36 @@
-import { FC, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { FC, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Section } from "@/components/ui/section";
 import { Container } from "@/components/ui/container";
 import { Heading } from "@/components/ui/heading";
 import { Grid } from "@/components/ui/grid";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const HomePage: FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const servicesRef = useRef<HTMLElement>(null);
   const allTrackersRef = useRef<HTMLDivElement>(null);
+  const [isContributeDialogOpen, setIsContributeDialogOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const handleExplore = (): void => {
     if (servicesRef.current) {
@@ -18,15 +38,50 @@ const HomePage: FC = () => {
     }
   };
 
-  const handleLearnMore = (): void => {
-    navigate("/about");
-  };
+  // const handleLearnMore = (): void => {
+  //   navigate("/about");
+  // };
 
   const handleViewTrackers = (): void => {
     if (allTrackersRef.current) {
       allTrackersRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const handleContributeClick = (): void => {
+    setIsContributeDialogOpen(true);
+  };
+
+  const ContributeContent = () => (
+    <>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-primary/10 rounded-lg">
+          <span className="material-icons text-primary text-xl">trending_up</span>
+        </div>
+        <div>
+          <h3 className="font-semibold text-lg">Ready to Contribute?</h3>
+          <p className="text-sm text-muted-foreground">Help improve our data accuracy</p>
+        </div>
+      </div>
+      
+      <div className="space-y-3 mb-6">
+        <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+          <span className="material-icons text-green-600 text-sm mt-0.5">check_circle</span>
+          <div>
+            <p className="font-medium text-sm">Commodity Price Tracker</p>
+            <p className="text-xs text-muted-foreground">Add price data from your local market</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg opacity-60">
+          <span className="material-icons text-muted-foreground text-sm mt-0.5">schedule</span>
+          <div>
+            <p className="font-medium text-sm">More trackers coming soon</p>
+            <p className="text-xs text-muted-foreground">Weather, accidents, and more</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -46,9 +101,9 @@ const HomePage: FC = () => {
                 <Button variant="default" onClick={handleExplore}>
                   Explore Platform
                 </Button>
-                <Button variant="outline" onClick={handleLearnMore}>
+                {/* <Button variant="outline" onClick={handleLearnMore}>
                   Learn More
-                </Button>
+                </Button> */}
               </div>
             </div>
             <div className="w-full md:w-1/2 lg:w-[45%]">
@@ -416,7 +471,7 @@ const HomePage: FC = () => {
                 Help improve our database by submitting updates from your region or district! Share
                 data for any of our tracking categories.
               </p>
-              <Button variant="default" className="w-full md:w-auto">
+              <Button variant="default" className="w-full md:w-auto" onClick={handleContributeClick}>
                 Contribute Data
               </Button>
             </div>
@@ -438,6 +493,59 @@ const HomePage: FC = () => {
           </div>
         </Container>
       </Section>
+
+      {/* Responsive Contribute Modal */}
+      {isDesktop ? (
+        <Dialog open={isContributeDialogOpen} onOpenChange={setIsContributeDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Contribute to BDTracks</DialogTitle>
+              <DialogDescription className="sr-only">
+                Learn how you can contribute data to our platform
+              </DialogDescription>
+            </DialogHeader>
+            <ContributeContent />
+            <DialogFooter className="flex-col gap-2 sm:flex-row">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsContributeDialogOpen(false)}
+                className="w-full sm:w-auto"
+              >
+                Maybe Later
+              </Button>
+              <Button asChild className="w-full sm:w-auto">
+                <Link to="/commodities" onClick={() => setIsContributeDialogOpen(false)}>
+                  Start Contributing
+                </Link>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Drawer open={isContributeDialogOpen} onOpenChange={setIsContributeDialogOpen}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Contribute to BDTracks</DrawerTitle>
+              <DrawerDescription className="sr-only">
+                Learn how you can contribute data to our platform
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="px-4">
+              <ContributeContent />
+            </div>
+            <DrawerFooter>
+              <Button asChild>
+                <Link to="/commodities" onClick={() => setIsContributeDialogOpen(false)}>
+                  Start Contributing
+                </Link>
+              </Button>
+              <DrawerClose asChild>
+                <Button variant="outline">Maybe Later</Button>
+              </DrawerClose>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+      )}
     </>
   );
 };
