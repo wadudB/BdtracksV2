@@ -35,7 +35,7 @@ const PrivacyPolicy: FC = () => {
               </div>
               <div className="space-y-4 text-sm">
                 <p>
-                  BDTracks ("we", "our", or "us") is committed to protecting your privacy. This
+                  BDTracks is committed to protecting your privacy. This
                   Privacy Policy explains how we collect, use, disclose, and safeguard your
                   information when you visit our website bdtracks.com and use our services.
                 </p>
