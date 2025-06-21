@@ -63,7 +63,7 @@ const HomePage: FC = () => {
           <p className="text-sm text-muted-foreground">Help improve our data accuracy</p>
         </div>
       </div>
-      
+
       <div className="space-y-3 mb-6">
         <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
           <span className="material-icons text-green-600 text-sm mt-0.5">check_circle</span>
@@ -471,7 +471,11 @@ const HomePage: FC = () => {
                 Help improve our database by submitting updates from your region or district! Share
                 data for any of our tracking categories.
               </p>
-              <Button variant="default" className="w-full md:w-auto" onClick={handleContributeClick}>
+              <Button
+                variant="default"
+                className="w-full md:w-auto"
+                onClick={handleContributeClick}
+              >
                 Contribute Data
               </Button>
             </div>
@@ -506,8 +510,8 @@ const HomePage: FC = () => {
             </DialogHeader>
             <ContributeContent />
             <DialogFooter className="flex-col gap-2 sm:flex-row">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => setIsContributeDialogOpen(false)}
                 className="w-full sm:w-auto"
               >

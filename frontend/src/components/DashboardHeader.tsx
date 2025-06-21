@@ -1,6 +1,5 @@
 import React from "react";
-import { CalendarDays, Filter, RefreshCw } from "lucide-react";
-import { Button } from "./ui/button";
+import { CalendarDays, Filter } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 
@@ -17,8 +16,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   selectedYear,
   availableYears,
   onYearChange,
-  onRefresh,
-  isLoading = false,
   totalRecords,
 }) => {
   return (
@@ -58,22 +55,6 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Actions */}
-          <div className="flex items-center space-x-2">
-            {onRefresh && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRefresh}
-                disabled={isLoading}
-                className="flex items-center justify-center space-x-2 min-h-[2.5rem] px-3 flex-1 sm:flex-initial"
-              >
-                <RefreshCw className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
-                <span className="text-sm">Refresh</span>
-              </Button>
-            )}
           </div>
         </div>
       </div>

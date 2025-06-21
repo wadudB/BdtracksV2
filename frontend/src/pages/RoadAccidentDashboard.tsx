@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGetAccidentData } from "../hooks/useQueries";
-import { Car, AlertTriangle, Users, MapPin, Activity, BarChart3 } from "lucide-react";
+import { Activity, AlertTriangle, BarChart3, Car, MapPin, Users } from "lucide-react";
 
 // Components
 import DashboardCard from "../components/DashboardCard";
@@ -13,12 +13,21 @@ import AllAccidentsSection from "../components/AllAccidentsSection";
 import { Button } from "../components/ui/button";
 import { Section } from "@/components/ui/section";
 import { Container } from "@/components/ui/container";
+
+// Type for GeoJSON data
+interface GeoJsonData {
+  id: string;
+  name: string;
+  lat: string;
+  lon: string;
+}
+
 const RoadAccidentDashBoard = () => {
   // TanStack Query for accident data
   const { data: accidentData = [], isLoading, error, refetch } = useGetAccidentData();
 
   // Local state management
-  const [geojsonData, setGeojsonData] = useState<any>(null);
+  const [geojsonData, setGeojsonData] = useState<GeoJsonData[] | null>(null);
   const [selectedYear, setSelectedYear] = useState<number>(2025);
   const [viewMode, setViewMode] = useState<"monthly" | "yearly">("monthly");
 
@@ -59,14 +68,11 @@ const RoadAccidentDashBoard = () => {
     // District names to lowercase for case-insensitive comparison
     const lowercaseAccidentsByDistrict: Record<string, number> = Object.keys(
       parsedAccidentsByDistrict
-    ).reduce(
-      (acc, current) => {
-        const lowercaseKey = current.toLowerCase();
-        acc[lowercaseKey] = parsedAccidentsByDistrict[current];
-        return acc;
-      },
-      {} as Record<string, number>
-    );
+    ).reduce<Record<string, number>>((acc, current) => {
+      const lowercaseKey = current.toLowerCase();
+      acc[lowercaseKey] = parsedAccidentsByDistrict[current];
+      return acc;
+    }, {});
 
     return {
       totalAccidents: selectedYearData.total_accidents,
@@ -91,10 +97,10 @@ const RoadAccidentDashBoard = () => {
     const geojsonURL = "/districts.json";
     fetch(geojsonURL)
       .then((response) => response.json())
-      .then((data: any) => {
+      .then((data: { data: GeoJsonData[] }[]) => {
         setGeojsonData(data[0].data);
       })
-      .catch((error) => console.error("Error loading geojson:", error));
+      .catch((error: unknown) => console.error("Error loading geojson:", error));
   }, []);
 
   // Extract unique years using useMemo for better performance
@@ -153,8 +159,6 @@ const RoadAccidentDashBoard = () => {
           selectedYear={selectedYear}
           availableYears={getUniqueYears}
           onYearChange={handleYearChange}
-          onRefresh={handleRefresh}
-          isLoading={false}
           totalRecords={accidentData.length}
         />
 
@@ -267,7 +271,10 @@ const RoadAccidentDashBoard = () => {
 
           {/* Geographic Analysis */}
           <section>
-            <RoadAccidentMap geojsonData={geojsonData} accidentsByDistrict={accidentsByDistrict} />
+            <RoadAccidentMap
+              geojsonData={geojsonData || []}
+              accidentsByDistrict={accidentsByDistrict}
+            />
           </section>
 
           {/* All Accidents Section */}

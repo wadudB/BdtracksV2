@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Container } from "@/components/ui/container";
@@ -75,7 +75,7 @@ export default function Header() {
                       to="https://bdmovements.bdtracks.com/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`${navigationMenuTriggerStyle()}`}
+                      className={navigationMenuTriggerStyle()}
                     >
                       July Movement
                     </Link>
@@ -94,7 +94,7 @@ export default function Header() {
               </NavigationMenu>
 
               {/* Right side controls */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center">
                 <ThemeToggle />
                 {shouldShowSubNavbar() && (
                   <Button
@@ -108,9 +108,9 @@ export default function Header() {
                     </span>
                   </Button>
                 )}
-                <Button variant="default" size="sm">
+                {/* <Button variant="default" size="sm">
                   Login
-                </Button>
+                </Button> */}
               </div>
             </div>
             {/* Mobile menu toggle */}

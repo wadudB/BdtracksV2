@@ -2,6 +2,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { RootLayout } from "./layouts";
 import { Toaster } from "sonner";
 import React, { Suspense } from "react";
+import ScrollToTop from "./components/ScrollToTop";
 
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const CommoditiesPage = React.lazy(() => import("./pages/CommoditiesPage"));
@@ -9,6 +10,9 @@ const CommodityDetails = React.lazy(() => import("./pages/CommodityDetails"));
 const MapPage = React.lazy(() => import("./pages/MapPage"));
 const FindPricesPage = React.lazy(() => import("./pages/FindPricesPage"));
 const RoadAccidentDashBoard = React.lazy(() => import("./pages/RoadAccidentDashboard"));
+const TermsAndConditions = React.lazy(() => import("./pages/TermsAndConditions"));
+const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
+const FAQ = React.lazy(() => import("./pages/FAQ"));
 
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[400px]">
@@ -22,6 +26,7 @@ const PageLoader = () => (
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         {/* Main application routes with standard layout */}
         <Route element={<RootLayout />}>
@@ -70,6 +75,30 @@ function App() {
             element={
               <Suspense fallback={<PageLoader />}>
                 <RoadAccidentDashBoard />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <TermsAndConditions />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <PrivacyPolicy />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/faq"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <FAQ />
               </Suspense>
             }
           />
