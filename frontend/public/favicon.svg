@@ -1,4 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <circle cx="12" cy="12" r="10" fill="#205"/>
-  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="10" fill="white">BD</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <style>
+      .bg-circle { fill: #10b981; }
+      .chart-element { fill: #ffffff; }
+      .trend-line { stroke: #ffffff; stroke-width: 2; fill: none; stroke-linecap: round; }
+      .trend-arrow { fill: #ffffff; }
+      
+      /* Dark mode adaptations */
+      @media (prefers-color-scheme: dark) {
+        .bg-circle { fill: #059669; }
+        .chart-element { fill: #f9fafb; }
+        .trend-line { stroke: #f9fafb; }
+        .trend-arrow { fill: #f9fafb; }
+      }
+    </style>
+  </defs>
+  
+  <!-- Background circle with subtle shadow effect -->
+  <circle cx="16" cy="16" r="15" class="bg-circle"/>
+  
+  <!-- Chart visualization -->
+  <g transform="translate(16,16)">
+    <!-- Three ascending bars with better proportions -->
+    <rect x="-8" y="2" width="3" height="6" rx="1.5" class="chart-element"/>
+    <rect x="-2.5" y="-1" width="3" height="9" rx="1.5" class="chart-element"/>
+    <rect x="3" y="-5" width="3" height="13" rx="1.5" class="chart-element"/>
+    
+    <!-- Upward trend line -->
+    <path d="M -8,5 Q -2,1 6,2" class="trend-line"/>
+    
+    <!-- Arrow pointing upward -->
+    <path d="M 4,-1 L 8,-5 L 8,-2 L 6,-2 Z" class="trend-arrow"/>
+  </g>
+  
+  <!-- Subtle highlight for depth -->
+  <circle cx="16" cy="16" r="15" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
 </svg> 
