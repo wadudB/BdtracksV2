@@ -41,7 +41,8 @@ jobs:
           find deployment/backend -name "__pycache__" -type d -exec rm -rf {} +
           
           # Copy frontend build
-          cp -r frontend/dist deployment/frontend
+          # cp -r frontend/dist deployment/frontend
+          cp -r frontend/dist/* deployment/
           
       # Deploy to cPanel - Using FTP
       - name: Deploy to cPanel
