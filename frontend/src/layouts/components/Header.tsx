@@ -71,14 +71,14 @@ export default function Header() {
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
-                    <Link
+                    {/* <Link
                       to="https://bdmovements.bdtracks.com/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className={navigationMenuTriggerStyle()}
                     >
                       July Movement
-                    </Link>
+                    </Link> */}
                   </NavigationMenuItem>
                   {/* <NavigationMenuItem>
                   <Link

@@ -443,7 +443,7 @@ const HomePage: FC = () => {
                     transformation. Known as the "36th July," this period marked a peaceful
                     revolution that changed the nation's course forever.
                   </p>
-                  <Button variant="outline" size="sm" className="w-full text-xs mt-auto" asChild>
+                  {/* <Button variant="outline" size="sm" className="w-full text-xs mt-auto" asChild>
                     <Link
                       to="https://bdmovements.bdtracks.com/"
                       target="_blank"
@@ -451,6 +451,14 @@ const HomePage: FC = () => {
                     >
                       View
                     </Link>
+                  </Button> */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs pointer-events-none mt-auto"
+                    disabled
+                  >
+                    Coming Soon
                   </Button>
                 </CardContent>
               </Card>
