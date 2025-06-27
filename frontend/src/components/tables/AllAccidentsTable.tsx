@@ -19,15 +19,15 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronFirst, ChevronLast, Clock, MapPin, Users, FileText } from "lucide-react";
+import { ChevronFirst, ChevronLast, Clock, FileText, MapPin, Users } from "lucide-react";
 import { AllAccidentsData } from "@/types";
 
 interface AllAccidentsTableProps {
@@ -366,7 +366,7 @@ const AllAccidentsTable: React.FC<AllAccidentsTableProps> = ({
                     </div>
                   </div>
 
-                  {(selectedRow.primaryVehicleInvolved || selectedRow.reasonOrCauseForAccident) && (
+                  {/* {(selectedRow.primaryVehicleInvolved || selectedRow.reasonOrCauseForAccident) && (
                     <div className="space-y-3 border-t pt-4">
                       {selectedRow.primaryVehicleInvolved && (
                         <div>
@@ -386,7 +386,7 @@ const AllAccidentsTable: React.FC<AllAccidentsTableProps> = ({
                         </div>
                       )}
                     </div>
-                  )}
+                  )} */}
 
                   {(selectedRow.headline || selectedRow.summary) && (
                     <div className="space-y-3 border-t pt-4">

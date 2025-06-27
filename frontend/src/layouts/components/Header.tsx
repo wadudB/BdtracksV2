@@ -71,6 +71,26 @@ export default function Header() {
                     </Link>
                   </NavigationMenuItem>
                   <NavigationMenuItem>
+                    <Link
+                      to="/energy-calculator"
+                      className={`${navigationMenuTriggerStyle()} ${
+                        isActive("/energy-calculator") ? "bg-muted text-primary" : ""
+                      }`}
+                    >
+                      Energy Calculator
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link
+                      to="/photovoltaic-calculator"
+                      className={`${navigationMenuTriggerStyle()} ${
+                        isActive("/photovoltaic-calculator") ? "bg-muted text-primary" : ""
+                      }`}
+                    >
+                      Solar Calculator
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
                     {/* <Link
                       to="https://bdmovements.bdtracks.com/"
                       target="_blank"
@@ -138,6 +158,12 @@ export default function Header() {
             </Link>
             <Link to="/accidents" className="px-2 py-1 hover:bg-muted rounded">
               Road Accidents
+            </Link>
+            <Link to="/energy-calculator" className="px-2 py-1 hover:bg-muted rounded">
+              Energy Calculator
+            </Link>
+            <Link to="/photovoltaic-calculator" className="px-2 py-1 hover:bg-muted rounded">
+              Solar Calculator
             </Link>
             <Link to="/about" className="px-2 py-1 hover:bg-muted rounded">
               About

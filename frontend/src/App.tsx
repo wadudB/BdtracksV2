@@ -10,6 +10,8 @@ const CommodityDetails = React.lazy(() => import("./pages/CommodityDetails"));
 const MapPage = React.lazy(() => import("./pages/MapPage"));
 const FindPricesPage = React.lazy(() => import("./pages/FindPricesPage"));
 const RoadAccidentDashBoard = React.lazy(() => import("./pages/RoadAccidentDashboard"));
+const EnergyCalculator = React.lazy(() => import("./pages/EnergyCalculator"));
+const PhotovoltaicCalculator = React.lazy(() => import("./pages/PhotovoltaicCalculator"));
 const TermsAndConditions = React.lazy(() => import("./pages/TermsAndConditions"));
 const PrivacyPolicy = React.lazy(() => import("./pages/PrivacyPolicy"));
 const FAQ = React.lazy(() => import("./pages/FAQ"));
@@ -75,6 +77,22 @@ function App() {
             element={
               <Suspense fallback={<PageLoader />}>
                 <RoadAccidentDashBoard />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/energy-calculator"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <EnergyCalculator />
+              </Suspense>
+            }
+          />
+          <Route
+            path="/photovoltaic-calculator"
+            element={
+              <Suspense fallback={<PageLoader />}>
+                <PhotovoltaicCalculator />
               </Suspense>
             }
           />

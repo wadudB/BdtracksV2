@@ -366,10 +366,10 @@ const HomePage: FC = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs pointer-events-none mt-auto"
-                    disabled
+                    className="w-full text-xs mt-auto"
+                    onClick={() => window.location.href = '/energy-calculator'}
                   >
-                    Coming Soon
+                    Try Calculator
                   </Button>
                 </CardContent>
               </Card>
