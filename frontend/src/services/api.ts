@@ -1,11 +1,11 @@
 import {
+  AccidentData,
+  AllAccidentsData,
   Commodity,
+  LatestAccidentData,
+  Location,
   PriceRecord,
   Region,
-  Location,
-  AccidentData,
-  LatestAccidentData,
-  AllAccidentsData,
 } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL;
