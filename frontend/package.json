@@ -12,8 +12,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "preview": "vite preview",
     "prepare": "cd .. && husky install frontend/.husky",
-    "generate-client": "openapi-ts",
-    "generate-client-custom": "cd ../backend && poetry run python -c \"import app.main; import json; print(json.dumps(app.main.app.openapi()))\" > ../openapi.json && cd .. && move openapi.json frontend/ && cd frontend && npm run generate-client && npm run format"
+    "generate-client": "cd ../backend && poetry run python -c \"import app.main; import json; print(json.dumps(app.main.app.openapi()))\" > ../openapi.json && cd .. && move openapi.json frontend/ && cd frontend && npm run generate-client && npm run format"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
