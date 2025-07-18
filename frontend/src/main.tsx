@@ -5,6 +5,16 @@ import App from "./App.tsx";
 import { ThemeProvider } from "./components/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { client } from "./client/client.gen";
+
+// Configure the API client with the base URL and default headers
+client.setConfig({
+  baseUrl: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
 
 // Create a client
 const queryClient = new QueryClient({
