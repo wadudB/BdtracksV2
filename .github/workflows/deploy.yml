@@ -106,6 +106,22 @@ jobs:
             # Skip database migrations for now (no RDS yet)
             # /home/deploy/.local/bin/poetry run alembic upgrade head
 
+            # # Create backend environment file with all required fields
+            # cat > .env << 'EOF'
+            # DATABASE_URL=sqlite:///./app.db
+            # SECRET_KEY=${{ secrets.SECRET_KEY }}
+            # ENVIRONMENT=production
+            # API_V1_STR=/api/v1
+            # PROJECT_NAME=BdTracks
+            # BACKEND_CORS_ORIGINS=["http://localhost:3000","http://3.94.208.24"]
+            # POSTGRES_SERVER=localhost
+            # POSTGRES_USER=postgres
+            # POSTGRES_PASSWORD=
+            # POSTGRES_DB=bdtracks
+            # ACCESS_TOKEN_EXPIRE_MINUTES=30
+            # ALGORITHM=HS256
+            # EOF
+
             # Restart backend service
             sudo systemctl restart bdtracks-backend
 
@@ -120,7 +136,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT }}
           source: "frontend-dist/*"
-          target: "/var/www/BdtracksV2/frontend/"
+          target: "/var/www/BdtracksV2/frontend/dist/"
           strip_components: 1
 
       - name: Finalize Frontend Deployment
@@ -132,8 +148,8 @@ jobs:
           port: ${{ secrets.EC2_PORT }}
           script: |
             # Set correct permissions for frontend files
-            sudo chown -R deploy:nginx /var/www/BdtracksV2/frontend/
-            sudo chmod -R 755 /var/www/BdtracksV2/frontend/
+            sudo chown -R deploy:nginx /var/www/BdtracksV2/frontend/dist/
+            sudo chmod -R 755 /var/www/BdtracksV2/frontend/dist/
 
             # Reload nginx to serve new frontend
             sudo systemctl reload nginx
