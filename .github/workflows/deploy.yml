@@ -103,13 +103,8 @@ jobs:
             cd backend
             /home/deploy/.local/bin/poetry install --only=main
 
-            # Run database migrations
-            /home/deploy/.local/bin/poetry run alembic upgrade head
-
-            # Create backend environment file
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
-            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-            echo "ENVIRONMENT=production" >> .env
+            # Skip database migrations for now (no RDS yet)
+            # /home/deploy/.local/bin/poetry run alembic upgrade head
 
             # Restart backend service
             sudo systemctl restart bdtracks-backend
