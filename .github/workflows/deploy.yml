@@ -1,56 +1,144 @@
-name: Build and Deploy
+name: Build and Deploy to EC2
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Frontend build
-      - name: Setup Node.js
+      # Build Frontend
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: 'frontend/package-lock.json'
-      
-      - name: Install frontend dependencies
-        working-directory: ./frontend
-        run: npm ci
-        
-      - name: Build frontend
-        working-directory: ./frontend
-        run: npm run build
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
 
-      # Prepare files for deployment
-      - name: Prepare deployment files
+      - name: Install frontend dependencies
         run: |
-          mkdir -p deployment
-          
-          # Copy backend files (without __pycache__ folders)
-          cp -r backend deployment/
-          find deployment/backend -name "__pycache__" -type d -exec rm -rf {} +
-          
-          # Copy frontend build
-          # cp -r frontend/dist deployment/frontend
-          cp -r frontend/dist/* deployment/
-          
-      # Deploy to cPanel - Using FTP
-      - name: Deploy to cPanel
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+          cd frontend
+          npm ci
+
+      - name: Build frontend for production
+        run: |
+          cd frontend
+          npm run build
+
+      - name: Upload frontend build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          server: ${{ secrets.CPANEL_FTP_HOST }}
-          username: ${{ secrets.CPANEL_USERNAME }}
-          password: ${{ secrets.CPANEL_PASSWORD }}
-          local-dir: ./deployment/
-          server-dir: ${{ secrets.CPANEL_PATH }}/
-          protocol: ftp
+          name: frontend-build
+          path: frontend/dist/
+          retention-days: 1
+
+      # Test Backend (without building - just validation)
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Install backend dependencies and test
+        run: |
+          cd backend
+          poetry install
+          # Add tests here if you have them
+          # poetry run pytest
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download frontend build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend-dist/
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            # Create application directory if it doesn't exist
+            sudo mkdir -p /var/www/BdtracksV2
+            sudo chown -R deploy:deploy /var/www/BdtracksV2
+
+            # Navigate to app directory
+            cd /var/www/BdtracksV2
+
+            # Pull latest code (just for backend source)
+            if [ -d ".git" ]; then
+              git pull origin main
+            else
+              git clone https://github.com/yourusername/BdtracksV2.git .
+              sudo chown -R deploy:deploy /var/www/BdtracksV2
+            fi
+
+            # Install backend dependencies (no building needed)
+            cd backend
+            ~/.local/bin/poetry install --only=main
+
+            # Run database migrations
+            ~/.local/bin/poetry run alembic upgrade head
+
+            # Create backend environment file
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+            echo "ENVIRONMENT=production" >> .env
+
+            # Restart backend service
+            sudo systemctl restart your-app-backend
+
+            # Check backend status
+            sudo systemctl status your-app-backend --no-pager
+
+      - name: Deploy Frontend Build
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          source: "frontend-dist/*"
+          target: "/var/www/BdtracksV2/frontend/"
+          strip_components: 1
+
+      - name: Finalize Frontend Deployment
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            # Set correct permissions for frontend files
+            sudo chown -R deploy:nginx /var/www/BdtracksV2/frontend/
+            sudo chmod -R 755 /var/www/BdtracksV2/frontend/
+
+            # Reload nginx to serve new frontend
+            sudo systemctl reload nginx
+
+            # Test that everything is working
+            curl -s http://localhost/ | head -5
