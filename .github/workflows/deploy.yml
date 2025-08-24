@@ -22,6 +22,8 @@ jobs:
       - name: Install frontend dependencies
         run: |
           cd frontend
+          # Fix rollup optional dependency issue
+          rm -rf node_modules
           npm install
 
       - name: Build frontend for production
@@ -86,20 +88,23 @@ jobs:
             # Navigate to app directory
             cd /var/www/BdtracksV2
 
+            # Configure git safe directory
+            git config --global --add safe.directory /var/www/BdtracksV2
+
             # Pull latest code (just for backend source)
             if [ -d ".git" ]; then
               git pull origin main
             else
-              git clone https://github.com/yourusername/BdtracksV2.git .
+              git clone https://github.com/${{ github.repository }}.git .
               sudo chown -R deploy:deploy /var/www/BdtracksV2
             fi
 
             # Install backend dependencies (no building needed)
             cd backend
-            ~/.local/bin/poetry install --only=main
+            /home/deploy/.local/bin/poetry install --only=main
 
             # Run database migrations
-            ~/.local/bin/poetry run alembic upgrade head
+            /home/deploy/.local/bin/poetry run alembic upgrade head
 
             # Create backend environment file
             echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
@@ -107,10 +112,10 @@ jobs:
             echo "ENVIRONMENT=production" >> .env
 
             # Restart backend service
-            sudo systemctl restart your-app-backend
+            sudo systemctl restart bdtracks-backend
 
             # Check backend status
-            sudo systemctl status your-app-backend --no-pager
+            sudo systemctl status bdtracks-backend --no-pager
 
       - name: Deploy Frontend Build
         uses: appleboy/scp-action@v0.1.5
