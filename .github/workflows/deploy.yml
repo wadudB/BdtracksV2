@@ -106,21 +106,21 @@ jobs:
             # Skip database migrations for now (no RDS yet)
             # /home/deploy/.local/bin/poetry run alembic upgrade head
 
-            # # Create backend environment file with all required fields
-            # cat > .env << 'EOF'
-            # DATABASE_URL=sqlite:///./app.db
-            # SECRET_KEY=${{ secrets.SECRET_KEY }}
-            # ENVIRONMENT=production
-            # API_V1_STR=/api/v1
-            # PROJECT_NAME=BdTracks
-            # BACKEND_CORS_ORIGINS=["http://localhost:3000","http://3.94.208.24"]
-            # POSTGRES_SERVER=localhost
-            # POSTGRES_USER=postgres
-            # POSTGRES_PASSWORD=
-            # POSTGRES_DB=bdtracks
-            # ACCESS_TOKEN_EXPIRE_MINUTES=30
-            # ALGORITHM=HS256
-            # EOF
+            # Create backend environment file for production
+            cat > .env << 'EOF'
+            ENV=production
+            MYSQL_SERVER=${{ secrets.MYSQL_SERVER }}
+            MYSQL_PORT=${{ secrets.MYSQL_PORT }}
+            MYSQL_USER=${{ secrets.MYSQL_USER }}
+            MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+            MYSQL_DB=${{ secrets.MYSQL_DB }}
+            BACKEND_CORS_ORIGINS=${{ secrets.BACKEND_CORS_ORIGINS }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            ACCESS_TOKEN_EXPIRE_MINUTES=${{ secrets.ACCESS_TOKEN_EXPIRE_MINUTES }}
+            DEBUG=false
+            OPENBLAS_NUM_THREADS=4
+            OMP_NUM_THREADS=4
+            EOF
 
             # Restart backend service
             sudo systemctl restart bdtracks-backend
