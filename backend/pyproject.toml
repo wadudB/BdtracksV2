@@ -35,6 +35,7 @@ dependencies = [
     "feedfinder2 (>=0.0.4)",
     "jieba3k (>=0.35.1)",
     "newspaper3k (>=0.2.8)",
+    "lxml[html-clean] (>=6.0.1,<7.0.0)",
 ]
 
 [project.optional-dependencies]
